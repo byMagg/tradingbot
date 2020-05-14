@@ -68,6 +68,8 @@ class _OperationsWidgetState extends State<OperationsWidget> {
 
                               var widget;
 
+                              var date = _operations[index]['date'].toDate();
+
                               if (transaction.contains("−")) {
                                 widget = ListTile(
                                   trailing: Column(
@@ -75,9 +77,9 @@ class _OperationsWidgetState extends State<OperationsWidget> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                            "${_operations[index]["date"].toString().substring(0, 10)}"),
+                                            "${date.toString().substring(0, 10)}"),
                                         Text(
-                                            "${_operations[index]["date"].toString().substring(10, 19)}")
+                                            "${date.toString().substring(10, 19)}")
                                       ]),
                                   title: Row(
                                     children: [
@@ -107,9 +109,9 @@ class _OperationsWidgetState extends State<OperationsWidget> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                            "${_operations[index]["date"].toString().substring(0, 10)}"),
+                                            "${date.toString().substring(0, 10)}"),
                                         Text(
-                                            "${_operations[index]["date"].toString().substring(10, 19)}")
+                                            "${date.toString().substring(10, 19)}")
                                       ]),
                                   title: Row(
                                     children: [
