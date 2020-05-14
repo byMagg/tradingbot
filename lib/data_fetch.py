@@ -83,4 +83,4 @@ if __name__ == "__main__":
     data_fetch.init()
     data_fetch.get_balance()
     data_fetch.get_wallet_data()
-    data_fetch.test_data()
+    # data_fetch.test_data()
