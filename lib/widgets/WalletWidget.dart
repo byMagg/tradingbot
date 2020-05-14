@@ -25,7 +25,7 @@ class WalletWidgetState extends State<WalletWidget> {
     return Container(
         height: 120,
         child: StreamBuilder(
-          stream: this.mainController.initWallets(),
+          stream: this.mainController.initCurrencies(),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             if (snapshot.hasData) {
               var _wallet = snapshot.data.documents;

@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tradingbot/models/Currency.dart';
 
 class MainController {
-  Stream<QuerySnapshot> initWallets() {
+  Stream<QuerySnapshot> initCurrencies() {
     return Firestore.instance
         .collection('currencies')
         .orderBy('totalUSD', descending: true)

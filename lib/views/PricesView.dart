@@ -27,7 +27,7 @@ class _PricesViewState extends State<PricesView> {
               }),
         ),
         body: StreamBuilder(
-          stream: this.mainController.initWallets(),
+          stream: this.mainController.initCurrencies(),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             if (snapshot.hasData) {
               var _wallets = snapshot.data.documents;

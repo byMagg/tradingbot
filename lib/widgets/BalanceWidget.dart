@@ -46,11 +46,15 @@ class BalanceWidgetState extends State<BalanceWidget> {
                 style: TextStyle(fontSize: 30, color: Colors.white),
               ),
               StreamBuilder(
-                  stream: this.mainController.initBalance(),
+                  stream: this.mainController.initCurrencies(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
+                      double balance = 0.0;
+                      for (var item in snapshot.data.documents) {
+                        balance += item['totalUSD'];
+                      }
                       return Text(
-                        '${_formatCurrency.format(snapshot.data.documents[0]["balance"])}',
+                        '${_formatCurrency.format(balance)}',
                         style: TextStyle(fontSize: 30, color: Colors.white54),
                       );
                     } else {
