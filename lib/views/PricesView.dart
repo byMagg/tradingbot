@@ -39,7 +39,7 @@ class _PricesViewState extends State<PricesView> {
                         height: 50,
                         child: Image(
                           image: AssetImage(
-                              'lib/assets/currencies/${_wallets[index]["symbol"].toLowerCase()}.png'),
+                              'lib/assets/currencies/color/${_wallets[index]["symbol"].toLowerCase()}.png'),
                         ),
                       ),
                       title: Text(_wallets[index]["name"],
