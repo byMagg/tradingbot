@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tradingbot/controllers/MainController.dart';
+import 'package:tradingbot/models/Currency.dart';
 import 'package:tradingbot/views/CurrencyView.dart';
 
 class WalletWidget extends StatefulWidget {
@@ -46,8 +47,12 @@ class WalletWidgetState extends State<WalletWidget> {
                         borderRadius: BorderRadius.circular(15),
                         onTap: () {
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) =>
-                                  CurrencyView(currency: _wallet[index])));
+                              builder: (context) => CurrencyView(
+                                  currency: new Currency(
+                                      _wallet[index]['name'],
+                                      _wallet[index]['symbol'],
+                                      _wallet[index]['balance'],
+                                      _wallet[index]['priceUSD']))));
                         },
                         child: Container(
                           width: 82,

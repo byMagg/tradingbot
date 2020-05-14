@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -24,6 +25,7 @@ class _CurrencyViewState extends State<CurrencyView> {
   }
 
   _listOperations() {
+    print(widget.currency.name);
     return Container(
       child: ListView(
         children: <Widget>[
@@ -85,6 +87,9 @@ class _CurrencyViewState extends State<CurrencyView> {
 
                                     var widget;
 
+                                    var date =
+                                        _operations[index]['date'].toDate();
+
                                     if (transaction.contains("−")) {
                                       widget = ListTile(
                                         trailing: Column(
@@ -92,9 +97,9 @@ class _CurrencyViewState extends State<CurrencyView> {
                                                 MainAxisAlignment.center,
                                             children: [
                                               Text(
-                                                  "${_operations[index]['date'].toString().substring(0, 10)}"),
+                                                  "${date.toString().substring(0, 10)}"),
                                               Text(
-                                                  "${_operations[index]['date'].toString().substring(10, 19)}")
+                                                  "${date.toString().substring(10, 19)}")
                                             ]),
                                         title: Row(
                                           children: [
@@ -121,9 +126,9 @@ class _CurrencyViewState extends State<CurrencyView> {
                                                 MainAxisAlignment.center,
                                             children: [
                                               Text(
-                                                  "${_operations[index]['date'].toString().substring(0, 10)}"),
+                                                  "${date.toString().substring(0, 10)}"),
                                               Text(
-                                                  "${_operations[index]['date'].toString().substring(10, 19)}")
+                                                  "${date.toString().substring(10, 19)}")
                                             ]),
                                         title: Row(
                                           children: [

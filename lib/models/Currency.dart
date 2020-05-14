@@ -1,10 +1,15 @@
 class Currency extends Comparable {
-  final String name;
-  final String symbol;
-  final double balance;
-  final double priceUSD;
+  String name;
+  String symbol;
+  double balance;
+  double priceUSD;
 
-  Currency({this.name, this.symbol, this.balance, this.priceUSD});
+  Currency(String name, String symbol, double balance, double priceUSD) {
+    this.name = name;
+    this.symbol = symbol;
+    this.balance = balance;
+    this.priceUSD = priceUSD;
+  }
 
   @override
   int compareTo(other) {

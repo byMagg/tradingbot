@@ -59,7 +59,7 @@ class _OperationsWidgetState extends State<OperationsWidget> {
                             shrinkWrap: true,
                             padding: EdgeInsets.all(0),
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: 5,
+                            itemCount: 1,
                             itemBuilder: (context, index) {
                               var transaction =
                                   NumberFormat.decimalPattern("eu")
