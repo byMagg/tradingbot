@@ -11,7 +11,7 @@ from firebase_admin import firestore
 class DataFetch():
 
     def init(self):
-        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'C:\Users\Dani\Downloads\tradingbot-9d99d-1aae8440066b.json'
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'C:\Users\Dani\Documents\src\tradingbot\lib\assets\cred.json'
         cred = credentials.ApplicationDefault()
         firebase_admin.initialize_app(cred, {
             'projectId': 'tradingbot-9d99d',
