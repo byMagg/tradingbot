@@ -59,12 +59,12 @@ class _OperationsWidgetState extends State<OperationsWidget> {
                             shrinkWrap: true,
                             padding: EdgeInsets.all(0),
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: 1,
+                            itemCount: 5,
                             itemBuilder: (context, index) {
                               var transaction =
-                                  NumberFormat.decimalPattern("eu")
-                                      .format(_operations[index]["transaction"])
-                                      .toString();
+                                  NumberFormat.decimalPattern("eu").format(
+                                      double.tryParse(
+                                          _operations[index]["transaction"]));
 
                               var widget;
 

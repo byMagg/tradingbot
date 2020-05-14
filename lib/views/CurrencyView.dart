@@ -80,9 +80,13 @@ class _CurrencyViewState extends State<CurrencyView> {
                                   itemBuilder: (context, index) {
                                     var transaction =
                                         NumberFormat.decimalPattern("eu")
-                                            .format(_operations[index]
-                                                ['transaction'])
+                                            .format(double.tryParse(
+                                                _operations[index]
+                                                    ['transaction']))
                                             .toString();
+
+                                    print(double.parse(
+                                        _operations[index]['transaction']));
 
                                     var widget;
 

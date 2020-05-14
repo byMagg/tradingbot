@@ -55,10 +55,12 @@ class _OperationsViewState extends State<OperationsView> {
                             itemBuilder: (context, index) {
                               var transaction =
                                   NumberFormat.decimalPattern("eu")
-                                      .format(_operations[index]["transaction"])
+                                      .format(double.tryParse(
+                                          _operations[index]['transaction']))
                                       .toString();
 
                               var widget;
+                              var date = _operations[index]['date'].toDate();
 
                               if (transaction.contains("−")) {
                                 widget = ListTile(
@@ -67,9 +69,9 @@ class _OperationsViewState extends State<OperationsView> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                            "${_operations[index]["date"].toString().substring(0, 10)}"),
+                                            "${date.toString().substring(0, 10)}"),
                                         Text(
-                                            "${_operations[index]["date"].toString().substring(10, 19)}")
+                                            "${date.toString().substring(10, 19)}")
                                       ]),
                                   title: Row(
                                     children: [
@@ -99,9 +101,9 @@ class _OperationsViewState extends State<OperationsView> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                            "${_operations[index]["date"].toString().substring(0, 10)}"),
+                                            "${date.toString().substring(0, 10)}"),
                                         Text(
-                                            "${_operations[index]["date"].toString().substring(10, 19)}")
+                                            "${date.toString().substring(10, 19)}")
                                       ]),
                                   title: Row(
                                     children: [

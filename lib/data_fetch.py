@@ -6,6 +6,7 @@ import os
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
+from datetime import datetime
 
 
 class DataFetch():
@@ -65,9 +66,21 @@ class DataFetch():
 
         doc_ref = self.db.collection(u'balances').document(u'balance').set(reg)
 
+    def test_data(self):
+
+        for i in range(12):
+            data = {
+                u'symbol': u'BTC',
+                u'transaction': u'-1234.23',
+                u'date': datetime.now(),
+            }
+
+            self.db.collection(u'operations').document().set(data)
+
 
 if __name__ == "__main__":
     data_fetch = DataFetch()
     data_fetch.init()
     data_fetch.get_balance()
     data_fetch.get_wallet_data()
+    data_fetch.test_data()
