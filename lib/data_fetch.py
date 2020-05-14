@@ -40,10 +40,11 @@ class DataFetch():
                         u'name': str(it1['name']),
                         u'symbol': str(it0['currency']),
                         u'priceUSD': float(it1['priceUsd']),
+                        u'totalUSD': float(float(it0['balance'])*float(it1['priceUsd'])),
                         u'balance': float(it0['balance'])
                     }
-                    doc_ref = self.db.collection(
-                        u'currencies').document(str(it0['currency'])).set(reg)
+                    doc_ref = self.db.collection(u'currencies').document(
+                        str(it0['currency'])).set(reg)
                     break
 
     def get_balance(self):
