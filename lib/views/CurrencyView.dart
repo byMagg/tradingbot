@@ -24,7 +24,6 @@ class _CurrencyViewState extends State<CurrencyView> {
   }
 
   _listOperations() {
-    print(widget.currency.name);
     return Container(
       child: ListView(
         children: <Widget>[
@@ -55,114 +54,116 @@ class _CurrencyViewState extends State<CurrencyView> {
                 StreamBuilder(
                     stream: this.mainController.initOperations(widget.currency),
                     builder: (context, snapshot) {
-                      var _operations = snapshot.data.documents;
+                      if (snapshot.hasData) {
+                        var _operations = snapshot.data.documents;
 
-                      return _operations.isEmpty
-                          ? Container(
-                              height: 350,
-                              child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    "There are no operations for this currency",
-                                    style: TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w400),
-                                  )),
-                            )
-                          : Container(
-                              color: Theme.of(context).primaryColor,
-                              child: ListView.builder(
-                                  shrinkWrap: true,
-                                  primary: false,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: _operations.length,
-                                  itemBuilder: (context, index) {
-                                    var transaction =
-                                        NumberFormat.decimalPattern("eu")
-                                            .format(double.tryParse(
-                                                _operations[index]
-                                                    ['transaction']))
-                                            .toString();
+                        return _operations.isEmpty
+                            ? Container(
+                                height: 350,
+                                child: Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      "There are no operations for this currency",
+                                      style: TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w400),
+                                    )),
+                              )
+                            : Container(
+                                color: Theme.of(context).primaryColor,
+                                child: ListView.builder(
+                                    shrinkWrap: true,
+                                    primary: false,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: _operations.length,
+                                    itemBuilder: (context, index) {
+                                      var transaction =
+                                          NumberFormat.decimalPattern("eu")
+                                              .format(double.tryParse(
+                                                  _operations[index]
+                                                      ['transaction']))
+                                              .toString();
 
-                                    print(double.parse(
-                                        _operations[index]['transaction']));
+                                      var widget;
 
-                                    var widget;
+                                      var date =
+                                          _operations[index]['date'].toDate();
 
-                                    var date =
-                                        _operations[index]['date'].toDate();
-
-                                    if (transaction.contains("−")) {
-                                      widget = ListTile(
-                                        trailing: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
+                                      if (transaction.contains("−")) {
+                                        widget = ListTile(
+                                          trailing: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                    "${date.toString().substring(0, 10)}"),
+                                                Text(
+                                                    "${date.toString().substring(10, 19)}")
+                                              ]),
+                                          title: Row(
                                             children: [
+                                              Icon(
+                                                Icons.keyboard_arrow_down,
+                                                color: Colors.red,
+                                              ),
+                                              SizedBox(
+                                                width: 20,
+                                              ),
                                               Text(
-                                                  "${date.toString().substring(0, 10)}"),
-                                              Text(
-                                                  "${date.toString().substring(10, 19)}")
-                                            ]),
-                                        title: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.keyboard_arrow_down,
-                                              color: Colors.red,
-                                            ),
-                                            SizedBox(
-                                              width: 20,
-                                            ),
-                                            Text(
-                                              "${transaction.toString().substring(1)}",
-                                              style:
-                                                  TextStyle(color: Colors.red),
-                                            ),
-                                          ],
-                                        ),
-                                        onTap: () {},
-                                      );
-                                    } else {
-                                      widget = ListTile(
-                                        trailing: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
+                                                "${transaction.toString().substring(1)}",
+                                                style: TextStyle(
+                                                    color: Colors.red),
+                                              ),
+                                            ],
+                                          ),
+                                          onTap: () {},
+                                        );
+                                      } else {
+                                        widget = ListTile(
+                                          trailing: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                    "${date.toString().substring(0, 10)}"),
+                                                Text(
+                                                    "${date.toString().substring(10, 19)}")
+                                              ]),
+                                          title: Row(
                                             children: [
+                                              Icon(
+                                                Icons.keyboard_arrow_up,
+                                                color: Colors.green,
+                                              ),
+                                              SizedBox(
+                                                width: 20,
+                                              ),
                                               Text(
-                                                  "${date.toString().substring(0, 10)}"),
-                                              Text(
-                                                  "${date.toString().substring(10, 19)}")
-                                            ]),
-                                        title: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.keyboard_arrow_up,
-                                              color: Colors.green,
-                                            ),
-                                            SizedBox(
-                                              width: 20,
-                                            ),
-                                            Text(
-                                              "$transaction",
-                                              style: TextStyle(
-                                                  color: Colors.green),
-                                            ),
-                                          ],
-                                        ),
-                                        onTap: () {},
-                                      );
-                                    }
+                                                "$transaction",
+                                                style: TextStyle(
+                                                    color: Colors.green),
+                                              ),
+                                            ],
+                                          ),
+                                          onTap: () {},
+                                        );
+                                      }
 
-                                    return Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Container(
-                                          decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(15))),
-                                          child: widget),
-                                    );
-                                  }));
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Container(
+                                            decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(15))),
+                                            child: widget),
+                                      );
+                                    }));
+                      } else {
+                        return Center(child: CircularProgressIndicator());
+                      }
                     }),
               ],
             ),
@@ -190,7 +191,7 @@ class _CurrencyViewState extends State<CurrencyView> {
               height: 25,
               child: Image(
                 image: AssetImage(
-                    'lib/assets/currencies/${widget.currency.symbol.toLowerCase()}.png'),
+                    'lib/assets/currencies/color/${widget.currency.symbol.toLowerCase()}.png'),
               ),
             ),
             SizedBox(width: 10),

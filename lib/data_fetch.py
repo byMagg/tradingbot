@@ -6,16 +6,18 @@ import os
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
+from firebase_admin import db
+
 from datetime import datetime
 
 
 class DataFetch():
 
     def init(self):
-        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'C:\Users\Dani\Documents\src\tradingbot\lib\assets\cred.json'
-        cred = credentials.ApplicationDefault()
+        cred = credentials.Certificate(
+            r'C:\Users\Dani\Documents\src\tradingbot\lib\assets\cred.json')
         firebase_admin.initialize_app(cred, {
-            'projectId': 'tradingbot-9d99d',
+            'databaseURL': 'https://tradingbot-9d99d.firebaseio.com'
         })
         self.db = firestore.client()
 
@@ -75,7 +77,7 @@ class DataFetch():
                 u'date': datetime.now(),
             }
 
-            self.db.collection(u'operations').document().set(data)
+        self.db.collection(u'operations').document().set(data)
 
 
 if __name__ == "__main__":

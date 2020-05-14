@@ -64,7 +64,7 @@ class WalletWidgetState extends State<WalletWidget> {
                                 height: 40,
                                 child: Image(
                                   image: AssetImage(
-                                      'lib/assets/currencies/${_wallet[index]["symbol"].toLowerCase()}.png'),
+                                      'lib/assets/currencies/color/${_wallet[index]["symbol"].toLowerCase()}.png'),
                                 ),
                               ),
                               SizedBox(
