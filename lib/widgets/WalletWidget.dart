@@ -51,7 +51,8 @@ class WalletWidgetState extends State<WalletWidget> {
                                       _wallet[index]['name'],
                                       _wallet[index]['symbol'],
                                       _wallet[index]['balance'],
-                                      _wallet[index]['priceUSD']))));
+                                      _wallet[index]['priceUSD'],
+                                      _wallet[index]['totalUSD']))));
                         },
                         child: Container(
                           width: 82,
