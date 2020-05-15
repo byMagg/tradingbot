@@ -15,19 +15,10 @@ class BalanceWidget extends StatefulWidget {
 class BalanceWidgetState extends State<BalanceWidget> {
   MainController mainController;
 
-  StreamController<double> streamController;
-
   @override
   void initState() {
     super.initState();
     this.mainController = new MainController();
-    this.streamController = new StreamController();
-  }
-
-  @override
-  void dispose() {
-    streamController.close();
-    super.dispose();
   }
 
   @override

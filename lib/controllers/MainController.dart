@@ -9,10 +9,6 @@ class MainController {
         .snapshots();
   }
 
-  Stream<QuerySnapshot> initBalance() {
-    return Firestore.instance.collection('balances').snapshots();
-  }
-
   Stream<QuerySnapshot> initAllOperations() {
     return Firestore.instance
         .collection('operations')
