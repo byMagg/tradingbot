@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
 import 'package:tradingbot/controllers/MainController.dart';
 import 'package:tradingbot/widgets/OperationsWidget.dart';
 
@@ -33,7 +34,7 @@ class _OperationsViewState extends State<OperationsView> {
       body: Column(
         children: <Widget>[
           OperationsWidget.listOperations(
-              this.mainController.initAllOperations(), true)
+              this.mainController.initAllOperations(), true, false)
         ],
       ),
     );

@@ -52,7 +52,9 @@ class _CurrencyViewState extends State<CurrencyView> {
                   ),
                 ),
                 OperationsWidget.listOperations(
-                    this.mainController.initOperations(widget.currency), true),
+                    this.mainController.initOperations(widget.currency),
+                    true,
+                    true),
               ],
             ),
           ),
