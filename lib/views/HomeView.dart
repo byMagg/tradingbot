@@ -62,74 +62,78 @@ class _HomeViewState extends State<HomeView> {
     final controller = PageController();
     final statusBarHeight = MediaQuery.of(context).padding.top;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      drawer: drawer(),
-      body: CustomScrollView(
-        slivers: <Widget>[
-          SliverAppBar(
-            pinned: true,
-            elevation: 10,
-            title: TitleWidget(25),
-            actions: <Widget>[
-              IconButton(
-                  icon: Icon(Icons.account_balance_wallet),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => PricesView()));
-                  }),
-            ],
-            expandedHeight: 270,
-            floating: true,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                  alignment: Alignment.bottomCenter,
-                  padding: EdgeInsets.only(top: statusBarHeight + 50),
-                  child: Column(children: [BalanceWidget(), WalletWidget()])),
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        drawer: drawer(),
+        body: CustomScrollView(
+          slivers: <Widget>[
+            SliverAppBar(
+              pinned: true,
+              elevation: 10,
+              title: TitleWidget(25),
+              actions: <Widget>[
+                IconButton(
+                    icon: Icon(Icons.account_balance_wallet),
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => PricesView()));
+                    }),
+              ],
+              expandedHeight: 270,
+              floating: true,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(
+                    alignment: Alignment.bottomCenter,
+                    padding: EdgeInsets.only(top: statusBarHeight + 50),
+                    child: Column(children: [BalanceWidget(), WalletWidget()])),
+              ),
             ),
-          ),
-          SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                Container(
-                  height: MediaQuery.of(context).size.height -
-                      270 -
-                      statusBarHeight,
-                  alignment: Alignment.center,
-                  child: Stack(
-                    children: [
-                      PageView(
-                        controller: controller,
-                        children: <Widget>[
-                          page(LineChartWidget()),
-                          page(BarChartWidget()),
-                          page(LineChartWidget()),
-                          page(BarChartWidget()),
-                        ],
-                      ),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 15),
-                          child: SmoothPageIndicator(
-                            controller: controller,
-                            count: 4,
-                            effect: ExpandingDotsEffect(
-                                dotHeight: 5,
-                                dotWidth: 15,
-                                expansionFactor: 3,
-                                activeDotColor: Theme.of(context).primaryColor),
+            SliverList(
+              delegate: SliverChildListDelegate(
+                [
+                  Container(
+                    height: MediaQuery.of(context).size.height -
+                        270 -
+                        statusBarHeight,
+                    alignment: Alignment.center,
+                    child: Stack(
+                      children: [
+                        PageView(
+                          controller: controller,
+                          children: <Widget>[
+                            page(LineChartWidget()),
+                            page(BarChartWidget()),
+                            page(LineChartWidget()),
+                            page(BarChartWidget()),
+                          ],
+                        ),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 15),
+                            child: SmoothPageIndicator(
+                              controller: controller,
+                              count: 4,
+                              effect: ExpandingDotsEffect(
+                                  dotHeight: 5,
+                                  dotWidth: 15,
+                                  expansionFactor: 3,
+                                  activeDotColor:
+                                      Theme.of(context).primaryColor),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                OperationsWidget(),
-              ],
+                  OperationsWidget(),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
