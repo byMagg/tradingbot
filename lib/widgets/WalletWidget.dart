@@ -35,8 +35,7 @@ class WalletWidgetState extends State<WalletWidget> {
                   itemBuilder: (context, index) {
                     var number = NumberFormat.compactCurrency(
                             decimalDigits: 2, symbol: '\$ ')
-                        .format(_wallet[index]["priceUSD"] *
-                            _wallet[index]["balance"]);
+                        .format(_wallet[index]["totalUSD"]);
                     return Card(
                       margin: EdgeInsets.only(left: 8, right: 8, bottom: 10),
                       elevation: 10,

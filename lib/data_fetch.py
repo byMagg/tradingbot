@@ -47,28 +47,6 @@ class DataFetch():
                         str(it0['currency'])).set(reg)
                     break
 
-    def get_balance(self):
-        api_client = shrimpy.ShrimpyApiClient(
-            self.public_key, self.private_key)
-        ticker = api_client.get_ticker('coinbasepro')
-        wallet = self.auth_client.get_accounts()
-
-        balance = 0
-
-        for it0 in wallet:
-            if(it0['balance'] == 0):
-                continue
-            for it1 in ticker:
-                if(it1['symbol'] == it0['currency']):
-                    balance += float(it1['priceUsd']) * float(it0['balance'])
-                    break
-
-        reg = {
-            u"balance": balance
-        }
-
-        doc_ref = self.db.collection(u'balances').document(u'balance').set(reg)
-
     def test_data(self):
 
         for i in range(12):
@@ -84,6 +62,5 @@ class DataFetch():
 if __name__ == "__main__":
     data_fetch = DataFetch()
     data_fetch.init()
-    data_fetch.get_balance()
     data_fetch.get_wallet_data()
     # data_fetch.test_data()
