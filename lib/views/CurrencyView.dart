@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import 'package:tradingbot/controllers/MainController.dart';
 import 'package:tradingbot/models/Currency.dart';
+import 'package:tradingbot/widgets/OperationsWidget.dart';
 import 'package:tradingbot/widgets/SimpleLineChart.dart';
 
 class CurrencyView extends StatefulWidget {
@@ -51,120 +51,8 @@ class _CurrencyViewState extends State<CurrencyView> {
                     ),
                   ),
                 ),
-                StreamBuilder(
-                    stream: this.mainController.initOperations(widget.currency),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        var _operations = snapshot.data.documents;
-
-                        return _operations.isEmpty
-                            ? Container(
-                                height: 350,
-                                child: Align(
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      "There are no operations for this currency",
-                                      style: TextStyle(
-                                          color: Colors.white70,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w400),
-                                    )),
-                              )
-                            : Container(
-                                color: Theme.of(context).primaryColor,
-                                child: ListView.builder(
-                                    shrinkWrap: true,
-                                    primary: false,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemCount: _operations.length,
-                                    itemBuilder: (context, index) {
-                                      var transaction =
-                                          NumberFormat.decimalPattern("eu")
-                                              .format(double.tryParse(
-                                                  _operations[index]
-                                                      ['transaction']))
-                                              .toString();
-
-                                      var widget;
-
-                                      var date =
-                                          _operations[index]['date'].toDate();
-
-                                      if (transaction.contains("−")) {
-                                        widget = ListTile(
-                                          trailing: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                    "${date.toString().substring(0, 10)}"),
-                                                Text(
-                                                    "${date.toString().substring(10, 19)}")
-                                              ]),
-                                          title: Row(
-                                            children: [
-                                              Icon(
-                                                Icons.keyboard_arrow_down,
-                                                color: Colors.red,
-                                              ),
-                                              SizedBox(
-                                                width: 20,
-                                              ),
-                                              Text(
-                                                "${transaction.toString().substring(1)}",
-                                                style: TextStyle(
-                                                    color: Colors.red),
-                                              ),
-                                            ],
-                                          ),
-                                          onTap: () {},
-                                        );
-                                      } else {
-                                        widget = ListTile(
-                                          trailing: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                    "${date.toString().substring(0, 10)}"),
-                                                Text(
-                                                    "${date.toString().substring(10, 19)}")
-                                              ]),
-                                          title: Row(
-                                            children: [
-                                              Icon(
-                                                Icons.keyboard_arrow_up,
-                                                color: Colors.green,
-                                              ),
-                                              SizedBox(
-                                                width: 20,
-                                              ),
-                                              Text(
-                                                "$transaction",
-                                                style: TextStyle(
-                                                    color: Colors.green),
-                                              ),
-                                            ],
-                                          ),
-                                          onTap: () {},
-                                        );
-                                      }
-
-                                      return Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Container(
-                                            decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(15))),
-                                            child: widget),
-                                      );
-                                    }));
-                      } else {
-                        return Center(child: CircularProgressIndicator());
-                      }
-                    }),
+                OperationsWidget.listOperations(
+                    this.mainController.initOperations(widget.currency), true),
               ],
             ),
           ),
