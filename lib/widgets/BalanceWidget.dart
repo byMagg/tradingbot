@@ -22,7 +22,7 @@ class BalanceWidgetState extends State<BalanceWidget> {
   @override
   Widget build(BuildContext context) {
     final _formatCurrency = new NumberFormat.simpleCurrency();
-    double balance = 0.0;
+
     return Container(
         height: 100,
         color: Theme.of(context).primaryColor,
@@ -38,6 +38,7 @@ class BalanceWidgetState extends State<BalanceWidget> {
                   stream: this.mainController.initCurrencies(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
+                      double balance = 0.0;
                       for (var item in snapshot.data.documents) {
                         balance += item['totalUSD'];
                       }
