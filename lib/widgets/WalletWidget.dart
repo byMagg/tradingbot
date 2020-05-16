@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:rxdart/subjects.dart';
 import 'package:tradingbot/controllers/MainController.dart';
 import 'package:tradingbot/models/Currency.dart';
 import 'package:tradingbot/views/CurrencyView.dart';
@@ -23,7 +25,8 @@ class WalletWidgetState extends State<WalletWidget> {
   @override
   Widget build(BuildContext context) {
     double containerHeight = MediaQuery.of(context).size.height * 0.16;
-    double cardMargin = 8;
+    double cardMargin = 6;
+
     return Container(
         height: containerHeight,
         child: StreamBuilder(
@@ -58,7 +61,7 @@ class WalletWidgetState extends State<WalletWidget> {
                                       _wallet[index]['totalUSD']))));
                         },
                         child: Container(
-                          width: MediaQuery.of(context).size.width * 0.25 -
+                          width: MediaQuery.of(context).size.width * 0.20 -
                               (cardMargin * 2),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
