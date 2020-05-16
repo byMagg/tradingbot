@@ -32,13 +32,13 @@ class _HomeViewState extends State<HomeView> {
             ),
           ),
           ListTile(
-            title: Text('Item 1'),
+            title: Text('Page 1'),
             onTap: () {
               Navigator.pop(context);
             },
           ),
           ListTile(
-            title: Text('Item 2'),
+            title: Text('Page 2'),
             onTap: () {
               Navigator.pop(context);
             },
