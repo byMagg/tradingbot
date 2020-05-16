@@ -61,6 +61,7 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     final controller = PageController();
     final statusBarHeight = MediaQuery.of(context).padding.top;
+    final expandedHeight = MediaQuery.of(context).size.height * 0.34;
 
     return WillPopScope(
       onWillPop: () async => false,
@@ -81,7 +82,7 @@ class _HomeViewState extends State<HomeView> {
                           builder: (context) => PricesView()));
                     }),
               ],
-              expandedHeight: 270,
+              expandedHeight: expandedHeight,
               floating: true,
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
@@ -95,7 +96,7 @@ class _HomeViewState extends State<HomeView> {
                 [
                   Container(
                     height: MediaQuery.of(context).size.height -
-                        270 -
+                        expandedHeight -
                         statusBarHeight,
                     alignment: Alignment.center,
                     child: Stack(

@@ -22,8 +22,10 @@ class WalletWidgetState extends State<WalletWidget> {
 
   @override
   Widget build(BuildContext context) {
+    double containerHeight = MediaQuery.of(context).size.height * 0.16;
+    double cardMargin = 8;
     return Container(
-        height: 120,
+        height: containerHeight,
         child: StreamBuilder(
           stream: this.mainController.initCurrencies(),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -37,7 +39,8 @@ class WalletWidgetState extends State<WalletWidget> {
                             decimalDigits: 2, symbol: '\$ ')
                         .format(_wallet[index]["totalUSD"]);
                     return Card(
-                      margin: EdgeInsets.only(left: 8, right: 8, bottom: 10),
+                      margin: EdgeInsets.only(
+                          left: cardMargin, right: cardMargin, bottom: 10),
                       elevation: 10,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
@@ -55,10 +58,11 @@ class WalletWidgetState extends State<WalletWidget> {
                                       _wallet[index]['totalUSD']))));
                         },
                         child: Container(
-                          width: 82,
+                          width: MediaQuery.of(context).size.width * 0.25 -
+                              (cardMargin * 2),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               SizedBox(
                                 height: 40,
@@ -66,9 +70,6 @@ class WalletWidgetState extends State<WalletWidget> {
                                   image: AssetImage(
                                       'lib/assets/currencies/color/${_wallet[index]["symbol"].toLowerCase()}.png'),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 25,
                               ),
                               Text(
                                 "$number",

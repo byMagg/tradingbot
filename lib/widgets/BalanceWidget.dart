@@ -22,9 +22,9 @@ class BalanceWidgetState extends State<BalanceWidget> {
   @override
   Widget build(BuildContext context) {
     final _formatCurrency = new NumberFormat.simpleCurrency();
+    double fontSize = MediaQuery.of(context).size.height * 0.03;
 
     return Container(
-        height: 100,
         color: Theme.of(context).primaryColor,
         child: Padding(
           padding: const EdgeInsets.all(10),
@@ -32,7 +32,7 @@ class BalanceWidgetState extends State<BalanceWidget> {
             children: [
               Text(
                 "Balance",
-                style: TextStyle(fontSize: 30, color: Colors.white),
+                style: TextStyle(fontSize: fontSize, color: Colors.white),
               ),
               StreamBuilder(
                   stream: this.mainController.initCurrencies(),
@@ -44,7 +44,8 @@ class BalanceWidgetState extends State<BalanceWidget> {
                       }
                       return Text(
                         '${_formatCurrency.format(balance)}',
-                        style: TextStyle(fontSize: 30, color: Colors.white54),
+                        style: TextStyle(
+                            fontSize: fontSize, color: Colors.white54),
                       );
                     } else {
                       return Center(child: CircularProgressIndicator());
