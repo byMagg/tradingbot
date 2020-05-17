@@ -27,7 +27,7 @@ class BalanceWidgetState extends State<BalanceWidget> {
     return Container(
         color: Theme.of(context).primaryColor,
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.only(bottom: 10),
           child: Column(
             children: [
               Text(

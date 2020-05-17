@@ -64,36 +64,32 @@ class _HomeViewState extends State<HomeView> {
     final expandedHeight = MediaQuery.of(context).size.height * 0.3;
 
     return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        drawer: drawer(),
-        body: CustomScrollView(
-          slivers: <Widget>[
-            SliverAppBar(
-              pinned: true,
-              elevation: 10,
-              title: TitleWidget(25),
-              actions: <Widget>[
-                IconButton(
-                    icon: Icon(Icons.account_balance_wallet),
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => PricesView()));
-                    }),
-              ],
-              expandedHeight: expandedHeight,
-              floating: true,
-              flexibleSpace: FlexibleSpaceBar(
-                background: Container(
+        onWillPop: () async => false,
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          drawer: drawer(),
+          appBar: AppBar(
+            elevation: 0,
+            title: TitleWidget(25),
+            actions: <Widget>[
+              IconButton(
+                  icon: Icon(Icons.account_balance_wallet),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => PricesView()));
+                  }),
+            ],
+          ),
+          body: Stack(
+            children: <Widget>[
+              ListView(
+                children: <Widget>[
+                  Container(
+                    color: Theme.of(context).primaryColor,
                     child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [BalanceWidget(), WalletWidget()])),
-              ),
-            ),
-            SliverList(
-              delegate: SliverChildListDelegate(
-                [
+                      children: <Widget>[BalanceWidget(), WalletWidget()],
+                    ),
+                  ),
                   Container(
                     height: MediaQuery.of(context).size.height -
                         expandedHeight -
@@ -132,10 +128,8 @@ class _HomeViewState extends State<HomeView> {
                   OperationsWidget(),
                 ],
               ),
-            ),
-          ],
-        ),
-      ),
-    );
+            ],
+          ),
+        ));
   }
 }
