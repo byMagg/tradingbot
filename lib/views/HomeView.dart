@@ -60,7 +60,6 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     final controller = PageController();
-    final statusBarHeight = MediaQuery.of(context).padding.top;
     final expandedHeight = MediaQuery.of(context).size.height * 0.3;
 
     return WillPopScope(

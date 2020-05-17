@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:tradingbot/controllers/MainController.dart';
 import 'package:tradingbot/models/Currency.dart';
 import 'package:tradingbot/views/CurrencyView.dart';
@@ -23,7 +22,6 @@ class WalletWidgetState extends State<WalletWidget> {
 
   @override
   Widget build(BuildContext context) {
-    double containerHeight = MediaQuery.of(context).size.height * 0.16;
     double cardMargin = 5;
 
     return Container(
