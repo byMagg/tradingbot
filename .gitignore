@@ -9,6 +9,7 @@
 .history
 .svn/
 /lib/assets/cred.json
+/lib/assets/api.json
 
 # IntelliJ related
 *.iml
