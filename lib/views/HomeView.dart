@@ -61,8 +61,7 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     final controller = PageController();
     final statusBarHeight = MediaQuery.of(context).padding.top;
-    double appHeight = MediaQuery.of(context).size.height;
-    double expandedHeight = appHeight * 0.32;
+    final expandedHeight = MediaQuery.of(context).size.height * 0.34;
 
     return WillPopScope(
       onWillPop: () async => false,
@@ -84,22 +83,21 @@ class _HomeViewState extends State<HomeView> {
                     }),
               ],
               expandedHeight: expandedHeight,
+              floating: true,
               flexibleSpace: FlexibleSpaceBar(
-                centerTitle: true,
                 background: Container(
-                    child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Wrap(
-                      alignment: WrapAlignment.center,
-                      children: [BalanceWidget(), WalletWidget()]),
-                )),
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [WalletWidget()])),
               ),
             ),
             SliverList(
               delegate: SliverChildListDelegate(
                 [
                   Container(
-                    height: appHeight - expandedHeight - statusBarHeight,
+                    height: MediaQuery.of(context).size.height -
+                        expandedHeight -
+                        statusBarHeight,
                     alignment: Alignment.center,
                     child: Stack(
                       children: [
