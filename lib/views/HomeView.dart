@@ -61,6 +61,7 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     final controller = PageController();
     final expandedHeight = MediaQuery.of(context).size.height * 0.3;
+    final statusBarHeight = MediaQuery.of(context).padding.top;
 
     return WillPopScope(
         onWillPop: () async => false,
@@ -90,7 +91,9 @@ class _HomeViewState extends State<HomeView> {
                     ),
                   ),
                   Container(
-                    height: MediaQuery.of(context).size.height - expandedHeight,
+                    height: MediaQuery.of(context).size.height -
+                        expandedHeight -
+                        statusBarHeight,
                     alignment: Alignment.center,
                     child: Stack(
                       children: [
