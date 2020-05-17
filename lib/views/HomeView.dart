@@ -91,9 +91,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                   ),
                   Container(
-                    height: MediaQuery.of(context).size.height -
-                        expandedHeight -
-                        statusBarHeight,
+                    height: MediaQuery.of(context).size.height - expandedHeight,
                     alignment: Alignment.center,
                     child: Stack(
                       children: [
