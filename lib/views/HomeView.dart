@@ -61,7 +61,7 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     final controller = PageController();
     final statusBarHeight = MediaQuery.of(context).padding.top;
-    final expandedHeight = MediaQuery.of(context).size.height * 0.34;
+    final expandedHeight = MediaQuery.of(context).size.height * 0.3;
 
     return WillPopScope(
       onWillPop: () async => false,
@@ -88,7 +88,7 @@ class _HomeViewState extends State<HomeView> {
                 background: Container(
                     child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
-                        children: [WalletWidget()])),
+                        children: [BalanceWidget(), WalletWidget()])),
               ),
             ),
             SliverList(
