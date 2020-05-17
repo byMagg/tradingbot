@@ -10,6 +10,7 @@
 .svn/
 /lib/assets/cred.json
 /lib/assets/api.json
+/lib/data_fetch.py
 
 # IntelliJ related
 *.iml
