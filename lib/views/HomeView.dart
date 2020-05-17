@@ -60,8 +60,9 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     final controller = PageController();
-    final expandedHeight = MediaQuery.of(context).size.height * 0.3;
+    final expandedHeight = MediaQuery.of(context).size.height * 0.24;
     final statusBarHeight = MediaQuery.of(context).padding.top;
+    final appBarHeight = 50;
 
     return WillPopScope(
         onWillPop: () async => false,
@@ -85,6 +86,7 @@ class _HomeViewState extends State<HomeView> {
               ListView(
                 children: <Widget>[
                   Container(
+                    height: expandedHeight,
                     color: Theme.of(context).primaryColor,
                     child: Column(
                       children: <Widget>[BalanceWidget(), WalletWidget()],
@@ -93,7 +95,8 @@ class _HomeViewState extends State<HomeView> {
                   Container(
                     height: MediaQuery.of(context).size.height -
                         expandedHeight -
-                        statusBarHeight,
+                        statusBarHeight -
+                        appBarHeight,
                     alignment: Alignment.center,
                     child: Stack(
                       children: [
