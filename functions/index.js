@@ -54,7 +54,7 @@ exports.scheduledFunction = functions.pubsub.schedule('* * * * *').onRun((contex
                     var priceUSD = temp[element]['USD'];
 
                    ref.doc(element).set({
-                        balance: balance,
+                        balance: parseFloat(balance),
                         priceUSD: priceUSD,
                         totalUSD: balance * priceUSD
                     });
