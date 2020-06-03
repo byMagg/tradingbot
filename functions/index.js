@@ -23,10 +23,12 @@ const authedClient = new CoinbasePro.AuthenticatedClient(
 var db = admin.firestore();
 var ref = db.collection("currencies");
 
-var currencies = [];
-var tempCurrencies = [];
+
 
 exports.scheduledFunction = functions.pubsub.schedule('* * * * *').onRun((context) => {
+    var currencies = [];
+    var tempCurrencies = [];
+
     authedClient
     .getAccounts()
     .then(data => {
