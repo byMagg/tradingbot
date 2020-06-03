@@ -1,13 +1,11 @@
 class Currency extends Comparable {
-  String name;
   String symbol;
   double balance;
   double priceUSD;
   double totalUSD;
 
-  Currency(String name, String symbol, double balance, double priceUSD,
+  Currency(String symbol, double balance, double priceUSD,
       double totalUSD) {
-    this.name = name;
     this.symbol = symbol;
     this.balance = balance;
     this.priceUSD = priceUSD;

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:tradingbot/models/Currency.dart';
 
 class MainController {
   Stream<QuerySnapshot> initCurrencies() {
@@ -16,10 +15,10 @@ class MainController {
         .snapshots();
   }
 
-  Stream<QuerySnapshot> initOperations(Currency currency) {
+  Stream<QuerySnapshot> initOperations(String symbol) {
     return Firestore.instance
         .collection('operations')
-        .where('symbol', isEqualTo: currency.symbol)
+        .where('symbol', isEqualTo: symbol)
         .orderBy('date', descending: true)
         .snapshots();
   }

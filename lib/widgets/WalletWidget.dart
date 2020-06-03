@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tradingbot/controllers/MainController.dart';
@@ -49,13 +50,9 @@ class WalletWidgetState extends State<WalletWidget> {
                     borderRadius: BorderRadius.circular(15),
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => CurrencyView(
-                              currency: new Currency(
-                                  _wallet[index]['name'],
-                                  _wallet[index]['symbol'],
-                                  _wallet[index]['balance'],
-                                  _wallet[index]['priceUSD'],
-                                  _wallet[index]['totalUSD']))));
+                          builder: (context) => CurrencyView(symbol: _wallet[index].documentID,
+                                  )
+                                  ));
                     },
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.2 -
@@ -68,7 +65,7 @@ class WalletWidgetState extends State<WalletWidget> {
                             height: 40,
                             child: Image(
                               image: AssetImage(
-                                  'lib/assets/currencies/color/${_wallet[index]["symbol"].toLowerCase()}.png'),
+                                  'lib/assets/currencies/color/${_wallet[index].documentID.toLowerCase()}.png'),
                             ),
                           ),
                           Text(

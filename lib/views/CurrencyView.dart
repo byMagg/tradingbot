@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 
 import 'package:tradingbot/controllers/MainController.dart';
-import 'package:tradingbot/models/Currency.dart';
 import 'package:tradingbot/widgets/OperationsWidget.dart';
 import 'package:tradingbot/widgets/SimpleLineChart.dart';
 
 class CurrencyView extends StatefulWidget {
-  final Currency currency;
+  final String symbol;
 
-  CurrencyView({Key key, @required this.currency}) : super(key: key);
+  CurrencyView({Key key, @required this.symbol}) : super(key: key);
 
   @override
   _CurrencyViewState createState() => _CurrencyViewState();
@@ -52,7 +51,7 @@ class _CurrencyViewState extends State<CurrencyView> {
                   ),
                 ),
                 OperationsWidget.listOperations(
-                    this.mainController.initOperations(widget.currency),
+                    this.mainController.initOperations(widget.symbol),
                     true,
                     true),
               ],
@@ -65,6 +64,7 @@ class _CurrencyViewState extends State<CurrencyView> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
       appBar: AppBar(
@@ -81,14 +81,10 @@ class _CurrencyViewState extends State<CurrencyView> {
               height: 25,
               child: Image(
                 image: AssetImage(
-                    'lib/assets/currencies/color/${widget.currency.symbol.toLowerCase()}.png'),
+                    'lib/assets/currencies/color/${widget.symbol.toLowerCase()}.png'),
               ),
             ),
             SizedBox(width: 10),
-            Text(
-              widget.currency.name,
-              style: TextStyle(fontWeight: FontWeight.w400),
-            )
           ],
         ),
       ),

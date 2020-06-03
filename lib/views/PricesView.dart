@@ -36,16 +36,13 @@ class _PricesViewState extends State<PricesView> {
                   itemBuilder: (context, index) {
                     return ListTile(
                       leading: SizedBox(
-                        height: 50,
+                        height: 30,
                         child: Image(
                           image: AssetImage(
-                              'lib/assets/currencies/color/${_wallets[index]["symbol"].toLowerCase()}.png'),
+                              'lib/assets/currencies/color/${_wallets[index].documentID.toLowerCase()}.png'),
                         ),
                       ),
-                      title: Text(_wallets[index]["name"],
-                          style:
-                              TextStyle(color: Theme.of(context).primaryColor)),
-                      subtitle: Text(_wallets[index]["symbol"]),
+                      title: Text(_wallets[index].documentID, style: TextStyle(color: Colors.black45),),
                       trailing: Text(
                         "\$ ${_wallets[index]["priceUSD"].toStringAsFixed(6)}",
                         style: TextStyle(color: Theme.of(context).primaryColor),

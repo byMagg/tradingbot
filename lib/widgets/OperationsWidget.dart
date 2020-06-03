@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
@@ -13,8 +14,8 @@ class OperationsWidget extends StatefulWidget {
         stream: stream,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            var _operations = snapshot.data.documents;
-            return _operations.isEmpty
+            List<DocumentSnapshot> _operations = snapshot.data.documents;
+            return _operations.length == 0
                 ? Container(
                     height: 350,
                     child: Align(
