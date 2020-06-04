@@ -24,12 +24,6 @@ class WalletWidgetState extends State<WalletWidget> {
     _loadToStream();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    this.streamController.close();
-  }
-
   _loadToStream() async {
     this.streamController = new StreamController();
     this

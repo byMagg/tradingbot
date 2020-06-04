@@ -21,17 +21,12 @@ class BalanceWidgetState extends State<BalanceWidget> {
   void initState() {
     super.initState();
     this.mainController = new CoinbaseController();
+    this.streamController = new StreamController();
+
     _loadToStream();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    this.streamController.close();
-  }
-
   _loadToStream() async {
-    this.streamController = new StreamController();
     this
         .streamController
         .add(await this.mainController.getBalance().then((value) => value));
