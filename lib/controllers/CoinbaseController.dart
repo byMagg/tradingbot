@@ -43,14 +43,13 @@ class CoinbaseController {
     var coingecko = await get('https://api.coingecko.com/api/v3/coins/list')
         .then((res) => json.decode(res.body));
     var id;
-    //var result = [];
     double result = 0;
     var wallets = data['balances'];
 
     try {
       for (var wallet in wallets) {
         var currency = wallet['currency'];
-        print(currency);
+
         var amount = double.parse(wallet['amount']);
 
         double currencyPrice = 0;
@@ -165,19 +164,12 @@ class CoinbasePro {
 
     if (response != null && response.statusCode == 200) {
       var result = json.decode(response.body);
-      //print(result);
       var balance = [];
       for (var res in result) {
-        if (double.parse(res['balance']) > 0) {
-          balance.add(res);
-        }
+        balance.add(res);
       }
       return balance;
     }
     return null;
-
-    /* return type: [{id:id, currency:currency, balance:balance,
-                      available:available, hold:hold, profile_id:profile_id}]
-       just returns those assets where balance > 0 */
   }
 }

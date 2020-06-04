@@ -30,9 +30,11 @@ class BalanceWidgetState extends State<BalanceWidget> {
     this.streamController.close();
   }
 
-  _loadToStream() {
+  _loadToStream() async {
     this.streamController = new StreamController();
-    this.streamController.add("0");
+    this
+        .streamController
+        .add(await this.mainController.getBalance().then((value) => value));
     Timer.periodic(Duration(seconds: 5), (timer) async {
       return this
           .streamController

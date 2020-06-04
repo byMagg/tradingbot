@@ -30,9 +30,11 @@ class WalletWidgetState extends State<WalletWidget> {
     this.streamController.close();
   }
 
-  _loadToStream() {
+  _loadToStream() async {
     this.streamController = new StreamController();
-    this.streamController.add("0");
+    this
+        .streamController
+        .add(await this.mainController.getCurrencies().then((value) => value));
     Timer.periodic(Duration(seconds: 5), (timer) async {
       return this.streamController.add(
           await this.mainController.getCurrencies().then((value) => value));
@@ -48,7 +50,6 @@ class WalletWidgetState extends State<WalletWidget> {
       stream: this.streamController.stream,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.hasData) {
-          print(snapshot.data);
           return ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: snapshot.data.length,
