@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
+import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/controllers/MainController.dart';
 
 class BalanceWidget extends StatefulWidget {
@@ -11,12 +14,30 @@ class BalanceWidget extends StatefulWidget {
 }
 
 class BalanceWidgetState extends State<BalanceWidget> {
-  MainController mainController;
+  CoinbaseController mainController;
+  StreamController streamController;
 
   @override
   void initState() {
     super.initState();
-    this.mainController = new MainController();
+    this.mainController = new CoinbaseController();
+    _loadToStream();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    this.streamController.close();
+  }
+
+  _loadToStream() {
+    this.streamController = new StreamController();
+    this.streamController.add("0");
+    Timer.periodic(Duration(seconds: 5), (timer) async {
+      return this
+          .streamController
+          .add(await this.mainController.getBalance().then((value) => value));
+    });
   }
 
   @override
@@ -35,15 +56,13 @@ class BalanceWidgetState extends State<BalanceWidget> {
                 style: TextStyle(fontSize: fontSize, color: Colors.white),
               ),
               StreamBuilder(
-                  stream: this.mainController.initCurrencies(),
+                  stream: this.streamController.stream,
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
-                      double balance = 0.0;
-                      for (var item in snapshot.data.documents) {
-                        balance += item['totalUSD'];
-                      }
+                      double number = double.parse(snapshot.data);
+
                       return Text(
-                        '${_formatCurrency.format(balance)}',
+                        '${_formatCurrency.format(number)}',
                         style: TextStyle(
                             fontSize: fontSize, color: Colors.white54),
                       );

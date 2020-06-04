@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/controllers/MainController.dart';
 import 'package:tradingbot/views/CurrencyView.dart';
+
+import 'dart:async';
 
 class WalletWidget extends StatefulWidget {
   WalletWidget({Key key}) : super(key: key);
@@ -11,12 +14,29 @@ class WalletWidget extends StatefulWidget {
 }
 
 class WalletWidgetState extends State<WalletWidget> {
-  MainController mainController;
+  CoinbaseController mainController;
+  StreamController streamController;
 
   @override
   void initState() {
     super.initState();
-    this.mainController = MainController();
+    this.mainController = CoinbaseController();
+    _loadToStream();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    this.streamController.close();
+  }
+
+  _loadToStream() {
+    this.streamController = new StreamController();
+    this.streamController.add("0");
+    Timer.periodic(Duration(seconds: 5), (timer) async {
+      return this.streamController.add(
+          await this.mainController.getCurrencies().then((value) => value));
+    });
   }
 
   @override
@@ -25,18 +45,19 @@ class WalletWidgetState extends State<WalletWidget> {
 
     return Expanded(
         child: StreamBuilder(
-      stream: this.mainController.initCurrencies(),
+      stream: this.streamController.stream,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.hasData) {
-          var _wallet = snapshot.data.documents;
-
+          print(snapshot.data);
           return ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: _wallet.length,
+              itemCount: snapshot.data.length,
               itemBuilder: (context, index) {
+                var it = snapshot.data[index];
+                print(it);
                 var number = NumberFormat.compactCurrency(
                         decimalDigits: 2, symbol: '\$ ')
-                    .format(_wallet[index]["totalUSD"]);
+                    .format(double.parse(it["value"]));
                 return Card(
                   margin: EdgeInsets.only(
                       left: cardMargin, right: cardMargin, bottom: 10),
@@ -48,9 +69,9 @@ class WalletWidgetState extends State<WalletWidget> {
                     borderRadius: BorderRadius.circular(15),
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => CurrencyView(symbol: _wallet[index].documentID,
-                                  )
-                                  ));
+                          builder: (context) => CurrencyView(
+                                symbol: it["currency"],
+                              )));
                     },
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.2 -
@@ -63,7 +84,7 @@ class WalletWidgetState extends State<WalletWidget> {
                             height: 40,
                             child: Image(
                               image: AssetImage(
-                                  'lib/assets/currencies/color/${_wallet[index].documentID.toLowerCase()}.png'),
+                                  'lib/assets/currencies/color/${it["currency"].toLowerCase()}.png'),
                             ),
                           ),
                           Text(
