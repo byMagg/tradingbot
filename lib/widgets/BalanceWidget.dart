@@ -4,39 +4,20 @@ import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
-import 'package:tradingbot/controllers/MainController.dart';
 
 class BalanceWidget extends StatefulWidget {
-  BalanceWidget({Key key}) : super(key: key);
+  final CoinbaseController controller;
+  final StreamController streamController;
+
+  BalanceWidget(
+      {Key key, @required this.controller, @required this.streamController})
+      : super(key: key);
 
   @override
   BalanceWidgetState createState() => BalanceWidgetState();
 }
 
 class BalanceWidgetState extends State<BalanceWidget> {
-  CoinbaseController mainController;
-  StreamController streamController;
-
-  @override
-  void initState() {
-    super.initState();
-    this.mainController = new CoinbaseController();
-    this.streamController = new StreamController();
-
-    _loadToStream();
-  }
-
-  _loadToStream() async {
-    this
-        .streamController
-        .add(await this.mainController.getBalance().then((value) => value));
-    Timer.periodic(Duration(seconds: 5), (timer) async {
-      return this
-          .streamController
-          .add(await this.mainController.getBalance().then((value) => value));
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final _formatCurrency = new NumberFormat.simpleCurrency();
@@ -53,8 +34,9 @@ class BalanceWidgetState extends State<BalanceWidget> {
                 style: TextStyle(fontSize: fontSize, color: Colors.white),
               ),
               StreamBuilder(
-                  stream: this.streamController.stream,
+                  stream: widget.streamController.stream,
                   builder: (context, snapshot) {
+                    print(snapshot.data);
                     if (snapshot.hasData) {
                       double number = double.parse(snapshot.data);
 

@@ -1,47 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
-import 'package:tradingbot/controllers/MainController.dart';
 import 'package:tradingbot/views/CurrencyView.dart';
 
 import 'dart:async';
 
 class WalletWidget extends StatefulWidget {
-  WalletWidget({Key key}) : super(key: key);
+  final CoinbaseController controller;
+  final StreamController streamController;
+
+  WalletWidget(
+      {Key key, @required this.controller, @required this.streamController})
+      : super(key: key);
 
   @override
   WalletWidgetState createState() => WalletWidgetState();
 }
 
 class WalletWidgetState extends State<WalletWidget> {
-  CoinbaseController mainController;
-  StreamController streamController;
-
-  @override
-  void initState() {
-    super.initState();
-    this.mainController = CoinbaseController();
-    _loadToStream();
-  }
-
-  _loadToStream() async {
-    this.streamController = new StreamController();
-    this
-        .streamController
-        .add(await this.mainController.getCurrencies().then((value) => value));
-    Timer.periodic(Duration(seconds: 5), (timer) async {
-      return this.streamController.add(
-          await this.mainController.getCurrencies().then((value) => value));
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     double cardMargin = 5;
 
     return Expanded(
         child: StreamBuilder(
-      stream: this.streamController.stream,
+      stream: widget.streamController.stream,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.hasData) {
           return ListView.builder(
@@ -49,6 +32,7 @@ class WalletWidgetState extends State<WalletWidget> {
               itemCount: snapshot.data.length,
               itemBuilder: (context, index) {
                 var it = snapshot.data[index];
+
                 print(it);
                 var number = NumberFormat.compactCurrency(
                         decimalDigits: 2, symbol: '\$ ')

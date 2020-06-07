@@ -4,6 +4,7 @@ import 'package:crypto/crypto.dart';
 
 class CoinbaseController {
   Future<String> getBalance() async {
+    print(await _fetchCoinbasePro().then((value) => value['value']));
     return await _fetchCoinbasePro().then((value) => value['value']);
   }
 
@@ -12,12 +13,12 @@ class CoinbaseController {
   }
 
   Future _fetchCoinbasePro() async {
-    final APIKEY = "f5e39c91cc9636966d2a630f259f9cbc";
-    final SECRET =
+    final apikey = "f5e39c91cc9636966d2a630f259f9cbc";
+    final secret =
         "Uhfp4rqy69aeoKotpjV2KoXxXH+It05yHiIjwFwrRTlk115XYGukuoSkFByiFE9+4X0DgIHmIk+btMwnvBxGyg==";
-    final PASSPHRASE = "vwvomszp10d";
+    final passphrase = "vwvomszp10d";
 
-    final coinbasePro = new CoinbasePro(APIKEY, SECRET, PASSPHRASE);
+    final coinbasePro = new CoinbasePro(apikey, secret, passphrase);
     var balances = await coinbasePro.getBalance();
     if (balances == null) {
       return null;

@@ -5,6 +5,8 @@ import 'package:tradingbot/widgets/BarChartWidget.dart';
 import 'package:tradingbot/widgets/LineChartWidget.dart';
 import 'package:tradingbot/widgets/OperationsWidget.dart';
 import 'package:tradingbot/widgets/TitleWidget.dart';
+import 'package:tradingbot/controllers/CoinbaseController.dart';
+import 'dart:async';
 
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:tradingbot/widgets/WalletWidget.dart';
@@ -57,6 +59,28 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
+  CoinbaseController coinbaseController;
+  StreamController controllerValue;
+  StreamController controllerBalance;
+
+  @override
+  void initState() {
+    this.coinbaseController = new CoinbaseController();
+    this.controllerBalance = new StreamController.broadcast();
+    this.controllerValue = new StreamController.broadcast();
+
+    _loadToStreams();
+    super.initState();
+  }
+
+  _loadToStreams() async {
+    this
+        .controllerValue
+        .add(await this.coinbaseController.getBalance().then((value) => value));
+    this.controllerBalance.add(
+        await this.coinbaseController.getCurrencies().then((value) => value));
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = PageController();
@@ -89,7 +113,16 @@ class _HomeViewState extends State<HomeView> {
                     height: expandedHeight,
                     color: Theme.of(context).primaryColor,
                     child: Column(
-                      children: <Widget>[BalanceWidget(), WalletWidget()],
+                      children: <Widget>[
+                        BalanceWidget(
+                          controller: coinbaseController,
+                          streamController: controllerValue,
+                        ),
+                        WalletWidget(
+                          controller: coinbaseController,
+                          streamController: controllerBalance,
+                        )
+                      ],
                     ),
                   ),
                   Container(
