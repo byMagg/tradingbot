@@ -64,7 +64,6 @@ class _CurrencyViewState extends State<CurrencyView> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
       appBar: AppBar(
@@ -85,6 +84,7 @@ class _CurrencyViewState extends State<CurrencyView> {
               ),
             ),
             SizedBox(width: 10),
+            Text(widget.symbol)
           ],
         ),
       ),

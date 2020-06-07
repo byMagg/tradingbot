@@ -59,15 +59,25 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
+  StreamController<String> streamController = StreamController.broadcast();
+  CoinbaseController controller = new CoinbaseController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    Timer.periodic(Duration(seconds: 2), (Timer t) async {
+      streamController
+          .add(await controller.getBalance().then((value) => value));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = PageController();
     final expandedHeight = MediaQuery.of(context).size.height * 0.24;
     final statusBarHeight = MediaQuery.of(context).padding.top;
     final appBarHeight = 50;
-
-    Stream coinbaseController =
-        new CoinbaseController().getBalance().asBroadcastStream();
 
     return WillPopScope(
         onWillPop: () async => false,
@@ -96,7 +106,7 @@ class _HomeViewState extends State<HomeView> {
                     child: Column(
                       children: <Widget>[
                         BalanceWidget(
-                          stream: coinbaseController,
+                          streamController: streamController,
                         ),
                         WalletWidget()
                       ],

@@ -1,15 +1,61 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:crypto/crypto.dart';
 
 class CoinbaseController {
-  Stream getBalance() async* {
-    yield await _fetchCoinbasePro().then((value) => value['value']);
+  Future getBalance() async {
+    return await _fetchCoinbasePro().then((value) => value['value']);
+    // StreamController controller = new StreamController();
+
+    // var result;
+
+    // Timer.periodic(Duration(seconds: 5), (timer) async {
+    //   var temp = await _fetchCoinbasePro().then((value) => value['value']);
+    //   if (result == null) result = temp;
+    //   if (result != temp) {
+    //     controller.add(temp);
+    //     result = temp;
+    //   }
+    // });
+
+    // return controller.stream;
   }
 
   Stream getCurrencies() async* {
     yield await _fetchCoinbasePro().then((value) => value['balances']);
+    // StreamController controller = new StreamController();
+
+    // var result;
+
+    // Timer.periodic(Duration(seconds: 5), (timer) async {
+    //   var temp = await _fetchCoinbasePro().then((value) => value['balances']);
+    //   if (result == null) result = temp;
+    //   if (isEqual(result, temp)) {
+    //     // print(result.runtimeType);
+    //     controller.add(temp);
+    //     result = temp;
+    //   }
+    // });
+
+    // return controller.stream;
   }
+
+  // bool isEqual(List before, List after) {
+  //   double number1, number2;
+
+  //   for (var i = 0; i < before.length; i++) {
+  //     number1 = double.parse(before[i]['value']);
+  //     number2 = double.parse(after[i]['value']);
+
+  //     if (number1 != number2) {
+  //       print("$number1 | $number2");
+  //       return false;
+  //     }
+  //   }
+  //   print("EQUAL");
+  //   return true;
+  // }
 
   Future _fetchCoinbasePro() async {
     final apikey = "f5e39c91cc9636966d2a630f259f9cbc";
@@ -19,9 +65,7 @@ class CoinbaseController {
 
     final coinbasePro = new CoinbasePro(apikey, secret, passphrase);
     var balances = await coinbasePro.getBalance();
-    if (balances == null) {
-      return null;
-    }
+    if (balances == null) return null;
 
     var wallets = [];
 
@@ -34,9 +78,7 @@ class CoinbaseController {
 
     var data = {'balances': wallets, 'value': 0};
 
-    data = await _calculateAmount(data);
-
-    return data;
+    return await _calculateAmount(data);
   }
 
   _calculateAmount(data) async {
