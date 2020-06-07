@@ -3,13 +3,12 @@ import 'package:http/http.dart';
 import 'package:crypto/crypto.dart';
 
 class CoinbaseController {
-  Future<String> getBalance() async {
-    print(await _fetchCoinbasePro().then((value) => value['value']));
-    return await _fetchCoinbasePro().then((value) => value['value']);
+  Stream getBalance() async* {
+    yield await _fetchCoinbasePro().then((value) => value['value']);
   }
 
-  Future<List> getCurrencies() async {
-    return await _fetchCoinbasePro().then((value) => value['balances']);
+  Stream getCurrencies() async* {
+    yield await _fetchCoinbasePro().then((value) => value['balances']);
   }
 
   Future _fetchCoinbasePro() async {

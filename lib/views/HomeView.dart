@@ -59,34 +59,15 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  CoinbaseController coinbaseController;
-  StreamController controllerValue;
-  StreamController controllerBalance;
-
-  @override
-  void initState() {
-    this.coinbaseController = new CoinbaseController();
-    this.controllerBalance = new StreamController.broadcast();
-    this.controllerValue = new StreamController.broadcast();
-
-    _loadToStreams();
-    super.initState();
-  }
-
-  _loadToStreams() async {
-    this
-        .controllerValue
-        .add(await this.coinbaseController.getBalance().then((value) => value));
-    this.controllerBalance.add(
-        await this.coinbaseController.getCurrencies().then((value) => value));
-  }
-
   @override
   Widget build(BuildContext context) {
     final controller = PageController();
     final expandedHeight = MediaQuery.of(context).size.height * 0.24;
     final statusBarHeight = MediaQuery.of(context).padding.top;
     final appBarHeight = 50;
+
+    Stream coinbaseController =
+        new CoinbaseController().getBalance().asBroadcastStream();
 
     return WillPopScope(
         onWillPop: () async => false,
@@ -115,13 +96,9 @@ class _HomeViewState extends State<HomeView> {
                     child: Column(
                       children: <Widget>[
                         BalanceWidget(
-                          controller: coinbaseController,
-                          streamController: controllerValue,
+                          stream: coinbaseController,
                         ),
-                        WalletWidget(
-                          controller: coinbaseController,
-                          streamController: controllerBalance,
-                        )
+                        WalletWidget()
                       ],
                     ),
                   ),

@@ -6,37 +6,37 @@ import 'package:tradingbot/views/CurrencyView.dart';
 import 'dart:async';
 
 class WalletWidget extends StatefulWidget {
-  final CoinbaseController controller;
-  final StreamController streamController;
-
-  WalletWidget(
-      {Key key, @required this.controller, @required this.streamController})
-      : super(key: key);
+  WalletWidget({Key key}) : super(key: key);
 
   @override
   WalletWidgetState createState() => WalletWidgetState();
 }
 
 class WalletWidgetState extends State<WalletWidget> {
+  CoinbaseController controller = new CoinbaseController();
+
   @override
   Widget build(BuildContext context) {
     double cardMargin = 5;
 
     return Expanded(
         child: StreamBuilder(
-      stream: widget.streamController.stream,
+      stream: controller.getCurrencies(),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.hasData) {
           return ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: snapshot.data.length,
               itemBuilder: (context, index) {
-                var it = snapshot.data[index];
+                // print(snapshot.data);
+                var it = snapshot.data;
 
-                print(it);
+                var currency = it[index]['currency'];
                 var number = NumberFormat.compactCurrency(
                         decimalDigits: 2, symbol: '\$ ')
-                    .format(double.parse(it["value"]));
+                    .format(double.parse(it[index]["value"]));
+
+                // print("$currency | $number");
                 return Card(
                   margin: EdgeInsets.only(
                       left: cardMargin, right: cardMargin, bottom: 10),
@@ -49,7 +49,7 @@ class WalletWidgetState extends State<WalletWidget> {
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => CurrencyView(
-                                symbol: it["currency"],
+                                symbol: currency,
                               )));
                     },
                     child: Container(
@@ -63,7 +63,7 @@ class WalletWidgetState extends State<WalletWidget> {
                             height: 40,
                             child: Image(
                               image: AssetImage(
-                                  'lib/assets/currencies/color/${it["currency"].toLowerCase()}.png'),
+                                  'lib/assets/currencies/color/${currency.toLowerCase()}.png'),
                             ),
                           ),
                           Text(
