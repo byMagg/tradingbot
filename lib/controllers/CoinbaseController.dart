@@ -28,11 +28,11 @@ class CoinbaseController {
   }
 
   bool isEqual(List<Currency> before, List<Currency> after) {
-    double number1, number2;
+    String number1, number2;
 
     for (var i = 0; i < before.length; i++) {
-      number1 = before[i].value;
-      number2 = after[i].value;
+      number1 = before[i].value.toStringAsFixed(2);
+      number2 = after[i].value.toStringAsFixed(2);
 
       if (number1 != number2) {
         print("$number1 | $number2");
@@ -61,26 +61,20 @@ class CoinbaseController {
   _calculateAmount(data) async {
     var coingecko = await get('https://api.coingecko.com/api/v3/coins/list')
         .then((res) => json.decode(res.body));
-    var id;
-    double result = 0;
     List<Currency> wallets = data['balances'];
+    double result = 0;
+    var id;
 
     try {
       for (var wallet in wallets) {
-        var currency = wallet.currency;
-
-        var amount = wallet.amount;
-
-        double currencyPrice = 0;
-
         double value;
 
-        if (currency == 'USD') {
-          value = amount;
+        if (wallet.currency == 'USD') {
+          value = wallet.amount;
           wallet.value = value;
         } else {
           for (int i = 0; i < coingecko.length; i++) {
-            if (currency == coingecko[i]['symbol'].toUpperCase()) {
+            if (wallet.currency == coingecko[i]['symbol'].toUpperCase()) {
               id = coingecko[i]['id'];
               break;
             }
@@ -90,9 +84,8 @@ class CoinbaseController {
                   'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=$id')
               .then((res) => json.decode(res.body));
 
-          currencyPrice = double.parse(response[0]['current_price'].toString());
-
-          value = currencyPrice * amount;
+          value = double.parse(response[0]['current_price'].toString()) *
+              wallet.amount;
           wallet.value = value;
         }
         result += value;
