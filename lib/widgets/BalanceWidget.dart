@@ -7,8 +7,8 @@ import 'package:tradingbot/controllers/MainController.dart';
 import 'dart:async';
 
 class BalanceWidget extends StatefulWidget {
-  final StreamController streamController;
-  BalanceWidget({Key key, @required this.streamController}) : super(key: key);
+  final Future<double> number;
+  BalanceWidget({Key key, @required this.number}) : super(key: key);
 
   @override
   BalanceWidgetState createState() => BalanceWidgetState();
@@ -22,6 +22,8 @@ class BalanceWidgetState extends State<BalanceWidget> {
 
     MainController mainController = new MainController();
 
+    // print(widget.number);
+
     return Container(
         color: Theme.of(context).primaryColor,
         child: Padding(
@@ -32,21 +34,21 @@ class BalanceWidgetState extends State<BalanceWidget> {
                 "Balance",
                 style: TextStyle(fontSize: fontSize, color: Colors.white),
               ),
-              StreamBuilder(
-                  stream: widget.streamController.stream,
+              FutureBuilder(
+                  future: widget.number,
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
-                      double number = double.parse(snapshot.data);
-
-                      // print(number);
-
                       return Text(
-                        '${_formatCurrency.format(number)}',
+                        '${_formatCurrency.format(snapshot.data)}',
                         style: TextStyle(
                             fontSize: fontSize, color: Colors.white54),
                       );
                     } else {
-                      return Center(child: CircularProgressIndicator());
+                      return Text(
+                        '${_formatCurrency.format(0)}',
+                        style: TextStyle(
+                            fontSize: fontSize, color: Colors.white54),
+                      );
                     }
                   }),
             ],

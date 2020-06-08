@@ -59,16 +59,30 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  StreamController<String> streamController = StreamController.broadcast();
+  StreamController<double> streamValue = StreamController.broadcast();
+  StreamController<List> streamCurrencies = StreamController.broadcast();
   CoinbaseController controller = new CoinbaseController();
+  Stream stream = Stream.periodic(Duration(seconds: 2)).asBroadcastStream();
+  Future<double> resultNumber;
+  Future<List> resultWallets;
 
   @override
   void initState() {
     super.initState();
 
-    Timer.periodic(Duration(seconds: 2), (Timer t) async {
-      streamController
-          .add(await controller.getBalance().then((value) => value));
+    _loadData();
+
+    Timer.periodic(Duration(seconds: 5), (Timer t) async {
+      _loadData();
+    });
+  }
+
+  _loadData() async {
+    double tempNumber = await controller.getValue().then((value) => value);
+    List tempWallets = await controller.getCurrencies().then((value) => value);
+    setState(() {
+      resultNumber = controller.getValue();
+      resultWallets = controller.getCurrencies();
     });
   }
 
@@ -106,9 +120,11 @@ class _HomeViewState extends State<HomeView> {
                     child: Column(
                       children: <Widget>[
                         BalanceWidget(
-                          streamController: streamController,
+                          number: resultNumber,
                         ),
-                        WalletWidget()
+                        WalletWidget(
+                          wallets: resultWallets,
+                        )
                       ],
                     ),
                   ),
