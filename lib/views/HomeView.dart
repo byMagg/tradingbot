@@ -59,9 +59,9 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  CoinbaseController controller = new CoinbaseController();
-  Future<double> resultNumber;
-  Future<List> resultWallets;
+  CoinbaseController coinbaseController = new CoinbaseController();
+  double resultNumber = 0;
+  List resultWallets = [];
 
   @override
   void initState() {
@@ -74,10 +74,17 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 
-  _loadData() {
+  _loadData() async {
+    double tempNumber =
+        await coinbaseController.getValue().then((value) => value);
+    List tempWallets =
+        await coinbaseController.getCurrencies().then((value) => value);
     setState(() {
-      resultNumber = controller.getValue();
-      resultWallets = controller.getCurrencies();
+      if (resultNumber != tempNumber) resultNumber = tempNumber;
+      if (!coinbaseController.isEqual(resultWallets, tempWallets) ||
+          resultWallets.isEmpty) {
+        resultWallets = tempWallets;
+      }
     });
   }
 

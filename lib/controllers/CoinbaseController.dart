@@ -25,7 +25,6 @@ class CoinbaseController {
         return false;
       }
     }
-    print("EQUAL");
     return true;
   }
 
