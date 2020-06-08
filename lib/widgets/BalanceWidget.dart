@@ -1,9 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
-import 'package:tradingbot/controllers/CoinbaseController.dart';
-import 'package:tradingbot/controllers/MainController.dart';
 import 'dart:async';
 
 class BalanceWidget extends StatefulWidget {
@@ -19,10 +16,6 @@ class BalanceWidgetState extends State<BalanceWidget> {
   Widget build(BuildContext context) {
     final _formatCurrency = new NumberFormat.simpleCurrency();
     double fontSize = MediaQuery.of(context).size.height * 0.03;
-
-    MainController mainController = new MainController();
-
-    // print(widget.number);
 
     return Container(
         color: Theme.of(context).primaryColor,

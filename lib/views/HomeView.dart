@@ -59,10 +59,7 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  StreamController<double> streamValue = StreamController.broadcast();
-  StreamController<List> streamCurrencies = StreamController.broadcast();
   CoinbaseController controller = new CoinbaseController();
-  Stream stream = Stream.periodic(Duration(seconds: 2)).asBroadcastStream();
   Future<double> resultNumber;
   Future<List> resultWallets;
 
@@ -77,9 +74,7 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 
-  _loadData() async {
-    double tempNumber = await controller.getValue().then((value) => value);
-    List tempWallets = await controller.getCurrencies().then((value) => value);
+  _loadData() {
     setState(() {
       resultNumber = controller.getValue();
       resultWallets = controller.getCurrencies();
