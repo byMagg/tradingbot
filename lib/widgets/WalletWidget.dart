@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tradingbot/views/CurrencyView.dart';
+import 'package:tradingbot/models/Currency.dart';
 
 class WalletWidget extends StatefulWidget {
-  final List wallets;
+  final List<Currency> wallets;
 
   WalletWidget({Key key, @required this.wallets}) : super(key: key);
 
@@ -18,7 +19,7 @@ class WalletWidgetState extends State<WalletWidget> {
 
     double cardWidth =
         MediaQuery.of(context).size.width * 0.2 - (cardMargin * 2);
-    List it = widget.wallets;
+    List<Currency> it = widget.wallets;
 
     return Expanded(
         child: (it.isEmpty)
@@ -31,10 +32,10 @@ class WalletWidgetState extends State<WalletWidget> {
                 scrollDirection: Axis.horizontal,
                 itemCount: it.length,
                 itemBuilder: (context, index) {
-                  String currency = it[index]['currency'];
+                  String currency = it[index].currency;
                   String number = NumberFormat.compactCurrency(
                           decimalDigits: 2, symbol: '\$ ')
-                      .format(double.parse(it[index]['value']));
+                      .format(it[index].value);
 
                   return Card(
                     margin: EdgeInsets.only(

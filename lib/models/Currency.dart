@@ -1,23 +1,17 @@
 class Currency extends Comparable {
-  String symbol;
-  double balance;
-  double priceUSD;
-  double totalUSD;
+  String currency;
+  double amount;
+  double value;
 
-  Currency(String symbol, double balance, double priceUSD,
-      double totalUSD) {
-    this.symbol = symbol;
-    this.balance = balance;
-    this.priceUSD = priceUSD;
-    this.totalUSD = totalUSD;
+  Currency(String currency, double amount, double value) {
+    this.currency = currency;
+    this.amount = amount;
+    this.value = value;
   }
 
   @override
   int compareTo(other) {
-    if ((this.priceUSD * this.balance) == (other.priceUSD * other.balance))
-      return 0;
-    return ((this.priceUSD * this.balance) > (other.priceUSD * other.balance))
-        ? -1
-        : 1;
+    if (this.value == other.value) return 0;
+    return (this.value > other.value) ? -1 : 1;
   }
 }

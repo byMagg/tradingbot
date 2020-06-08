@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:crypto/crypto.dart';
+import 'package:tradingbot/models/Currency.dart';
 
 class CoinbaseController {
   String apikey;
@@ -22,16 +23,16 @@ class CoinbaseController {
         .then((value) => double.parse(value['value']));
   }
 
-  Future<List> getCurrencies() async {
+  Future<List<Currency>> getCurrencies() async {
     return await _fetchCoinbasePro().then((value) => value['balances']);
   }
 
-  bool isEqual(List before, List after) {
+  bool isEqual(List<Currency> before, List<Currency> after) {
     double number1, number2;
 
     for (var i = 0; i < before.length; i++) {
-      number1 = double.parse(before[i]['value']);
-      number2 = double.parse(after[i]['value']);
+      number1 = before[i].value;
+      number2 = after[i].value;
 
       if (number1 != number2) {
         print("$number1 | $number2");
@@ -45,13 +46,11 @@ class CoinbaseController {
     var balances = await coinbasePro.getBalance();
     if (balances == null) return null;
 
-    var wallets = [];
+    List<Currency> wallets = [];
 
     for (var balance in balances) {
-      wallets.add({
-        'currency': balance['currency'],
-        'amount': balance['balance'],
-      });
+      wallets.add(new Currency(
+          balance['currency'], double.parse(balance['balance']), 0));
     }
 
     var data = {'balances': wallets, 'value': 0};
@@ -64,33 +63,21 @@ class CoinbaseController {
         .then((res) => json.decode(res.body));
     var id;
     double result = 0;
-    var wallets = data['balances'];
+    List<Currency> wallets = data['balances'];
 
     try {
       for (var wallet in wallets) {
-        var currency = wallet['currency'];
+        var currency = wallet.currency;
 
-        var amount = double.parse(wallet['amount']);
+        var amount = wallet.amount;
 
         double currencyPrice = 0;
 
-        double eur;
+        double value;
 
-        var icon;
-        var fiat = "USD";
-        if (currency == 'EUR' || currency == 'USD' || currency == 'GBP') {
-          if (currency == fiat) {
-            eur = amount;
-            wallet['value'] = eur.toStringAsFixed(2);
-          } else {
-            var exchangeRate = await get(
-                    'https://api.exchangeratesapi.io/latest?base=$currency&symbols=$fiat')
-                .then((res) => json.decode(res.body)['rates'][fiat]);
-            eur = amount * exchangeRate;
-            wallet['value'] = eur.toStringAsFixed(2);
-          }
-
-          icon = _fetchIcons(currency);
+        if (currency == 'USD') {
+          value = amount;
+          wallet.value = value;
         } else {
           for (int i = 0; i < coingecko.length; i++) {
             if (currency == coingecko[i]['symbol'].toUpperCase()) {
@@ -100,34 +87,22 @@ class CoinbaseController {
           }
 
           var response = await get(
-                  'https://api.coingecko.com/api/v3/coins/markets?vs_currency=${fiat.toLowerCase()}&ids=$id')
+                  'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=$id')
               .then((res) => json.decode(res.body));
 
           currencyPrice = double.parse(response[0]['current_price'].toString());
 
-          eur = currencyPrice * amount;
-          wallet['value'] = eur.toStringAsFixed(2);
-          icon = response[0]['image'];
+          value = currencyPrice * amount;
+          wallet.value = value;
         }
-        result += eur;
-        wallet['icon'] = icon;
+        result += value;
       }
-
+      wallets.sort();
       data['value'] = result.toStringAsFixed(2);
 
       return data;
     } on Exception {
       return null;
-    }
-  }
-
-  _fetchIcons(id) {
-    if (id == 'EUR')
-      return 'http://cdn.onlinewebfonts.com/svg/img_408170.png';
-    else if (id == 'GBP')
-      return 'http://cdn.onlinewebfonts.com/svg/img_221173.png';
-    else if (id == 'USD') {
-      return 'http://cdn.onlinewebfonts.com/svg/img_455423.png';
     }
   }
 }

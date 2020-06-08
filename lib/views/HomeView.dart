@@ -6,6 +6,8 @@ import 'package:tradingbot/widgets/LineChartWidget.dart';
 import 'package:tradingbot/widgets/OperationsWidget.dart';
 import 'package:tradingbot/widgets/TitleWidget.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
+import 'package:tradingbot/models/Currency.dart';
+
 import 'dart:async';
 
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -61,7 +63,7 @@ class _HomeViewState extends State<HomeView> {
 
   CoinbaseController coinbaseController = new CoinbaseController();
   double resultNumber = 0;
-  List resultWallets = [];
+  List<Currency> resultWallets = [];
 
   @override
   void initState() {
@@ -77,7 +79,7 @@ class _HomeViewState extends State<HomeView> {
   _loadData() async {
     double tempNumber =
         await coinbaseController.getValue().then((value) => value);
-    List tempWallets =
+    List<Currency> tempWallets =
         await coinbaseController.getCurrencies().then((value) => value);
     setState(() {
       if (resultNumber != tempNumber) resultNumber = tempNumber;
