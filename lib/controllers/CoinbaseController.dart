@@ -4,6 +4,19 @@ import 'package:http/http.dart';
 import 'package:crypto/crypto.dart';
 
 class CoinbaseController {
+  String apikey;
+  String secret;
+  String passphrase;
+  CoinbasePro coinbasePro;
+
+  CoinbaseController() {
+    this.apikey = "f5e39c91cc9636966d2a630f259f9cbc";
+    this.secret =
+        "Uhfp4rqy69aeoKotpjV2KoXxXH+It05yHiIjwFwrRTlk115XYGukuoSkFByiFE9+4X0DgIHmIk+btMwnvBxGyg==";
+    this.passphrase = "vwvomszp10d";
+    this.coinbasePro = new CoinbasePro(apikey, secret, passphrase);
+  }
+
   Future<double> getValue() async {
     return await _fetchCoinbasePro()
         .then((value) => double.parse(value['value']));
@@ -29,12 +42,6 @@ class CoinbaseController {
   }
 
   Future _fetchCoinbasePro() async {
-    final apikey = "f5e39c91cc9636966d2a630f259f9cbc";
-    final secret =
-        "Uhfp4rqy69aeoKotpjV2KoXxXH+It05yHiIjwFwrRTlk115XYGukuoSkFByiFE9+4X0DgIHmIk+btMwnvBxGyg==";
-    final passphrase = "vwvomszp10d";
-
-    final coinbasePro = new CoinbasePro(apikey, secret, passphrase);
     var balances = await coinbasePro.getBalance();
     if (balances == null) return null;
 
@@ -172,6 +179,21 @@ class CoinbasePro {
   }
 
   getBalance() async {
+    var request = {'method': 'GET', 'endPoint': '/accounts', 'body': ''};
+    var response = await this._response(request);
+
+    if (response != null && response.statusCode == 200) {
+      var result = json.decode(response.body);
+      var balance = [];
+      for (var res in result) {
+        balance.add(res);
+      }
+      return balance;
+    }
+    return null;
+  }
+
+  getFills() async {
     var request = {'method': 'GET', 'endPoint': '/accounts', 'body': ''};
     var response = await this._response(request);
 
