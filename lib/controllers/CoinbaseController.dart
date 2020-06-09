@@ -54,7 +54,6 @@ class CoinbaseController {
   _calculateAmount(data) async {
     List<Currency> wallets = data['balances'];
     double result = 0;
-    var id;
 
     try {
       for (var wallet in wallets) {
