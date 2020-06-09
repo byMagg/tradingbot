@@ -28,16 +28,9 @@ class CoinbaseController {
   }
 
   bool isEqual(List<Currency> before, List<Currency> after) {
-    String number1, number2;
-
     for (var i = 0; i < before.length; i++) {
-      number1 = before[i].value.toStringAsFixed(2);
-      number2 = after[i].value.toStringAsFixed(2);
-
-      if (number1 != number2) {
-        print("$number1 | $number2");
-        return false;
-      }
+      if (before[i].value.toStringAsFixed(2) !=
+          after[i].value.toStringAsFixed(2)) return false;
     }
     return true;
   }
@@ -59,36 +52,31 @@ class CoinbaseController {
   }
 
   _calculateAmount(data) async {
-    var coingecko = await get('https://api.coingecko.com/api/v3/coins/list')
-        .then((res) => json.decode(res.body));
     List<Currency> wallets = data['balances'];
     double result = 0;
     var id;
 
     try {
       for (var wallet in wallets) {
-        double value;
-
         if (wallet.currency == 'USD') {
-          value = wallet.amount;
-          wallet.value = value;
+          wallet.value = wallet.amount;
         } else {
+          var coingecko =
+              await get('https://api.coingecko.com/api/v3/coins/list')
+                  .then((res) => json.decode(res.body));
           for (int i = 0; i < coingecko.length; i++) {
             if (wallet.currency == coingecko[i]['symbol'].toUpperCase()) {
-              id = coingecko[i]['id'];
+              var response = await get(
+                      'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=$coingecko[i]["id"]')
+                  .then((res) => json.decode(res.body));
+              wallet.value =
+                  double.parse(response[0]['current_price'].toString()) *
+                      wallet.amount;
               break;
             }
           }
-
-          var response = await get(
-                  'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=$id')
-              .then((res) => json.decode(res.body));
-
-          value = double.parse(response[0]['current_price'].toString()) *
-              wallet.amount;
-          wallet.value = value;
         }
-        result += value;
+        result += wallet.value;
       }
       wallets.sort();
       data['value'] = result.toStringAsFixed(2);
