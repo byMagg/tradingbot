@@ -63,10 +63,12 @@ class CoinbaseController {
           var coingecko =
               await get('https://api.coingecko.com/api/v3/coins/list')
                   .then((res) => json.decode(res.body));
-          for (int i = 0; i < coingecko.length; i++) {
-            if (wallet.currency == coingecko[i]['symbol'].toUpperCase()) {
+
+          for (var item in coingecko) {
+            if (wallet.currency == item['symbol'].toUpperCase()) {
+              var id = item['id'];
               var response = await get(
-                      'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=$coingecko[i]["id"]')
+                      'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=$id')
                   .then((res) => json.decode(res.body));
               wallet.value =
                   double.parse(response[0]['current_price'].toString()) *
