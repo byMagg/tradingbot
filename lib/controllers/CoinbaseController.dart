@@ -1,33 +1,42 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:crypto/crypto.dart';
 import 'package:tradingbot/models/Currency.dart';
 
 class CoinbaseController {
-  String apikey;
-  String secret;
-  String passphrase;
-  CoinbasePro coinbasePro;
+  String _apiKey;
+  String _secret;
+  String _passPhrase;
+  String _base = 'https://api-public.sandbox.pro.coinbase.com';
 
   CoinbaseController() {
-    this.apikey = "f5e39c91cc9636966d2a630f259f9cbc";
-    this.secret =
-        "Uhfp4rqy69aeoKotpjV2KoXxXH+It05yHiIjwFwrRTlk115XYGukuoSkFByiFE9+4X0DgIHmIk+btMwnvBxGyg==";
-    this.passphrase = "vwvomszp10d";
-    this.coinbasePro = new CoinbasePro(apikey, secret, passphrase);
+    _loadApiKeys();
+  }
+
+  void _loadApiKeys() async {
+    var jsonStr = await rootBundle.loadString('lib/assets/secrets.json');
+    var jsonData = json.decode(jsonStr);
+    this._apiKey = jsonData['key'];
+    this._secret = jsonData['secret'];
+    this._passPhrase = jsonData['passphrase'];
   }
 
   Future<double> getValue() async {
-    return await _fetchCoinbasePro()
-        .then((value) => double.parse(value['value']));
+    var value = await _fetchCoinbasePro().then((value) => value);
+
+    return (value == null) ? 0 : double.parse(value['value']);
   }
 
   Future<List<Currency>> getCurrencies() async {
-    return await _fetchCoinbasePro().then((value) => value['balances']);
+    var currencies = await _fetchCoinbasePro().then((value) => value);
+
+    return (currencies == null) ? List<Currency>() : currencies['balances'];
   }
 
-  bool isEqual(List<Currency> before, List<Currency> after) {
+  bool checkValueOfCurrencies(List<Currency> before, List<Currency> after) {
+    if (before == null || after == null) return null;
     for (var i = 0; i < before.length; i++) {
       if (before[i].value.toStringAsFixed(2) !=
           after[i].value.toStringAsFixed(2)) return false;
@@ -36,7 +45,7 @@ class CoinbaseController {
   }
 
   Future _fetchCoinbasePro() async {
-    var balances = await coinbasePro.getBalance();
+    var balances = await _getBalance();
     if (balances == null) return null;
 
     List<Currency> wallets = [];
@@ -51,7 +60,7 @@ class CoinbaseController {
     return await _calculateAmount(data);
   }
 
-  _calculateAmount(data) async {
+  Future _calculateAmount(data) async {
     List<Currency> wallets = data['balances'];
     double result = 0;
 
@@ -84,21 +93,8 @@ class CoinbaseController {
 
       return data;
     } on Exception {
-      return null;
+      return Exception;
     }
-  }
-}
-
-class CoinbasePro {
-  String _apiKey;
-  String _secret;
-  String _passPhrase;
-  String _base = 'https://api-public.sandbox.pro.coinbase.com';
-
-  CoinbasePro(String apiKey, String secret, String passPhrase) {
-    this._apiKey = apiKey;
-    this._secret = secret;
-    this._passPhrase = passPhrase;
   }
 
   _hmacSha256Base64(String message, String secret) {
@@ -135,7 +131,7 @@ class CoinbasePro {
     }
   }
 
-  getBalance() async {
+  _getBalance() async {
     var request = {'method': 'GET', 'endPoint': '/accounts', 'body': ''};
     var response = await this._response(request);
 
@@ -150,18 +146,18 @@ class CoinbasePro {
     return null;
   }
 
-  getFills() async {
-    var request = {'method': 'GET', 'endPoint': '/accounts', 'body': ''};
-    var response = await this._response(request);
+  // _getFills() async {
+  //   var request = {'method': 'GET', 'endPoint': '/accounts', 'body': ''};
+  //   var response = await this._response(request);
 
-    if (response != null && response.statusCode == 200) {
-      var result = json.decode(response.body);
-      var balance = [];
-      for (var res in result) {
-        balance.add(res);
-      }
-      return balance;
-    }
-    return null;
-  }
+  //   if (response != null && response.statusCode == 200) {
+  //     var result = json.decode(response.body);
+  //     var balance = [];
+  //     for (var res in result) {
+  //       balance.add(res);
+  //     }
+  //     return balance;
+  //   }
+  //   return null;
+  // }
 }

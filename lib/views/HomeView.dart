@@ -83,7 +83,8 @@ class _HomeViewState extends State<HomeView> {
         await coinbaseController.getCurrencies().then((value) => value);
     setState(() {
       if (resultNumber != tempNumber) resultNumber = tempNumber;
-      if (!coinbaseController.isEqual(resultWallets, tempWallets) ||
+      if (!coinbaseController.checkValueOfCurrencies(
+              resultWallets, tempWallets) ||
           resultWallets.isEmpty) {
         resultWallets = tempWallets;
       }
