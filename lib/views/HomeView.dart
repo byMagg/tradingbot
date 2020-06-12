@@ -14,9 +14,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:tradingbot/widgets/WalletWidget.dart';
 
 class HomeView extends StatefulWidget {
-  HomeView({Key key, this.title}) : super(key: key);
-
-  final String title;
+  HomeView({Key key}) : super(key: key);
 
   @override
   _HomeViewState createState() => _HomeViewState();
@@ -83,7 +81,7 @@ class _HomeViewState extends State<HomeView> {
         await coinbaseController.getCurrencies().then((value) => value);
     setState(() {
       if (resultNumber != tempNumber) resultNumber = tempNumber;
-      if (!coinbaseController.checkValueOfCurrencies(
+      if (!coinbaseController.checkSameValueOfCurrencies(
               resultWallets, tempWallets) ||
           resultWallets.isEmpty) {
         resultWallets = tempWallets;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tradingbot/views/HomeView.dart';
 
 import 'views/WelcomeView.dart';
 
@@ -27,7 +28,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
           primarySwatch: MaterialColor(0xffFF637D, color),
           accentColor: Color(0xffFF637D)),
-      home: WelcomeView(title: 'TradingBOT'),
+      // home: WelcomeView(),
+      home: WelcomeView(),
     );
   }
 }

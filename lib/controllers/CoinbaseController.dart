@@ -35,7 +35,7 @@ class CoinbaseController {
     return (currencies == null) ? List<Currency>() : currencies['balances'];
   }
 
-  bool checkValueOfCurrencies(List<Currency> before, List<Currency> after) {
+  bool checkSameValueOfCurrencies(List<Currency> before, List<Currency> after) {
     if (before == null || after == null) return null;
     for (var i = 0; i < before.length; i++) {
       if (before[i].value.toStringAsFixed(2) !=
@@ -57,10 +57,10 @@ class CoinbaseController {
 
     var data = {'balances': wallets, 'value': 0};
 
-    return await _calculateAmount(data);
+    return await _calculateValueOfCurrencies(data);
   }
 
-  Future _calculateAmount(data) async {
+  Future _calculateValueOfCurrencies(data) async {
     List<Currency> wallets = data['balances'];
     double result = 0;
 
@@ -69,13 +69,13 @@ class CoinbaseController {
         if (wallet.currency == 'USD') {
           wallet.value = wallet.amount;
         } else {
-          var coingecko =
+          var coinPrices =
               await get('https://api.coingecko.com/api/v3/coins/list')
                   .then((res) => json.decode(res.body));
 
-          for (var item in coingecko) {
-            if (wallet.currency == item['symbol'].toUpperCase()) {
-              var id = item['id'];
+          for (var coin in coinPrices) {
+            if (wallet.currency == coin['symbol'].toUpperCase()) {
+              var id = coin['id'];
               var response = await get(
                       'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=$id')
                   .then((res) => json.decode(res.body));
@@ -88,8 +88,8 @@ class CoinbaseController {
         }
         result += wallet.value;
       }
-      wallets.sort();
       data['value'] = result.toStringAsFixed(2);
+      wallets.sort();
 
       return data;
     } on Exception {
