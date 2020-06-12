@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:tradingbot/views/HomeView.dart';
 
 import 'views/WelcomeView.dart';
 
