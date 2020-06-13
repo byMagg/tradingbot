@@ -10,6 +10,7 @@ class CoinbaseController {
   String _secret;
   String _passPhrase;
   String _base = 'https://api-public.sandbox.pro.coinbase.com';
+  // String _base = 'https://api.pro.coinbase.com';
 
   CoinbaseController() {
     _loadApiKeys();
@@ -31,6 +32,8 @@ class CoinbaseController {
 
   Future<List<Currency>> getCurrencies() async {
     var currencies = await _fetchCoinbasePro().then((value) => value);
+    var fills = await _fetchFillsByProductId().then((value) => value);
+    print(fills);
 
     return (currencies == null) ? List<Currency>() : currencies['balances'];
   }
@@ -42,6 +45,12 @@ class CoinbaseController {
           after[i].value.toStringAsFixed(2)) return false;
     }
     return true;
+  }
+
+  Future _fetchFillsByProductId() async {
+    var fills = await _getFills('BTC-USD');
+    if (fills == null) return null;
+    // print(fills);
   }
 
   Future _fetchCoinbasePro() async {
@@ -116,6 +125,7 @@ class CoinbaseController {
           request['method'] +
           request['endPoint'] +
           request['body'];
+      print(query);
       String signature = _hmacSha256Base64(query, this._secret);
       var url = _base + request['endPoint'];
 
@@ -133,7 +143,7 @@ class CoinbaseController {
 
   _getBalance() async {
     var request = {'method': 'GET', 'endPoint': '/accounts', 'body': ''};
-    var response = await this._response(request);
+    Response response = await this._response(request);
 
     if (response != null && response.statusCode == 200) {
       var result = json.decode(response.body);
@@ -146,18 +156,23 @@ class CoinbaseController {
     return null;
   }
 
-  // _getFills() async {
-  //   var request = {'method': 'GET', 'endPoint': '/accounts', 'body': ''};
-  //   var response = await this._response(request);
+  _getFills(String productId) async {
+    var request = {
+      'method': 'GET',
+      'endPoint': '/fills',
+      'body': {"product_id": "BTC-USD"}
+    };
+    Response response = await this._response(request);
+    print(response.body);
 
-  //   if (response != null && response.statusCode == 200) {
-  //     var result = json.decode(response.body);
-  //     var balance = [];
-  //     for (var res in result) {
-  //       balance.add(res);
-  //     }
-  //     return balance;
-  //   }
-  //   return null;
-  // }
+    if (response != null && response.statusCode == 200) {
+      var result = json.decode(response.body);
+      var balance = [];
+      for (var res in result) {
+        balance.add(res);
+      }
+      return balance;
+    }
+    return null;
+  }
 }
