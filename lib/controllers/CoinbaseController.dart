@@ -32,8 +32,7 @@ class CoinbaseController {
 
   Future<List<Currency>> getCurrencies() async {
     var currencies = await _fetchCoinbasePro().then((value) => value);
-    var fills = await _fetchFillsByProductId().then((value) => value);
-    print(fills);
+    var fills = await _fetchOrders().then((value) => value);
 
     return (currencies == null) ? List<Currency>() : currencies['balances'];
   }
@@ -47,10 +46,33 @@ class CoinbaseController {
     return true;
   }
 
-  Future _fetchFillsByProductId() async {
-    var fills = await _getFills('BTC-USD');
-    if (fills == null) return null;
-    // print(fills);
+  Future _fetchOrders() async {
+    var orders = await _getOrders();
+    if (orders == null) return null;
+
+    List data = [];
+
+    for (var item in orders) {
+      if (item['size'] == null) {
+        data.add({
+          "product_id": item['product_id'],
+          "side": item['side'],
+          "specified_funds": item['specified_funds'],
+          "executed_value": item['executed_value']
+        });
+      } else {
+        data.add({
+          "product_id": item['product_id'],
+          "side": item['side'],
+          "size": item['size'],
+          "executed_value": item['executed_value']
+        });
+      }
+    }
+
+    print(data);
+
+    return data;
   }
 
   Future _fetchCoinbasePro() async {
@@ -125,7 +147,6 @@ class CoinbaseController {
           request['method'] +
           request['endPoint'] +
           request['body'];
-      print(query);
       String signature = _hmacSha256Base64(query, this._secret);
       var url = _base + request['endPoint'];
 
@@ -135,6 +156,7 @@ class CoinbaseController {
         'CB-ACCESS-TIMESTAMP': timestamp.toString(),
         'CB-ACCESS-PASSPHRASE': this._passPhrase
       });
+
       return response;
     } on Exception {
       return null;
@@ -156,14 +178,13 @@ class CoinbaseController {
     return null;
   }
 
-  _getFills(String productId) async {
+  _getOrders() async {
     var request = {
       'method': 'GET',
-      'endPoint': '/fills',
-      'body': {"product_id": "BTC-USD"}
+      'endPoint': '/orders?status=done&product_id=BTC-USD',
+      'body': ''
     };
     Response response = await this._response(request);
-    print(response.body);
 
     if (response != null && response.statusCode == 200) {
       var result = json.decode(response.body);
