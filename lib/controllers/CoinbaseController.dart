@@ -59,13 +59,15 @@ class CoinbaseController {
         data.add({
           "product_id": item['product_id'],
           "currency1": "+" + item['filled_size'],
-          "currency2": "-" + item['executed_value']
+          "currency2": "-" + item['executed_value'],
+          "date": item['created_at']
         });
       } else {
         data.add({
           "product_id": item['product_id'],
           "currency1": "-" + item['filled_size'],
-          "currency2": "+" + item['executed_value']
+          "currency2": "+" + item['executed_value'],
+          "date": item['created_at']
         });
       }
     }
@@ -179,7 +181,7 @@ class CoinbaseController {
   Future _getOrders() async {
     var request = {
       'method': 'GET',
-      'endPoint': '/orders?status=done&product_id=BTC-USD',
+      'endPoint': '/orders?status=done',
       'body': ''
     };
     Response response = await this._response(request);

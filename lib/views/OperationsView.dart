@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/controllers/MainController.dart';
 import 'package:tradingbot/widgets/OperationsWidget.dart';
 
 class OperationsView extends StatefulWidget {
+  final List orders;
+
+  OperationsView({
+    Key key,
+    @required this.orders,
+  }) : super(key: key);
+
   @override
   _OperationsViewState createState() => _OperationsViewState();
 }
 
 class _OperationsViewState extends State<OperationsView> {
-  MainController mainController;
-
-  OperationsWidget temp;
-
-  @override
-  void initState() {
-    super.initState();
-    this.mainController = MainController();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,8 +32,11 @@ class _OperationsViewState extends State<OperationsView> {
       ),
       body: Column(
         children: <Widget>[
-          temp.listOperations(
-              this.mainController.initAllOperations(), true, false)
+          OperationsWidget(
+            orders: widget.orders,
+            everything: true,
+            fixed: true,
+          )
         ],
       ),
     );

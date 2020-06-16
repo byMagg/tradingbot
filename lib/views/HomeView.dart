@@ -173,6 +173,8 @@ class _HomeViewState extends State<HomeView> {
                     ),
                   ),
                   OperationsWidget(
+                    everything: false,
+                    fixed: false,
                     orders: resultOrders,
                   )
                 ],
