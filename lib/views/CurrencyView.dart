@@ -50,10 +50,10 @@ class _CurrencyViewState extends State<CurrencyView> {
                     ),
                   ),
                 ),
-                OperationsWidget.listOperations(
-                    this.mainController.initOperations(widget.symbol),
-                    true,
-                    true),
+                // OperationsWidget.listOperations(
+                //     this.mainController.initOperations(widget.symbol),
+                //     true,
+                //     true),
               ],
             ),
           ),

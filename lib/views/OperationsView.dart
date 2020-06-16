@@ -11,6 +11,8 @@ class OperationsView extends StatefulWidget {
 class _OperationsViewState extends State<OperationsView> {
   MainController mainController;
 
+  OperationsWidget temp;
+
   @override
   void initState() {
     super.initState();
@@ -32,7 +34,7 @@ class _OperationsViewState extends State<OperationsView> {
       ),
       body: Column(
         children: <Widget>[
-          OperationsWidget.listOperations(
+          temp.listOperations(
               this.mainController.initAllOperations(), true, false)
         ],
       ),

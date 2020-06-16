@@ -62,6 +62,7 @@ class _HomeViewState extends State<HomeView> {
   CoinbaseController coinbaseController = new CoinbaseController();
   double resultNumber = 0;
   List<Currency> resultWallets = [];
+  List resultOrders = [];
 
   @override
   void initState() {
@@ -79,6 +80,8 @@ class _HomeViewState extends State<HomeView> {
         await coinbaseController.getValue().then((value) => value);
     List<Currency> tempWallets =
         await coinbaseController.getCurrencies().then((value) => value);
+    List tempOrders =
+        await coinbaseController.getOrders().then((value) => value);
     setState(() {
       if (resultNumber != tempNumber) resultNumber = tempNumber;
       if (!coinbaseController.checkSameValueOfCurrencies(
@@ -86,9 +89,11 @@ class _HomeViewState extends State<HomeView> {
           resultWallets.isEmpty) {
         resultWallets = tempWallets;
       }
+      resultOrders = tempOrders;
     });
   }
 
+  CoinbaseController testcontroller = new CoinbaseController();
   @override
   Widget build(BuildContext context) {
     final controller = PageController();
@@ -167,7 +172,9 @@ class _HomeViewState extends State<HomeView> {
                       ],
                     ),
                   ),
-                  OperationsWidget(),
+                  OperationsWidget(
+                    orders: resultOrders,
+                  )
                 ],
               ),
             ],

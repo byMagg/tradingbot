@@ -32,9 +32,12 @@ class CoinbaseController {
 
   Future<List<Currency>> getCurrencies() async {
     var currencies = await _fetchCoinbasePro().then((value) => value);
-    var fills = await _fetchOrders().then((value) => value);
 
     return (currencies == null) ? List<Currency>() : currencies['balances'];
+  }
+
+  Future<List> getOrders() async {
+    return await fetchOrders().then((value) => value);
   }
 
   bool checkSameValueOfCurrencies(List<Currency> before, List<Currency> after) {
@@ -46,31 +49,26 @@ class CoinbaseController {
     return true;
   }
 
-  Future _fetchOrders() async {
-    var orders = await _getOrders();
-    if (orders == null) return null;
+  Future fetchOrders() async {
+    var orders = await _getOrders().then((value) => value);
 
     List data = [];
 
     for (var item in orders) {
-      if (item['size'] == null) {
+      if (item['side'] == "buy") {
         data.add({
           "product_id": item['product_id'],
-          "side": item['side'],
-          "specified_funds": item['specified_funds'],
-          "executed_value": item['executed_value']
+          "currency1": "+" + item['filled_size'],
+          "currency2": "-" + item['executed_value']
         });
       } else {
         data.add({
           "product_id": item['product_id'],
-          "side": item['side'],
-          "size": item['size'],
-          "executed_value": item['executed_value']
+          "currency1": "-" + item['filled_size'],
+          "currency2": "+" + item['executed_value']
         });
       }
     }
-
-    print(data);
 
     return data;
   }
@@ -163,7 +161,7 @@ class CoinbaseController {
     }
   }
 
-  _getBalance() async {
+  Future _getBalance() async {
     var request = {'method': 'GET', 'endPoint': '/accounts', 'body': ''};
     Response response = await this._response(request);
 
@@ -178,7 +176,7 @@ class CoinbaseController {
     return null;
   }
 
-  _getOrders() async {
+  Future _getOrders() async {
     var request = {
       'method': 'GET',
       'endPoint': '/orders?status=done&product_id=BTC-USD',
