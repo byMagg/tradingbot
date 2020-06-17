@@ -55,6 +55,15 @@ class CoinbaseController {
     List data = [];
 
     for (var item in orders) {
+      // if (item['product_id'].contains("USDC")) {
+      //   print(item);
+      //   data.add({
+      //     "product_id": item['product_id'],
+      //     "currency1": "+" + item['specified_funds'],
+      //     "currency2": "-" + item['executed_value'],
+      //     "date": item['created_at']
+      //   });
+      // } else
       if (item['side'] == "buy") {
         data.add({
           "product_id": item['product_id'],
@@ -83,7 +92,7 @@ class CoinbaseController {
 
     for (var balance in balances) {
       wallets.add(new Currency(
-          balance['currency'], double.parse(balance['balance']), 0));
+          balance['currency'], "", double.parse(balance['balance']), 0, 0));
     }
 
     var data = {'balances': wallets, 'value': 0};
@@ -93,12 +102,28 @@ class CoinbaseController {
 
   Future _calculateValueOfCurrencies(data) async {
     List<Currency> wallets = data['balances'];
+
     double result = 0;
 
     try {
+      var currencyPrices = await get(
+              'https://api.exchangeratesapi.io/latest?symbols=EUR,GBP&base=USD')
+          .then((value) => json.decode(value.body));
+
+      var eurPrice = currencyPrices['rates']['EUR'];
+      var gbpPrice = currencyPrices['rates']['GBP'];
+
       for (var wallet in wallets) {
         if (wallet.currency == 'USD') {
+          wallet.name = "United States Dollar";
           wallet.value = wallet.amount;
+          wallet.priceUSD = 1;
+        } else if (wallet.currency == 'EUR') {
+          wallet.name = "Euro";
+          wallet.priceUSD = 1 / eurPrice;
+        } else if (wallet.currency == 'GBP') {
+          wallet.name = "Great Britain Pound";
+          wallet.priceUSD = 1 / gbpPrice;
         } else {
           var coinPrices =
               await get('https://api.coingecko.com/api/v3/coins/list')
@@ -110,9 +135,10 @@ class CoinbaseController {
               var response = await get(
                       'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=$id')
                   .then((res) => json.decode(res.body));
-              wallet.value =
-                  double.parse(response[0]['current_price'].toString()) *
-                      wallet.amount;
+              wallet.name = coin['name'];
+              wallet.priceUSD =
+                  double.parse(response[0]['current_price'].toString());
+              wallet.value = wallet.priceUSD * wallet.amount;
               break;
             }
           }

@@ -26,7 +26,7 @@ class _PricesViewState extends State<PricesView> {
         body: ListView.builder(
             itemCount: _wallets.length,
             itemBuilder: (context, index) {
-              var number = _wallets[index].value / _wallets[index].amount;
+              var number = _wallets[index].priceUSD;
 
               return ListTile(
                 leading: SizedBox(
@@ -37,6 +37,10 @@ class _PricesViewState extends State<PricesView> {
                   ),
                 ),
                 title: Text(
+                  _wallets[index].name,
+                  style: TextStyle(color: Theme.of(context).primaryColor),
+                ),
+                subtitle: Text(
                   _wallets[index].currency,
                   style: TextStyle(color: Colors.black45),
                 ),
