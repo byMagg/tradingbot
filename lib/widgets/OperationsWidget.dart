@@ -1,8 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:tradingbot/controllers/MainController.dart';
+
 import 'package:tradingbot/views/OperationsView.dart';
 
 class OperationsWidget extends StatefulWidget {
@@ -40,7 +39,7 @@ class OperationsWidget extends StatefulWidget {
           width: 10,
         ),
         Text(currency1Number),
-        Text(" / " + currency2Number)
+        Text(" / " + currency2Number),
       ],
     );
 

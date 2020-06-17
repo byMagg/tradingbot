@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:tradingbot/controllers/MainController.dart';
-import 'package:tradingbot/widgets/OperationsWidget.dart';
 import 'package:tradingbot/widgets/SimpleLineChart.dart';
 
 class CurrencyView extends StatefulWidget {
@@ -14,14 +12,6 @@ class CurrencyView extends StatefulWidget {
 }
 
 class _CurrencyViewState extends State<CurrencyView> {
-  MainController mainController;
-
-  @override
-  void initState() {
-    super.initState();
-    this.mainController = MainController();
-  }
-
   _listOperations() {
     return Container(
       child: ListView(

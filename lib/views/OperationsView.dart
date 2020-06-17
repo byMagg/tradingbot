@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:tradingbot/controllers/CoinbaseController.dart';
-import 'package:tradingbot/controllers/MainController.dart';
+
 import 'package:tradingbot/widgets/OperationsWidget.dart';
 
 class OperationsView extends StatefulWidget {

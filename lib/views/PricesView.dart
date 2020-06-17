@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:tradingbot/controllers/MainController.dart';
+import 'package:tradingbot/models/Currency.dart';
 
 class PricesView extends StatefulWidget {
+  final List<Currency> wallets;
+
+  PricesView({Key key, @required this.wallets}) : super(key: key);
+
   @override
   _PricesViewState createState() => _PricesViewState();
 }
 
 class _PricesViewState extends State<PricesView> {
-  MainController mainController;
-
-  @override
-  void initState() {
-    super.initState();
-    this.mainController = MainController();
-  }
-
   @override
   Widget build(BuildContext context) {
+    var _wallets = widget.wallets;
     return Scaffold(
         appBar: AppBar(
           elevation: 0,
@@ -26,34 +23,29 @@ class _PricesViewState extends State<PricesView> {
                 Navigator.of(context).pop();
               }),
         ),
-        body: StreamBuilder(
-          stream: this.mainController.initCurrencies(),
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            if (snapshot.hasData) {
-              var _wallets = snapshot.data.documents;
-              return ListView.builder(
-                  itemCount: _wallets.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: SizedBox(
-                        height: 30,
-                        child: Image(
-                          image: AssetImage(
-                              'lib/assets/currencies/color/${_wallets[index].documentID.toLowerCase()}.png'),
-                        ),
-                      ),
-                      title: Text(_wallets[index].documentID, style: TextStyle(color: Colors.black45),),
-                      trailing: Text(
-                        "\$ ${_wallets[index]["priceUSD"].toStringAsFixed(6)}",
-                        style: TextStyle(color: Theme.of(context).primaryColor),
-                      ),
-                      onTap: () {},
-                    );
-                  });
-            } else {
-              return Center(child: CircularProgressIndicator());
-            }
-          },
-        ));
+        body: ListView.builder(
+            itemCount: _wallets.length,
+            itemBuilder: (context, index) {
+              var number = _wallets[index].value / _wallets[index].amount;
+
+              return ListTile(
+                leading: SizedBox(
+                  height: 30,
+                  child: Image(
+                    image: AssetImage(
+                        'lib/assets/currencies/color/${_wallets[index].currency.toLowerCase()}.png'),
+                  ),
+                ),
+                title: Text(
+                  _wallets[index].currency,
+                  style: TextStyle(color: Colors.black45),
+                ),
+                trailing: Text(
+                  "\$ ${number.toStringAsFixed(6)}",
+                  style: TextStyle(color: Theme.of(context).primaryColor),
+                ),
+                onTap: () {},
+              );
+            }));
   }
 }

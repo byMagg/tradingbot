@@ -113,8 +113,10 @@ class _HomeViewState extends State<HomeView> {
               IconButton(
                   icon: Icon(Icons.account_balance_wallet),
                   onPressed: () {
-                    Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => PricesView()));
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => PricesView(
+                              wallets: resultWallets,
+                            )));
                   }),
             ],
           ),
