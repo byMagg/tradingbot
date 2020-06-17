@@ -29,14 +29,10 @@ class _OperationsViewState extends State<OperationsView> {
               Navigator.of(context).pop();
             }),
       ),
-      body: Column(
-        children: <Widget>[
-          OperationsWidget(
-            orders: widget.orders,
-            everything: true,
-            fixed: true,
-          )
-        ],
+      body: OperationsWidget(
+        orders: widget.orders,
+        everything: true,
+        fixed: false,
       ),
     );
   }

@@ -55,15 +55,7 @@ class CoinbaseController {
     List data = [];
 
     for (var item in orders) {
-      // if (item['product_id'].contains("USDC")) {
-      //   print(item);
-      //   data.add({
-      //     "product_id": item['product_id'],
-      //     "currency1": "+" + item['specified_funds'],
-      //     "currency2": "-" + item['executed_value'],
-      //     "date": item['created_at']
-      //   });
-      // } else
+      if (item['done_reason'] == "canceled") continue;
       if (item['side'] == "buy") {
         data.add({
           "product_id": item['product_id'],

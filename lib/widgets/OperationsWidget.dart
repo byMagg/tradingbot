@@ -117,7 +117,7 @@ class _OperationsWidgetState extends State<OperationsWidget> {
     return Container(
       child: Column(
         children: <Widget>[
-          !widget.fixed
+          widget.fixed
               ? Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   child: Align(
@@ -134,7 +134,7 @@ class _OperationsWidgetState extends State<OperationsWidget> {
                 )
               : Container(),
           widget.listOperations(),
-          !widget.fixed
+          widget.fixed
               ? MaterialButton(
                   height: 50,
                   child: Container(
