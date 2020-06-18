@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:crypto/crypto.dart';
 import 'package:tradingbot/models/Currency.dart';
+import 'package:tradingbot/models/Order.dart';
 
 class CoinbaseController {
   String _apiKey;
@@ -36,7 +37,7 @@ class CoinbaseController {
     return (currencies == null) ? List<Currency>() : currencies['balances'];
   }
 
-  Future<List> getOrders() async {
+  Future<List<Order>> getOrders() async {
     return await fetchOrders().then((value) => value);
   }
 
@@ -52,25 +53,16 @@ class CoinbaseController {
   Future fetchOrders() async {
     var orders = await _getOrders().then((value) => value);
 
-    List data = [];
+    List<Order> data = [];
 
     for (var item in orders) {
       if (item['done_reason'] == "canceled") continue;
-      if (item['side'] == "buy") {
-        data.add({
-          "product_id": item['product_id'],
-          "currency1": "+" + item['filled_size'],
-          "currency2": "-" + item['executed_value'],
-          "date": item['created_at']
-        });
-      } else {
-        data.add({
-          "product_id": item['product_id'],
-          "currency1": "-" + item['filled_size'],
-          "currency2": "+" + item['executed_value'],
-          "date": item['created_at']
-        });
-      }
+
+      data.add(new Order(
+          item['product_id'],
+          double.parse(item['filled_size']),
+          double.parse(item['executed_value']),
+          DateTime.parse(item['created_at'])));
     }
 
     return data;

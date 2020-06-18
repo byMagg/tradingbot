@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/views/PricesView.dart';
 import 'package:tradingbot/widgets/BalanceWidget.dart';
 import 'package:tradingbot/widgets/BarChartWidget.dart';
@@ -80,7 +81,7 @@ class _HomeViewState extends State<HomeView> {
         await coinbaseController.getValue().then((value) => value);
     List<Currency> tempWallets =
         await coinbaseController.getCurrencies().then((value) => value);
-    List tempOrders =
+    List<Order> tempOrders =
         await coinbaseController.getOrders().then((value) => value);
     setState(() {
       if (resultNumber != tempNumber) resultNumber = tempNumber;

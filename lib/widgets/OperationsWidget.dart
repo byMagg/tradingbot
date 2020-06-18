@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:tradingbot/models/Order.dart';
 
 import 'package:tradingbot/views/OperationsView.dart';
 
@@ -19,22 +20,15 @@ class OperationsWidget extends StatefulWidget {
   @override
   _OperationsWidgetState createState() => _OperationsWidgetState();
 
-  getItemListTile(context, index, _operations) {
-    var currency1Number = NumberFormat.decimalPattern("eu")
-        .format(double.parse(_operations[index]['currency1']))
-        .toString();
-    var currency2Number = NumberFormat.decimalPattern("eu")
-        .format(double.parse(_operations[index]['currency2']))
-        .toString();
-
-    var splittedProduct = _operations[index]['product_id'].split("-");
-
-    var currency1Name = splittedProduct[0];
-    var currency2Name = splittedProduct[1];
+  getItemListTile(context, index, Order order) {
+    var currency1Number =
+        NumberFormat.decimalPattern("eu").format(order.currency1).toString();
+    var currency2Number =
+        NumberFormat.decimalPattern("eu").format(order.currency2).toString();
 
     var widget = Row(
       children: <Widget>[
-        Text(_operations[index]['product_id']),
+        Text(order.productId),
         SizedBox(
           width: 10,
         ),
@@ -42,8 +36,6 @@ class OperationsWidget extends StatefulWidget {
         Text(" / " + currency2Number),
       ],
     );
-
-    var date = _operations[index]['date'];
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -63,8 +55,8 @@ class OperationsWidget extends StatefulWidget {
               trailing: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("${date.toString().substring(0, 10)}"),
-                    Text("${date.toString().substring(11, 19)}")
+                    Text("${order.date.toString().substring(0, 10)}"),
+                    Text("${order.date.toString().substring(11, 19)}")
                   ]),
               title: widget)),
     );
@@ -92,7 +84,8 @@ class OperationsWidget extends StatefulWidget {
                 child: ListView.builder(
                     itemCount: _operations.length,
                     itemBuilder: (context, index) {
-                      return getItemListTile(context, index, _operations);
+                      return getItemListTile(
+                          context, index, _operations[index]);
                     }))
             : Container(
                 child: ListView.builder(
@@ -101,7 +94,8 @@ class OperationsWidget extends StatefulWidget {
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: everything ? _operations.length : 5,
                     itemBuilder: (context, index) {
-                      return getItemListTile(context, index, _operations);
+                      return getItemListTile(
+                          context, index, _operations[index]);
                     }));
   }
 }
