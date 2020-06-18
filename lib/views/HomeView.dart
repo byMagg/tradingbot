@@ -70,17 +70,29 @@ class _HomeViewState extends State<HomeView> {
     super.initState();
 
     _loadData();
+    _loadOrders();
 
     Timer.periodic(Duration(seconds: 5), (Timer t) async {
       _loadData();
+      _loadOrders();
+    });
+  }
+
+  _loadOrders() async {
+    List<Order> tempOrders =
+        await coinbaseController.getOrders().then((value) => value);
+    setState(() {
+      resultOrders = tempOrders;
     });
   }
 
   _loadData() async {
-    double tempNumber = coinbaseController.getValue();
-    List<Currency> tempWallets = coinbaseController.getCurrencies();
-    List<Order> tempOrders =
-        await coinbaseController.getOrders().then((value) => value);
+    coinbaseController.refreshBalances();
+    double tempNumber =
+        await coinbaseController.getValue().then((value) => value);
+    List<Currency> tempWallets =
+        await coinbaseController.getCurrencies().then((value) => value);
+
     setState(() {
       if (resultNumber != tempNumber) resultNumber = tempNumber;
       if (!coinbaseController.checkSameValueOfCurrencies(
@@ -88,7 +100,6 @@ class _HomeViewState extends State<HomeView> {
           resultWallets.isEmpty) {
         resultWallets = tempWallets;
       }
-      resultOrders = tempOrders;
     });
   }
 

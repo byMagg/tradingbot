@@ -25,20 +25,18 @@ class CoinbaseController {
     this._passPhrase = jsonData['passphrase'];
   }
 
-  var balances;
+  Future balances;
 
-  refreshBalances() async {
-    this.balances = await _fetchBalances().then((value) => value);
+  refreshBalances() {
+    this.balances = _fetchBalances();
   }
 
-  double getValue() {
-    if (this.balances == null) refreshBalances();
-    return double.parse(this.balances['value']);
+  Future<double> getValue() async {
+    return await balances.then((value) => double.parse(value['value']));
   }
 
-  List<Currency> getCurrencies() {
-    if (this.balances == null) refreshBalances();
-    return this.balances['balances'];
+  Future<List<Currency>> getCurrencies() async {
+    return await balances.then((value) => value['balances']);
   }
 
   Future<List<Order>> getOrders() async {
@@ -170,7 +168,6 @@ class CoinbaseController {
         'CB-ACCESS-TIMESTAMP': timestamp.toString(),
         'CB-ACCESS-PASSPHRASE': this._passPhrase
       });
-
       return response;
     } on Exception {
       return null;
