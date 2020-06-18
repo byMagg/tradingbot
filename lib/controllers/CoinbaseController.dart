@@ -25,20 +25,24 @@ class CoinbaseController {
     this._passPhrase = jsonData['passphrase'];
   }
 
-  Future<double> getValue() async {
-    var value = await _fetchCoinbasePro().then((value) => value);
+  var balances;
 
-    return (value == null) ? 0 : double.parse(value['value']);
+  refreshBalances() async {
+    this.balances = await _fetchBalances().then((value) => value);
   }
 
-  Future<List<Currency>> getCurrencies() async {
-    var currencies = await _fetchCoinbasePro().then((value) => value);
+  double getValue() {
+    if (this.balances == null) refreshBalances();
+    return double.parse(this.balances['value']);
+  }
 
-    return (currencies == null) ? List<Currency>() : currencies['balances'];
+  List<Currency> getCurrencies() {
+    if (this.balances == null) refreshBalances();
+    return this.balances['balances'];
   }
 
   Future<List<Order>> getOrders() async {
-    return await fetchOrders().then((value) => value);
+    return await _fetchOrders().then((value) => value);
   }
 
   bool checkSameValueOfCurrencies(List<Currency> before, List<Currency> after) {
@@ -50,7 +54,7 @@ class CoinbaseController {
     return true;
   }
 
-  Future fetchOrders() async {
+  Future _fetchOrders() async {
     var orders = await _getOrders().then((value) => value);
 
     List<Order> data = [];
@@ -68,7 +72,7 @@ class CoinbaseController {
     return data;
   }
 
-  Future _fetchCoinbasePro() async {
+  Future _fetchBalances() async {
     var balances = await _getBalance();
     if (balances == null) return null;
 
@@ -198,11 +202,11 @@ class CoinbaseController {
 
     if (response != null && response.statusCode == 200) {
       var result = json.decode(response.body);
-      var balance = [];
+      var orders = [];
       for (var res in result) {
-        balance.add(res);
+        orders.add(res);
       }
-      return balance;
+      return orders;
     }
     return null;
   }
