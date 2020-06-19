@@ -100,9 +100,11 @@ class CoinbaseController {
         } else if (currency == 'EUR') {
           name = "Euro";
           priceUSD = 1 / eurPrice;
+          value = amount * priceUSD;
         } else if (currency == 'GBP') {
           name = "Great Britain Pound";
           priceUSD = 1 / gbpPrice;
+          value = amount * priceUSD;
         } else {
           var coinPrices =
               await get('https://api.coingecko.com/api/v3/coins/list')
@@ -110,9 +112,8 @@ class CoinbaseController {
 
           for (var coin in coinPrices) {
             if (currency == coin['symbol'].toUpperCase()) {
-              var id = coin['id'];
               var response = await get(
-                      'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=$id')
+                      'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coin["id"]}')
                   .then((res) => json.decode(res.body));
               name = coin['name'];
               priceUSD = double.parse(response[0]['current_price'].toString());
@@ -161,8 +162,8 @@ class CoinbaseController {
         'CB-ACCESS-PASSPHRASE': this._passPhrase
       });
       return response;
-    } on Exception {
-      return null;
+    } catch (e) {
+      return e;
     }
   }
 
