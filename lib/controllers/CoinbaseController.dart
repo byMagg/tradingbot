@@ -32,7 +32,7 @@ class CoinbaseController {
   }
 
   Future<double> getValue() async {
-    return await balances.then((value) => double.parse(value['value']));
+    return await balances.then((value) => value['value']);
   }
 
   Future<List<Currency>> getCurrencies() async {
@@ -53,7 +53,7 @@ class CoinbaseController {
   }
 
   Future _fetchOrders() async {
-    var orders = await _getOrders().then((value) => value);
+    var orders = await _getOrders();
 
     List<Order> data = [];
 
@@ -76,21 +76,6 @@ class CoinbaseController {
 
     List<Currency> wallets = [];
 
-    for (var balance in balances) {
-      wallets.add(new Currency(
-          balance['currency'], "", double.parse(balance['balance']), 0, 0));
-    }
-
-    var data = {'balances': wallets, 'value': 0};
-
-    return await _calculateValueOfCurrencies(data);
-  }
-
-  Future _calculateValueOfCurrencies(data) async {
-    List<Currency> wallets = data['balances'];
-
-    double result = 0;
-
     try {
       var currencyPrices = await get(
               'https://api.exchangeratesapi.io/latest?symbols=EUR,GBP&base=USD')
@@ -99,44 +84,51 @@ class CoinbaseController {
       var eurPrice = currencyPrices['rates']['EUR'];
       var gbpPrice = currencyPrices['rates']['GBP'];
 
-      for (var wallet in wallets) {
-        if (wallet.currency == 'USD') {
-          wallet.name = "United States Dollar";
-          wallet.value = wallet.amount;
-          wallet.priceUSD = 1;
-        } else if (wallet.currency == 'EUR') {
-          wallet.name = "Euro";
-          wallet.priceUSD = 1 / eurPrice;
-        } else if (wallet.currency == 'GBP') {
-          wallet.name = "Great Britain Pound";
-          wallet.priceUSD = 1 / gbpPrice;
+      double result = 0;
+
+      for (var wallet in balances) {
+        String currency = wallet['currency'];
+        String name = "";
+        double amount = double.parse(wallet['balance']);
+        double priceUSD = 0;
+        double value = 0;
+
+        if (currency == 'USD') {
+          name = "United States Dollar";
+          value = amount;
+          priceUSD = 1;
+        } else if (currency == 'EUR') {
+          name = "Euro";
+          priceUSD = 1 / eurPrice;
+        } else if (currency == 'GBP') {
+          name = "Great Britain Pound";
+          priceUSD = 1 / gbpPrice;
         } else {
           var coinPrices =
               await get('https://api.coingecko.com/api/v3/coins/list')
                   .then((res) => json.decode(res.body));
 
           for (var coin in coinPrices) {
-            if (wallet.currency == coin['symbol'].toUpperCase()) {
+            if (currency == coin['symbol'].toUpperCase()) {
               var id = coin['id'];
               var response = await get(
                       'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=$id')
                   .then((res) => json.decode(res.body));
-              wallet.name = coin['name'];
-              wallet.priceUSD =
-                  double.parse(response[0]['current_price'].toString());
-              wallet.value = wallet.priceUSD * wallet.amount;
+              name = coin['name'];
+              priceUSD = double.parse(response[0]['current_price'].toString());
+              value = priceUSD * amount;
               break;
             }
           }
         }
-        result += wallet.value;
+        wallets.add(new Currency(currency, name, amount, value, priceUSD));
+        result += value;
       }
-      data['value'] = result.toStringAsFixed(2);
       wallets.sort();
 
-      return data;
-    } on Exception {
-      return Exception;
+      return {'balances': wallets, 'value': result};
+    } catch (e) {
+      return e;
     }
   }
 
@@ -179,12 +171,7 @@ class CoinbaseController {
     Response response = await this._response(request);
 
     if (response != null && response.statusCode == 200) {
-      var result = json.decode(response.body);
-      var balance = [];
-      for (var res in result) {
-        balance.add(res);
-      }
-      return balance;
+      return json.decode(response.body);
     }
     return null;
   }
@@ -198,12 +185,7 @@ class CoinbaseController {
     Response response = await this._response(request);
 
     if (response != null && response.statusCode == 200) {
-      var result = json.decode(response.body);
-      var orders = [];
-      for (var res in result) {
-        orders.add(res);
-      }
-      return orders;
+      return json.decode(response.body);
     }
     return null;
   }
