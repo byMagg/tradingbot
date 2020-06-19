@@ -25,22 +25,22 @@ class CoinbaseController {
     this._passPhrase = jsonData['passphrase'];
   }
 
-  Future balances;
+  var balances;
 
-  refreshBalances() {
-    this.balances = _fetchBalances();
+  refreshBalances() async {
+    this.balances = await _fetchBalances();
   }
 
-  Future<double> getValue() async {
-    return await balances.then((value) => value['value']);
+  double getValue() {
+    return (balances == null) ? 0 : balances['value'];
   }
 
-  Future<List<Currency>> getCurrencies() async {
-    return await balances.then((value) => value['balances']);
+  List<Currency> getCurrencies() {
+    return (balances == null) ? List<Currency>() : balances['balances'];
   }
 
   Future<List<Order>> getOrders() async {
-    return await _fetchOrders().then((value) => value);
+    return await _fetchOrders();
   }
 
   bool checkSameValueOfCurrencies(List<Currency> before, List<Currency> after) {

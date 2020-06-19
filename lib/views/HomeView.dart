@@ -79,8 +79,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   _loadOrders() async {
-    List<Order> tempOrders =
-        await coinbaseController.getOrders().then((value) => value);
+    List<Order> tempOrders = await coinbaseController.getOrders();
 
     setState(() {
       resultOrders = tempOrders;
@@ -89,10 +88,8 @@ class _HomeViewState extends State<HomeView> {
 
   _loadData() async {
     coinbaseController.refreshBalances();
-    double tempNumber =
-        await coinbaseController.getValue().then((value) => value);
-    List<Currency> tempWallets =
-        await coinbaseController.getCurrencies().then((value) => value);
+    double tempNumber = coinbaseController.getValue();
+    List<Currency> tempWallets = coinbaseController.getCurrencies();
 
     setState(() {
       if (resultNumber != tempNumber) resultNumber = tempNumber;
@@ -104,7 +101,6 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 
-  CoinbaseController testcontroller = new CoinbaseController();
   @override
   Widget build(BuildContext context) {
     final controller = PageController();
