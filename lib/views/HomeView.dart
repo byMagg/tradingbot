@@ -81,6 +81,7 @@ class _HomeViewState extends State<HomeView> {
   _loadOrders() async {
     List<Order> tempOrders =
         await coinbaseController.getOrders().then((value) => value);
+
     setState(() {
       resultOrders = tempOrders;
     });
