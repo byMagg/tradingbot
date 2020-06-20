@@ -24,10 +24,10 @@ class WalletWidgetState extends State<WalletWidget> {
     return Expanded(
         child: (it.isEmpty)
             ? Center(
-                child: CircularProgressIndicator(
-                  backgroundColor: Colors.white,
-                ),
-              )
+                child: Text(
+                "We are loading your wallets",
+                style: TextStyle(fontSize: 20, color: Colors.white),
+              ))
             : ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: it.length,
