@@ -61,9 +61,9 @@ class _HomeViewState extends State<HomeView> {
   }
 
   CoinbaseController coinbaseController = new CoinbaseController();
-  double resultNumber = 0;
+  double resultNumber = -1;
   List<Currency> resultWallets = [];
-  List resultOrders = [];
+  List<Order> resultOrders = [];
 
   @override
   void initState() {
@@ -141,6 +141,7 @@ class _HomeViewState extends State<HomeView> {
                         ),
                         WalletWidget(
                           wallets: resultWallets,
+                          orders: resultOrders,
                         )
                       ],
                     ),

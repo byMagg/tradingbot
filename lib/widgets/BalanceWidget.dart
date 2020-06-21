@@ -19,7 +19,7 @@ class BalanceWidgetState extends State<BalanceWidget> {
         color: Theme.of(context).primaryColor,
         child: Padding(
           padding: const EdgeInsets.only(bottom: 10),
-          child: (widget.number == 0)
+          child: (widget.number == -1)
               ? LinearProgressIndicator(
                   backgroundColor: Colors.white,
                 )

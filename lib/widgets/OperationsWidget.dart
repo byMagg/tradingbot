@@ -62,41 +62,38 @@ class OperationsWidget extends StatefulWidget {
     );
   }
 
-  listOperations() {
-    if (this.orders.isEmpty) return Text("WAITING");
+  listOperations(context) {
+    if (this.orders.isEmpty)
+      return Container(
+        height: 350,
+        child: Align(
+            alignment: Alignment.center,
+            child: Text(
+              "There are no operations for this currency",
+              style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w400),
+            )),
+      );
     List _operations = this.orders.toList();
 
-    return _operations.length == 0
-        ? Container(
-            height: 350,
-            child: Align(
-                alignment: Alignment.center,
-                child: Text(
-                  "There are no operations for this currency",
-                  style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w400),
-                )),
-          )
-        : everything && !fixed
-            ? Expanded(
-                child: ListView.builder(
-                    itemCount: _operations.length,
-                    itemBuilder: (context, index) {
-                      return getItemListTile(
-                          context, index, _operations[index]);
-                    }))
-            : Container(
-                child: ListView.builder(
-                    shrinkWrap: true,
-                    padding: EdgeInsets.all(0),
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: everything ? _operations.length : 5,
-                    itemBuilder: (context, index) {
-                      return getItemListTile(
-                          context, index, _operations[index]);
-                    }));
+    return everything && !fixed
+        ? Expanded(
+            child: ListView.builder(
+                itemCount: _operations.length,
+                itemBuilder: (context, index) {
+                  return getItemListTile(context, index, _operations[index]);
+                }))
+        : Container(
+            child: ListView.builder(
+                shrinkWrap: true,
+                padding: EdgeInsets.all(0),
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: everything ? _operations.length : 5,
+                itemBuilder: (context, index) {
+                  return getItemListTile(context, index, _operations[index]);
+                }));
   }
 }
 
@@ -127,7 +124,7 @@ class _OperationsWidgetState extends State<OperationsWidget> {
                   ),
                 )
               : Container(),
-          widget.listOperations(),
+          widget.listOperations(context),
           widget.fixed
               ? MaterialButton(
                   height: 50,

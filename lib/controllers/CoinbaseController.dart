@@ -32,7 +32,7 @@ class CoinbaseController {
   }
 
   double getValue() {
-    return (balances == null) ? 0 : balances['value'];
+    return (balances == null) ? -1 : balances['value'];
   }
 
   List<Currency> getCurrencies() {

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/views/CurrencyView.dart';
 import 'package:tradingbot/models/Currency.dart';
 
 class WalletWidget extends StatefulWidget {
   final List<Currency> wallets;
+  final List<Order> orders;
 
-  WalletWidget({Key key, @required this.wallets}) : super(key: key);
+  WalletWidget({Key key, @required this.wallets, @required this.orders})
+      : super(key: key);
 
   @override
   WalletWidgetState createState() => WalletWidgetState();
@@ -25,7 +28,7 @@ class WalletWidgetState extends State<WalletWidget> {
         child: (it.isEmpty)
             ? Center(
                 child: Text(
-                "We are loading your wallets",
+                "We are loading your wallets...",
                 style: TextStyle(fontSize: 20, color: Colors.white),
               ))
             : ListView.builder(
@@ -49,6 +52,7 @@ class WalletWidgetState extends State<WalletWidget> {
                       onTap: () {
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => CurrencyView(
+                                  orders: widget.orders,
                                   symbol: currency,
                                 )));
                       },

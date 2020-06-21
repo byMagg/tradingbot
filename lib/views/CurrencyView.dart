@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:tradingbot/models/Order.dart';
+import 'package:tradingbot/widgets/OperationsWidget.dart';
 
 import 'package:tradingbot/widgets/SimpleLineChart.dart';
 
 class CurrencyView extends StatefulWidget {
   final String symbol;
+  final List<Order> orders;
 
-  CurrencyView({Key key, @required this.symbol}) : super(key: key);
+  CurrencyView({Key key, @required this.orders, @required this.symbol})
+      : super(key: key);
 
   @override
   _CurrencyViewState createState() => _CurrencyViewState();
@@ -40,10 +44,11 @@ class _CurrencyViewState extends State<CurrencyView> {
                     ),
                   ),
                 ),
-                // OperationsWidget.listOperations(
-                //     this.mainController.initOperations(widget.symbol),
-                //     true,
-                //     true),
+                OperationsWidget(
+                  everything: true,
+                  fixed: true,
+                  orders: widget.orders,
+                ),
               ],
             ),
           ),
