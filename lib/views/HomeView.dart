@@ -14,6 +14,8 @@ import 'dart:async';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:tradingbot/widgets/WalletWidget.dart';
 
+import 'OperationsView.dart';
+
 class HomeView extends StatefulWidget {
   HomeView({Key key}) : super(key: key);
 
@@ -87,7 +89,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   _loadData() async {
-    coinbaseController.refreshBalances();
+    await coinbaseController.refreshBalances();
     double tempNumber = coinbaseController.getValue();
     List<Currency> tempWallets = coinbaseController.getCurrencies();
 
@@ -182,10 +184,37 @@ class _HomeViewState extends State<HomeView> {
                       ],
                     ),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Recent operations",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
                   OperationsWidget(
                     everything: false,
                     fixed: true,
                     orders: resultOrders,
+                  ),
+                  MaterialButton(
+                    height: 50,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      child: Center(child: Text("View more")),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => OperationsView(
+                                orders: resultOrders,
+                              )));
+                    },
                   )
                 ],
               ),

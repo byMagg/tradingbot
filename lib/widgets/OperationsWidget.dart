@@ -3,8 +3,6 @@ import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:tradingbot/models/Order.dart';
 
-import 'package:tradingbot/views/OperationsView.dart';
-
 class OperationsWidget extends StatefulWidget {
   final List orders;
   final bool everything;
@@ -71,7 +69,7 @@ class OperationsWidget extends StatefulWidget {
             child: Text(
               "There are no operations for this currency",
               style: TextStyle(
-                  color: Theme.of(context).primaryColor,
+                  color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.w400),
             )),
@@ -108,38 +106,7 @@ class _OperationsWidgetState extends State<OperationsWidget> {
     return Container(
       child: Column(
         children: <Widget>[
-          widget.fixed
-              ? Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Recent operations",
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                )
-              : Container(),
           widget.listOperations(context),
-          widget.fixed
-              ? MaterialButton(
-                  height: 50,
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    child: Center(child: Text("View more")),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => OperationsView(
-                              orders: widget.orders,
-                            )));
-                  },
-                )
-              : Container(),
         ],
       ),
     );
