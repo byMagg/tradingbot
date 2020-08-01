@@ -161,7 +161,11 @@ class CoinbaseController {
         'CB-ACCESS-TIMESTAMP': timestamp.toString(),
         'CB-ACCESS-PASSPHRASE': this._passPhrase
       });
-      return response;
+
+      if (response != null && response.statusCode == 200) {
+        return json.decode(response.body);
+      }
+      return null;
     } catch (e) {
       return e;
     }
@@ -169,12 +173,7 @@ class CoinbaseController {
 
   Future _getBalance() async {
     var request = {'method': 'GET', 'endPoint': '/accounts', 'body': ''};
-    Response response = await this._response(request);
-
-    if (response != null && response.statusCode == 200) {
-      return json.decode(response.body);
-    }
-    return null;
+    return await this._response(request);
   }
 
   Future _getOrders() async {
@@ -183,11 +182,6 @@ class CoinbaseController {
       'endPoint': '/orders?status=done',
       'body': ''
     };
-    Response response = await this._response(request);
-
-    if (response != null && response.statusCode == 200) {
-      return json.decode(response.body);
-    }
-    return null;
+    return await this._response(request);
   }
 }
