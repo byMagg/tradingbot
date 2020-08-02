@@ -18,9 +18,8 @@ class CurrencyView extends StatefulWidget {
 
 class _CurrencyViewState extends State<CurrencyView> {
   _listOperations() {
-    CoinbaseController controller = CoinbaseController();
     List<Order> specificOrders =
-        controller.getSpecificOrders(widget.symbol, widget.orders);
+        CoinbaseController.getSpecificOrders(widget.symbol, widget.orders);
 
     return Container(
       child: ListView(
