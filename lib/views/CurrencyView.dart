@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/widgets/OperationsWidget.dart';
 
@@ -17,6 +18,10 @@ class CurrencyView extends StatefulWidget {
 
 class _CurrencyViewState extends State<CurrencyView> {
   _listOperations() {
+    CoinbaseController controller = CoinbaseController();
+    List<Order> specificOrders =
+        controller.getSpecificOrders(widget.symbol, widget.orders);
+
     return Container(
       child: ListView(
         children: <Widget>[
@@ -47,7 +52,7 @@ class _CurrencyViewState extends State<CurrencyView> {
                 OperationsWidget(
                   everything: true,
                   fixed: true,
-                  orders: widget.orders,
+                  orders: specificOrders,
                 ),
               ],
             ),

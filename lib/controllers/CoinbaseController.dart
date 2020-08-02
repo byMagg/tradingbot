@@ -43,6 +43,14 @@ class CoinbaseController {
     return await _fetchOrders();
   }
 
+  List<Order> getSpecificOrders(String currency, List<Order> orders) {
+    List<Order> result = List<Order>();
+    for (Order order in orders) {
+      if (order.productId.contains(currency)) result.add(order);
+    }
+    return result;
+  }
+
   bool checkSameValueOfCurrencies(List<Currency> before, List<Currency> after) {
     if (before == null || after == null) return null;
     for (var i = 0; i < before.length; i++) {
