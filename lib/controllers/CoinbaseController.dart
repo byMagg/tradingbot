@@ -181,7 +181,7 @@ class CoinbaseController {
 
   Future _getBalance() async {
     var request = {'method': 'GET', 'endPoint': '/accounts', 'body': ''};
-    return await this._response(request);
+    return await _response(request);
   }
 
   Future _getOrders() async {
@@ -190,6 +190,6 @@ class CoinbaseController {
       'endPoint': '/orders?status=done',
       'body': ''
     };
-    return await this._response(request);
+    return await _response(request);
   }
 }
