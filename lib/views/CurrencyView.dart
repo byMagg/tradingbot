@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_candlesticks/flutter_candlesticks.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/models/Order.dart';
+import 'package:tradingbot/models/Candle.dart';
 import 'package:tradingbot/widgets/OperationsWidget.dart';
 
 import 'package:tradingbot/widgets/SimpleLineChart.dart';
@@ -8,8 +10,13 @@ import 'package:tradingbot/widgets/SimpleLineChart.dart';
 class CurrencyView extends StatefulWidget {
   final String symbol;
   final List<Order> orders;
+  final List candles;
 
-  CurrencyView({Key key, @required this.orders, @required this.symbol})
+  CurrencyView(
+      {Key key,
+      @required this.orders,
+      @required this.symbol,
+      @required this.candles})
       : super(key: key);
 
   @override
@@ -90,6 +97,11 @@ class _CurrencyViewState extends State<CurrencyView> {
       body: Stack(children: [
         Column(
           children: <Widget>[
+            Container(
+              color: Colors.white,
+              child: OHLCVGraph(
+                  data: widget.candles, enableGridLines: true, volumeProp: 0.2),
+            ),
             Container(
               color: Colors.white,
               child: Padding(

@@ -27,6 +27,7 @@ dependencies:
   smooth_page_indicator: ^0.1.5
   fl_chart: ^0.8.7
   http: ^0.12.1
+  flutter_candlesticks: ^0.1.4
   crypto: ^2.1.4
 
   # The following adds the Cupertino Icons font to your application.

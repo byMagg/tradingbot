@@ -8,6 +8,7 @@ import 'package:tradingbot/widgets/OperationsWidget.dart';
 import 'package:tradingbot/widgets/TitleWidget.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/models/Currency.dart';
+import 'package:tradingbot/models/Candle.dart';
 
 import 'dart:async';
 
@@ -66,6 +67,7 @@ class _HomeViewState extends State<HomeView> {
   double resultNumber = -1;
   List<Currency> resultWallets = [];
   List<Order> resultOrders = [];
+  List resultCandles = [];
 
   @override
   void initState() {
@@ -73,10 +75,19 @@ class _HomeViewState extends State<HomeView> {
 
     _loadData();
     _loadOrders();
+    _loadCandles();
 
     Timer.periodic(Duration(seconds: 5), (Timer t) async {
       _loadData();
       _loadOrders();
+      _loadCandles();
+    });
+  }
+
+  _loadCandles() async {
+    List tempCandles = await coinbaseController.getCandles();
+    setState(() {
+      resultCandles = tempCandles;
     });
   }
 
@@ -144,6 +155,7 @@ class _HomeViewState extends State<HomeView> {
                         WalletWidget(
                           wallets: resultWallets,
                           orders: resultOrders,
+                          candles: resultCandles,
                         )
                       ],
                     ),

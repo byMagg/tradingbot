@@ -5,6 +5,7 @@ import 'package:http/http.dart';
 import 'package:crypto/crypto.dart';
 import 'package:tradingbot/models/Currency.dart';
 import 'package:tradingbot/models/Order.dart';
+import 'package:tradingbot/models/Candle.dart';
 
 class CoinbaseController {
   String _apiKey;
@@ -43,6 +44,10 @@ class CoinbaseController {
     return await _fetchOrders();
   }
 
+  Future<List> getCandles() async {
+    return await _fetchCandles();
+  }
+
   static List<Order> getSpecificOrders(String currency, List<Order> orders) {
     List<Order> result = List<Order>();
     for (Order order in orders) {
@@ -76,6 +81,25 @@ class CoinbaseController {
     }
 
     return data;
+  }
+
+  Future _fetchCandles() async {
+    var candleReq = await _getCandles();
+    if (candleReq == null) return null;
+
+    List candles = [];
+
+    for (var item in candleReq) {
+      candles.add({
+        "low": item[1],
+        "high": item[2],
+        "open": item[3],
+        "close": item[4],
+        "volumeto": item[5]
+      });
+    }
+
+    return candles;
   }
 
   Future _fetchBalances() async {
@@ -181,6 +205,15 @@ class CoinbaseController {
 
   Future _getBalance() async {
     var request = {'method': 'GET', 'endPoint': '/accounts', 'body': ''};
+    return await _response(request);
+  }
+
+  Future _getCandles() async {
+    var request = {
+      'method': 'GET',
+      'endPoint': '/products/BTC-USD/candles?granularity=60',
+      'body': ''
+    };
     return await _response(request);
   }
 
