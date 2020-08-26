@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:crypto/crypto.dart';
+import 'package:k_chart/entity/k_line_entity.dart';
+import 'package:start_chart/chart/candle/entity/candle_entity.dart';
 import 'package:tradingbot/models/Currency.dart';
 import 'package:tradingbot/models/Order.dart';
-import 'package:tradingbot/models/Candle.dart';
 
 class CoinbaseController {
   String _apiKey;
@@ -44,7 +45,7 @@ class CoinbaseController {
     return await _fetchOrders();
   }
 
-  Future<List> getCandles() async {
+  Future<List<KLineEntity>> getCandles() async {
     return await _fetchCandles();
   }
 
@@ -87,16 +88,18 @@ class CoinbaseController {
     var candleReq = await _getCandles();
     if (candleReq == null) return null;
 
-    List candles = [];
+    List<KLineEntity> candles = [];
+
+    print(candleReq);
 
     for (var item in candleReq) {
-      candles.add({
-        "low": item[1],
-        "high": item[2],
-        "open": item[3],
-        "close": item[4],
-        "volumeto": item[5]
-      });
+      candles.add(new KLineEntity.fromCustom(
+          time: item[0],
+          low: item[1].toDouble(),
+          high: item[2].toDouble(),
+          open: item[3].toDouble(),
+          close: item[4].toDouble(),
+          vol: item[5].toDouble()));
     }
 
     return candles;
@@ -209,6 +212,9 @@ class CoinbaseController {
   }
 
   Future _getCandles() async {
+    var end = new DateTime.now().toIso8601String();
+    var start =
+        new DateTime.now().subtract(Duration(minutes: 2)).toIso8601String();
     var request = {
       'method': 'GET',
       'endPoint': '/products/BTC-USD/candles?granularity=60',

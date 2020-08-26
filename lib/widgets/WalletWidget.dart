@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:k_chart/entity/k_line_entity.dart';
+import 'package:start_chart/chart/candle/entity/candle_entity.dart';
 import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/views/CurrencyView.dart';
 import 'package:tradingbot/models/Currency.dart';
@@ -8,7 +10,7 @@ import 'package:tradingbot/models/Candle.dart';
 class WalletWidget extends StatefulWidget {
   final List<Currency> wallets;
   final List<Order> orders;
-  final List candles;
+  final List<KLineEntity> candles;
 
   WalletWidget(
       {Key key,

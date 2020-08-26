@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:k_chart/entity/k_line_entity.dart';
+import 'package:start_chart/chart/candle/entity/candle_entity.dart';
 import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/views/PricesView.dart';
 import 'package:tradingbot/widgets/BalanceWidget.dart';
@@ -67,7 +69,7 @@ class _HomeViewState extends State<HomeView> {
   double resultNumber = -1;
   List<Currency> resultWallets = [];
   List<Order> resultOrders = [];
-  List resultCandles = [];
+  List<KLineEntity> resultCandles = [];
 
   @override
   void initState() {
@@ -85,7 +87,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   _loadCandles() async {
-    List tempCandles = await coinbaseController.getCandles();
+    List<KLineEntity> tempCandles = await coinbaseController.getCandles();
     setState(() {
       resultCandles = tempCandles;
     });
