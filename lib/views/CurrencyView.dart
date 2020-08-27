@@ -75,8 +75,7 @@ class _CurrencyViewState extends State<CurrencyView> {
 
   @override
   Widget build(BuildContext context) {
-    DataUtil.calculate(widget
-        .candles); //This function has some optional parameters: n is BOLL N-day closing price. k is BOLL param.
+    DataUtil.calculate(widget.candles);
 
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
@@ -123,26 +122,11 @@ class _CurrencyViewState extends State<CurrencyView> {
       body: Container(
         color: Colors.white,
         child: KChartWidget(
-          widget
-              .candles, // Required，Data must be an ordered list，(history=>now)/ Decide what the sub view shows
-          fixedLength: 2, // Displayed decimal precision
-          onLoadMore: (bool
-              a) {}, // Called when the data scrolls to the end. When a is true, it means the user is pulled to the end of the right side of the data. When a
-          // is false, it means the user is pulled to the end of the left side of the data.
-          maDayList: [
-            5,
-            10,
-            20
-          ], // Display of MA,This parameter must be equal to DataUtil.calculate‘s maDayList
-          bgColor: [
-            Colors.black,
-            Colors.black
-          ], // The background color of the chart is gradient
-          isOnDrag:
-              (isDrag) {}, // true is on Drag.Don't load data while Draging.
+          widget.candles,
+          onLoadMore: (bool a) {},
+          maDayList: [5, 10, 20],
+          isOnDrag: (isDrag) {},
         ),
-        // child: OHLCVGraph(
-        //     data: widget.candles, enableGridLines: true, volumeProp: 0.2),
       ),
       // ]),
     );

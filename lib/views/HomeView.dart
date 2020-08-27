@@ -70,6 +70,7 @@ class _HomeViewState extends State<HomeView> {
   List<Currency> resultWallets = [];
   List<Order> resultOrders = [];
   List<KLineEntity> resultCandles = [];
+  List resultProducts = [];
 
   @override
   void initState() {
@@ -78,6 +79,7 @@ class _HomeViewState extends State<HomeView> {
     _loadData();
     _loadOrders();
     _loadCandles();
+    _loadProducts();
 
     Timer.periodic(Duration(seconds: 5), (Timer t) async {
       _loadData();
@@ -99,6 +101,10 @@ class _HomeViewState extends State<HomeView> {
     setState(() {
       resultOrders = tempOrders;
     });
+  }
+
+  _loadProducts() async {
+    resultProducts = await coinbaseController.getProducts();
   }
 
   _loadData() async {
@@ -161,6 +167,33 @@ class _HomeViewState extends State<HomeView> {
                         )
                       ],
                     ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Text(
+                          "Products",
+                          style: TextStyle(
+                              fontSize: 25,
+                              color: Theme.of(context).primaryColor,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Container(
+                        height: 300,
+                        child: ListView.builder(
+                            itemCount: resultProducts.length,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                title: Text(resultProducts[index]['id']),
+                                trailing: Icon(Icons.arrow_forward_ios),
+                                onTap: () {},
+                              );
+                            }),
+                      )
+                    ],
                   ),
                   Container(
                     height: MediaQuery.of(context).size.height -

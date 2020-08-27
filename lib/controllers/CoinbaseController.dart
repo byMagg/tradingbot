@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:crypto/crypto.dart';
 import 'package:k_chart/entity/k_line_entity.dart';
-import 'package:start_chart/chart/candle/entity/candle_entity.dart';
 import 'package:tradingbot/models/Currency.dart';
 import 'package:tradingbot/models/Order.dart';
 
@@ -49,6 +48,10 @@ class CoinbaseController {
     return await _fetchCandles();
   }
 
+  Future<List> getProducts() async {
+    return await _getProducts();
+  }
+
   static List<Order> getSpecificOrders(String currency, List<Order> orders) {
     List<Order> result = List<Order>();
     for (Order order in orders) {
@@ -89,8 +92,6 @@ class CoinbaseController {
     if (candleReq == null) return null;
 
     List<KLineEntity> candles = [];
-
-    print(candleReq);
 
     for (var item in candleReq) {
       candles.add(new KLineEntity.fromCustom(
@@ -208,6 +209,11 @@ class CoinbaseController {
 
   Future _getBalance() async {
     var request = {'method': 'GET', 'endPoint': '/accounts', 'body': ''};
+    return await _response(request);
+  }
+
+  Future _getProducts() async {
+    var request = {'method': 'GET', 'endPoint': '/products', 'body': ''};
     return await _response(request);
   }
 
