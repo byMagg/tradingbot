@@ -1,23 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:k_chart/entity/k_line_entity.dart';
-import 'package:start_chart/chart/candle/entity/candle_entity.dart';
 import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/views/CurrencyView.dart';
 import 'package:tradingbot/models/Currency.dart';
-import 'package:tradingbot/models/Candle.dart';
 
 class WalletWidget extends StatefulWidget {
   final List<Currency> wallets;
   final List<Order> orders;
-  final List<KLineEntity> candles;
 
-  WalletWidget(
-      {Key key,
-      @required this.wallets,
-      @required this.orders,
-      @required this.candles})
-      : super(key: key);
+  WalletWidget({
+    Key key,
+    @required this.wallets,
+    @required this.orders,
+  }) : super(key: key);
 
   @override
   WalletWidgetState createState() => WalletWidgetState();
@@ -62,7 +57,6 @@ class WalletWidgetState extends State<WalletWidget> {
                             builder: (context) => CurrencyView(
                                   orders: widget.orders,
                                   symbol: currency,
-                                  candles: widget.candles,
                                 )));
                       },
                       child: Container(

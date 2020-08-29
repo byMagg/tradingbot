@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:k_chart/entity/k_line_entity.dart';
-import 'package:start_chart/chart/candle/entity/candle_entity.dart';
 import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/views/PricesView.dart';
+import 'package:tradingbot/views/ProductView.dart';
 import 'package:tradingbot/widgets/BalanceWidget.dart';
 import 'package:tradingbot/widgets/BarChartWidget.dart';
 import 'package:tradingbot/widgets/LineChartWidget.dart';
@@ -10,7 +10,6 @@ import 'package:tradingbot/widgets/OperationsWidget.dart';
 import 'package:tradingbot/widgets/TitleWidget.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/models/Currency.dart';
-import 'package:tradingbot/models/Candle.dart';
 
 import 'dart:async';
 
@@ -163,7 +162,6 @@ class _HomeViewState extends State<HomeView> {
                         WalletWidget(
                           wallets: resultWallets,
                           orders: resultOrders,
-                          candles: resultCandles,
                         )
                       ],
                     ),
@@ -189,7 +187,13 @@ class _HomeViewState extends State<HomeView> {
                               return ListTile(
                                 title: Text(resultProducts[index]['id']),
                                 trailing: Icon(Icons.arrow_forward_ios),
-                                onTap: () {},
+                                onTap: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => ProductView(
+                                            symbol: resultProducts[index]['id'],
+                                            candles: resultCandles,
+                                          )));
+                                },
                               );
                             }),
                       )

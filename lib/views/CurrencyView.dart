@@ -1,28 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_candlesticks/flutter_candlesticks.dart';
-import 'package:k_chart/entity/k_line_entity.dart';
 import 'package:k_chart/flutter_k_chart.dart';
-import 'package:k_chart/k_chart_widget.dart';
-import 'package:start_chart/chart/candle/candle_widget.dart';
-import 'package:start_chart/chart/candle/entity/candle_entity.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/models/Order.dart';
-import 'package:tradingbot/models/Candle.dart';
 import 'package:tradingbot/widgets/OperationsWidget.dart';
-
 import 'package:tradingbot/widgets/SimpleLineChart.dart';
 
 class CurrencyView extends StatefulWidget {
   final String symbol;
   final List<Order> orders;
-  final List<KLineEntity> candles;
 
-  CurrencyView(
-      {Key key,
-      @required this.orders,
-      @required this.symbol,
-      @required this.candles})
-      : super(key: key);
+  CurrencyView({
+    Key key,
+    @required this.orders,
+    @required this.symbol,
+  }) : super(key: key);
 
   @override
   _CurrencyViewState createState() => _CurrencyViewState();
@@ -75,8 +66,6 @@ class _CurrencyViewState extends State<CurrencyView> {
 
   @override
   Widget build(BuildContext context) {
-    DataUtil.calculate(widget.candles);
-
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
       appBar: AppBar(
@@ -101,34 +90,25 @@ class _CurrencyViewState extends State<CurrencyView> {
           ],
         ),
       ),
-      // body: Stack(children: [
-      //   Column(
-      //     children: <Widget>[
-      //       Container(
-      //         color: Colors.white,
-      //         child: Padding(
-      //           padding: const EdgeInsets.all(8.0),
-      //           child: Container(
-      //               height: 250, child: SimpleLineChart.withSampleData()),
-      //         ),
-      //       ),
-      //       Container(
-      //         height: 70,
-      //         color: Colors.white,
-      //       )
-      //     ],
-      //   ),
-      //   _listOperations(),
-      body: Container(
-        color: Colors.white,
-        child: KChartWidget(
-          widget.candles,
-          onLoadMore: (bool a) {},
-          maDayList: [5, 10, 20],
-          isOnDrag: (isDrag) {},
+      body: Stack(children: [
+        Column(
+          children: <Widget>[
+            Container(
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                    height: 250, child: SimpleLineChart.withSampleData()),
+              ),
+            ),
+            Container(
+              height: 70,
+              color: Colors.white,
+            )
+          ],
         ),
-      ),
-      // ]),
+        _listOperations(),
+      ]),
     );
   }
 }
