@@ -158,7 +158,6 @@ class _HomeViewState extends State<HomeView> {
                     ),
                   ),
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(10),
