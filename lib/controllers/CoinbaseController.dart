@@ -44,8 +44,8 @@ class CoinbaseController {
     return await _fetchOrders();
   }
 
-  Future<List<KLineEntity>> getCandles() async {
-    return await _fetchCandles();
+  Future<List<KLineEntity>> getCandles(String product) async {
+    return await _fetchCandles(product);
   }
 
   Future<List> getProducts() async {
@@ -87,8 +87,8 @@ class CoinbaseController {
     return data;
   }
 
-  Future _fetchCandles() async {
-    var candleReq = await _getCandles();
+  Future _fetchCandles(String product) async {
+    var candleReq = await _getCandles(product);
     if (candleReq == null) return null;
 
     List<KLineEntity> candles = [];
@@ -217,13 +217,13 @@ class CoinbaseController {
     return await _response(request);
   }
 
-  Future _getCandles() async {
+  Future _getCandles(String product) async {
     var end = new DateTime.now().toIso8601String();
     var start =
         new DateTime.now().subtract(Duration(minutes: 2)).toIso8601String();
     var request = {
       'method': 'GET',
-      'endPoint': '/products/BTC-USD/candles?granularity=60',
+      'endPoint': '/products/$product/candles?granularity=60',
       'body': ''
     };
     return await _response(request);

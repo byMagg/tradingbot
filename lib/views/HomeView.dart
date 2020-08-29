@@ -77,20 +77,11 @@ class _HomeViewState extends State<HomeView> {
 
     _loadData();
     _loadOrders();
-    _loadCandles();
     _loadProducts();
 
     Timer.periodic(Duration(seconds: 5), (Timer t) async {
       _loadData();
       _loadOrders();
-      _loadCandles();
-    });
-  }
-
-  _loadCandles() async {
-    List<KLineEntity> tempCandles = await coinbaseController.getCandles();
-    setState(() {
-      resultCandles = tempCandles;
     });
   }
 
@@ -190,8 +181,9 @@ class _HomeViewState extends State<HomeView> {
                                 onTap: () {
                                   Navigator.of(context).push(MaterialPageRoute(
                                       builder: (context) => ProductView(
-                                            symbol: resultProducts[index]['id'],
-                                            candles: resultCandles,
+                                            product: resultProducts[index]
+                                                ['id'],
+                                            controller: coinbaseController,
                                           )));
                                 },
                               );
