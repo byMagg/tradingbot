@@ -18,7 +18,12 @@ class SimpleLineChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new charts.LineChart(seriesList, animate: animate);
+    return new charts.LineChart(seriesList,
+        domainAxis:
+            new charts.NumericAxisSpec(renderSpec: new charts.NoneRenderSpec()),
+        primaryMeasureAxis:
+            new charts.NumericAxisSpec(renderSpec: new charts.NoneRenderSpec()),
+        animate: animate);
   }
 
   /// Create one series with sample hard coded data.

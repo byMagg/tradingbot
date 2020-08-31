@@ -7,6 +7,7 @@ import 'package:tradingbot/widgets/BalanceWidget.dart';
 import 'package:tradingbot/widgets/BarChartWidget.dart';
 import 'package:tradingbot/widgets/LineChartWidget.dart';
 import 'package:tradingbot/widgets/OperationsWidget.dart';
+import 'package:tradingbot/widgets/SimpleLineChart.dart';
 import 'package:tradingbot/widgets/TitleWidget.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/models/Currency.dart';
@@ -176,7 +177,16 @@ class _HomeViewState extends State<HomeView> {
                             itemBuilder: (context, index) {
                               return ListTile(
                                 title: Text(resultProducts[index]['id']),
-                                trailing: Icon(Icons.arrow_forward_ios),
+                                trailing: Container(
+                                  width: 130,
+                                  child: Row(children: [
+                                    Container(
+                                        width: 100,
+                                        child:
+                                            SimpleLineChart.withSampleData()),
+                                    Icon(Icons.arrow_forward_ios)
+                                  ]),
+                                ),
                                 onTap: () {
                                   Navigator.of(context).push(MaterialPageRoute(
                                       builder: (context) => ProductView(
@@ -189,6 +199,13 @@ class _HomeViewState extends State<HomeView> {
                             }),
                       )
                     ],
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    child: Divider(
+                      thickness: 2,
+                      color: Theme.of(context).primaryColor.withOpacity(0.5),
+                    ),
                   ),
                   Container(
                     height: MediaQuery.of(context).size.height -
@@ -224,6 +241,13 @@ class _HomeViewState extends State<HomeView> {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    child: Divider(
+                      thickness: 2,
+                      color: Theme.of(context).primaryColor.withOpacity(0.5),
                     ),
                   ),
                   Padding(
