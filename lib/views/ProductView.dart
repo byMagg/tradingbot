@@ -50,6 +50,7 @@ class _ProductViewState extends State<ProductView> {
               if (snapshot.hasData) {
                 return KChartWidget(
                   snapshot.data,
+
                   onLoadMore: (bool a) {},
                   maDayList: [5, 10, 20],
                   isOnDrag: (isDrag) {},

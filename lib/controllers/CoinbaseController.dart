@@ -52,6 +52,10 @@ class CoinbaseController {
     return await _getProducts();
   }
 
+  Future getPrices(String product) async {
+    return await _getPrices(product);
+  }
+
   static List<Order> getSpecificOrders(String currency, List<Order> orders) {
     List<Order> result = List<Order>();
     for (Order order in orders) {
@@ -226,6 +230,16 @@ class CoinbaseController {
       'endPoint': '/products/$product/candles?granularity=60',
       'body': ''
     };
+    return await _response(request);
+  }
+
+  Future _getPrices(String product) async {
+    var request = {
+      'method': 'GET',
+      'endPoint': '/products/$product/trades',
+      'body': ''
+    };
+    var test = await _response(request);
     return await _response(request);
   }
 
