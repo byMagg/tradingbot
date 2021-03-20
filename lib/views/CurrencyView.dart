@@ -3,7 +3,7 @@ import 'package:k_chart/flutter_k_chart.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/widgets/OperationsWidget.dart';
-import 'package:tradingbot/widgets/SimpleLineChart.dart';
+import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
 
 class CurrencyView extends StatefulWidget {
   final String symbol;

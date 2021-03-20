@@ -97,11 +97,6 @@ class OperationsWidget extends StatefulWidget {
 
 class _OperationsWidgetState extends State<OperationsWidget> {
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Container(
       child: Column(

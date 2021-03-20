@@ -7,7 +7,8 @@ import 'package:tradingbot/widgets/BalanceWidget.dart';
 import 'package:tradingbot/widgets/BarChartWidget.dart';
 import 'package:tradingbot/widgets/LineChartWidget.dart';
 import 'package:tradingbot/widgets/OperationsWidget.dart';
-import 'package:tradingbot/widgets/SimpleLineChart.dart';
+import 'package:tradingbot/widgets/ProductsWidget.dart';
+import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
 import 'package:tradingbot/widgets/TitleWidget.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/models/Currency.dart';
@@ -72,7 +73,9 @@ class _HomeViewState extends State<HomeView> {
   List<Currency> resultWallets = [];
   List<Order> resultOrders = [];
   List<KLineEntity> resultCandles = [];
-  List resultProducts = [];
+
+  Future<List> _futureProducts;
+  Future<List> _futureOrders;
 
   @override
   void initState() {
@@ -80,7 +83,8 @@ class _HomeViewState extends State<HomeView> {
 
     _loadData();
     _loadOrders();
-    _loadProducts();
+    _futureOrders = coinbaseController.getOrders();
+    _futureProducts = coinbaseController.getProducts();
 
     Timer.periodic(Duration(seconds: 5), (Timer t) async {
       _loadData();
@@ -94,10 +98,6 @@ class _HomeViewState extends State<HomeView> {
     setState(() {
       resultOrders = tempOrders;
     });
-  }
-
-  _loadProducts() async {
-    resultProducts = await coinbaseController.getProducts();
   }
 
   _loadData() async {
@@ -115,34 +115,34 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 
-  static List<charts.Series<LinearPrices, DateTime>> _createSampleData() {
-    final data = [
-      new LinearPrices(DateTime.now(), double.parse("1000")),
-      new LinearPrices(DateTime.now(), double.parse("1000")),
-      new LinearPrices(DateTime.now(), double.parse("1000")),
-      new LinearPrices(DateTime.now(), double.parse("1000")),
-    ];
+  // static List<charts.Series<LinearPrices, DateTime>> _createSampleData() {
+  //   final data = [
+  //     new LinearPrices(DateTime.now(), double.parse("1000")),
+  //     new LinearPrices(DateTime.now(), double.parse("1000")),
+  //     new LinearPrices(DateTime.now(), double.parse("1000")),
+  //     new LinearPrices(DateTime.now(), double.parse("1000")),
+  //   ];
 
-    return [
-      new charts.Series<LinearPrices, DateTime>(
-        id: 'Sales',
-        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-        domainFn: (LinearPrices sales, _) => sales.time,
-        measureFn: (LinearPrices sales, _) => sales.price,
-        data: data,
-      )
-    ];
-  }
+  //   return [
+  //     new charts.Series<LinearPrices, DateTime>(
+  //       id: 'Sales',
+  //       colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+  //       domainFn: (LinearPrices sales, _) => sales.time,
+  //       measureFn: (LinearPrices sales, _) => sales.price,
+  //       data: data,
+  //     )
+  //   ];
+  // }
 
-  _fetchChartPrices(List listPrices) {
-    var data = [];
+  // _fetchChartPrices(List listPrices) {
+  //   var data = [];
 
-    for (var item in listPrices) {
-      data.add(LinearPrices(
-          DateTime.parse(item['time']), double.parse(item['price'])));
-    }
-    return data;
-  }
+  //   for (var item in listPrices) {
+  //     data.add(LinearPrices(
+  //         DateTime.parse(item['time']), double.parse(item['price'])));
+  //   }
+  //   return data;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -189,85 +189,7 @@ class _HomeViewState extends State<HomeView> {
                       ],
                     ),
                   ),
-                  Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Text(
-                          "Products",
-                          style: TextStyle(
-                              fontSize: 25,
-                              color: Theme.of(context).primaryColor,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Container(
-                        height: 300,
-                        child: ListView.builder(
-                            itemCount: resultProducts.length,
-                            itemBuilder: (context, index) {
-                              var actualPrice = coinbaseController
-                                  .getPrices(resultProducts[index]['id']);
-
-                              return FutureBuilder(
-                                  future: actualPrice,
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasData) {
-                                      // var data =
-                                      //     _fetchChartPrices(snapshot.data);
-
-                                      // List<
-                                      //     charts.Series<LinearPrices,
-                                      //         DateTime>> listData = [
-                                      //   new charts
-                                      //       .Series<LinearPrices, DateTime>(
-                                      //     id: 'Sales',
-                                      //     colorFn: (_, __) => charts
-                                      //         .MaterialPalette
-                                      //         .blue
-                                      //         .shadeDefault,
-                                      //     domainFn: (LinearPrices sales, _) =>
-                                      //         sales.time,
-                                      //     measureFn: (LinearPrices sales, _) =>
-                                      //         sales.price,
-                                      //     data: data,
-                                      //   )
-                                      // ];
-
-                                      print("HOLA");
-
-                                      return ListTile(
-                                        title:
-                                            Text(resultProducts[index]['id']),
-                                        trailing: Container(
-                                          width: 130,
-                                          child: Row(children: [
-                                            Container(
-                                                width: 100,
-                                                child: SimpleLineChart(
-                                                    _createSampleData())),
-                                            Icon(Icons.arrow_forward_ios)
-                                          ]),
-                                        ),
-                                        onTap: () {
-                                          Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ProductView(
-                                                        product: resultProducts[
-                                                            index]['id'],
-                                                        controller:
-                                                            coinbaseController,
-                                                      )));
-                                        },
-                                      );
-                                    }
-                                    return CircularProgressIndicator();
-                                  });
-                            }),
-                      )
-                    ],
-                  ),
+                  ProductsWidget(futureProducts: _futureProducts),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 30),
                     child: Divider(
