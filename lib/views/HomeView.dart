@@ -2,18 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:k_chart/entity/k_line_entity.dart';
 import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/views/PricesView.dart';
-import 'package:tradingbot/views/ProductView.dart';
 import 'package:tradingbot/widgets/BalanceWidget.dart';
 import 'package:tradingbot/widgets/BarChartWidget.dart';
 import 'package:tradingbot/widgets/LineChartWidget.dart';
 import 'package:tradingbot/widgets/OperationsWidget.dart';
 import 'package:tradingbot/widgets/ProductsWidget.dart';
-import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
 import 'package:tradingbot/widgets/TitleWidget.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/models/Currency.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:flutter/material.dart';
 
 import 'dart:async';
 
@@ -76,6 +72,7 @@ class _HomeViewState extends State<HomeView> {
 
   Future<List> _futureProducts;
   Future<List> _futureOrders;
+  Future<List> _futureCandles;
 
   @override
   void initState() {
@@ -83,8 +80,8 @@ class _HomeViewState extends State<HomeView> {
 
     _loadData();
     _loadOrders();
-    _futureOrders = coinbaseController.getOrders();
-    _futureProducts = coinbaseController.getProducts();
+    _futureOrders = CoinbaseController.getOrders();
+    _futureProducts = CoinbaseController.getProducts();
 
     Timer.periodic(Duration(seconds: 5), (Timer t) async {
       _loadData();
@@ -93,7 +90,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   _loadOrders() async {
-    List<Order> tempOrders = await coinbaseController.getOrders();
+    List<Order> tempOrders = await CoinbaseController.getOrders();
 
     setState(() {
       resultOrders = tempOrders;
@@ -102,17 +99,17 @@ class _HomeViewState extends State<HomeView> {
 
   _loadData() async {
     await coinbaseController.refreshBalances();
-    double tempNumber = coinbaseController.getValue();
-    List<Currency> tempWallets = coinbaseController.getCurrencies();
+    // double tempNumber = CoinbaseController.totalBalance;
+    // List<Currency> tempWallets = CoinbaseController.wallets;
 
-    setState(() {
-      if (resultNumber != tempNumber) resultNumber = tempNumber;
-      if (!coinbaseController.checkSameValueOfCurrencies(
-              resultWallets, tempWallets) ||
-          resultWallets.isEmpty) {
-        resultWallets = tempWallets;
-      }
-    });
+    // setState(() {
+    //   if (resultNumber != tempNumber) resultNumber = tempNumber;
+    //   if (!CoinbaseController.checkSameValueOfCurrencies(
+    //           resultWallets, tempWallets) ||
+    //       resultWallets.isEmpty) {
+    //     resultWallets = tempWallets;
+    //   }
+    // });
   }
 
   // static List<charts.Series<LinearPrices, DateTime>> _createSampleData() {
@@ -165,7 +162,7 @@ class _HomeViewState extends State<HomeView> {
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => PricesView(
-                              wallets: resultWallets,
+                              wallets: CoinbaseController.wallets,
                             )));
                   }),
             ],
@@ -180,10 +177,10 @@ class _HomeViewState extends State<HomeView> {
                     child: Column(
                       children: <Widget>[
                         BalanceWidget(
-                          number: resultNumber,
+                          number: CoinbaseController.totalBalance,
                         ),
                         WalletWidget(
-                          wallets: resultWallets,
+                          wallets: CoinbaseController.wallets,
                           orders: resultOrders,
                         )
                       ],

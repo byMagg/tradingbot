@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:k_chart/entity/k_line_entity.dart';
 import 'package:k_chart/flutter_k_chart.dart';
 import 'package:k_chart/k_chart_widget.dart';
-import 'package:tradingbot/controllers/CoinbaseController.dart';
 
 class ProductView extends StatefulWidget {
   final String product;
-  final CoinbaseController controller;
+  final Future future;
 
-  ProductView({Key key, @required this.product, @required this.controller})
+  ProductView({Key key, @required this.product, @required this.future})
       : super(key: key);
 
   @override
@@ -16,16 +14,16 @@ class ProductView extends StatefulWidget {
 }
 
 class _ProductViewState extends State<ProductView> {
-  _fetchCandles() async {
-    List<KLineEntity> candles =
-        await widget.controller.getCandles(widget.product);
-    DataUtil.calculate(candles);
-    return candles;
-  }
+  // _fetchCandles() async {
+  //   List<KLineEntity> candles =
+  //       await widget.controller.getCandles(widget.product);
+  //   DataUtil.calculate(candles);
+  //   return candles;
+  // }
 
   @override
   Widget build(BuildContext context) {
-    _fetchCandles();
+    // _fetchCandles();
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
       appBar: AppBar(
@@ -45,12 +43,12 @@ class _ProductViewState extends State<ProductView> {
         width: MediaQuery.of(context).size.width,
         child: Center(
           child: FutureBuilder(
-            future: _fetchCandles(),
+            future: widget.future,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
+                DataUtil.calculate(snapshot.data);
                 return KChartWidget(
                   snapshot.data,
-
                   onLoadMore: (bool a) {},
                   maDayList: [5, 10, 20],
                   isOnDrag: (isDrag) {},
@@ -60,7 +58,6 @@ class _ProductViewState extends State<ProductView> {
                   // ],
                 );
               }
-
               return CircularProgressIndicator();
             },
           ),

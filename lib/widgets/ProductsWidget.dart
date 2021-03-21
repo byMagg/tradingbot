@@ -1,14 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
+import 'package:tradingbot/views/ProductView.dart';
 import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
-
-// class BalanceWidget extends StatefulWidget {
-//   final double number;
-//   BalanceWidget({Key key, @required this.number}) : super(key: key);
-
-//   @override
-//   BalanceWidgetState createState() => BalanceWidgetState();
-// }
 
 class ProductsWidget extends StatefulWidget {
   final Future<List> futureProducts;
@@ -19,6 +12,8 @@ class ProductsWidget extends StatefulWidget {
 }
 
 class _ProductsWidgetState extends State<ProductsWidget> {
+  CoinbaseController coinbaseController = new CoinbaseController();
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -42,8 +37,9 @@ class _ProductsWidgetState extends State<ProductsWidget> {
                     return ListView.builder(
                         itemCount: snapshot.data.length,
                         itemBuilder: (context, index) {
+                          var currency = snapshot.data[index]['id'];
                           return ListTile(
-                            title: Text(snapshot.data[index]['id']),
+                            title: Text(currency),
                             trailing: Container(
                               width: 130,
                               child: Row(children: [
@@ -54,13 +50,13 @@ class _ProductsWidgetState extends State<ProductsWidget> {
                                 Icon(Icons.arrow_forward_ios)
                               ]),
                             ),
-                            // onTap: () {
-                            //   Navigator.of(context).push(MaterialPageRoute(
-                            //       builder: (context) => ProductView(
-                            //             product: resultProducts[index]['id'],
-                            //             controller: coinbaseController,
-                            //           )));
-                            // },
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => ProductView(
+                                      product: currency,
+                                      future: CoinbaseController.getCandles(
+                                          currency))));
+                            },
                           );
                         });
                   } else {

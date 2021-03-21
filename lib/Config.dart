@@ -1,0 +1,9 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+class Config {
+  static final API_KEY = env['API_KEY'];
+  static final API_SECRET = env['API_SECRET'];
+  static final API_PASSPHRASE = env['API_PASSPHRASE'];
+  static const API_URL = 'https://api-public.sandbox.pro.coinbase.com';
+  // static final API_URL = 'https://api.pro.coinbase.com';
+}
