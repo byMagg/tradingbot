@@ -8,12 +8,6 @@ class CoinbaseController {
   static double totalBalance = -1;
   static List<Currency> wallets = [];
 
-  refreshBalances() async {
-    var balances = await _fetchBalances();
-    CoinbaseController.totalBalance = balances['value'];
-    CoinbaseController.wallets = balances['balances'];
-  }
-
   static Future<List> getProducts() async {
     return await _fetchProducts();
   }
@@ -55,7 +49,7 @@ class CoinbaseController {
     return candles;
   }
 
-  Future<Map> _fetchBalances() async {
+  static refreshBalances() async {
     var balances = await _fetchWalletData();
     if (balances == null) return null;
 
@@ -78,18 +72,19 @@ class CoinbaseController {
       }
       wallets.sort();
 
-      return {'balances': wallets, 'value': result};
+      CoinbaseController.totalBalance = result;
+      CoinbaseController.wallets = wallets;
     } catch (e) {
-      return e;
+      print("Error while loading wallet data");
     }
   }
 
-  Future _fetchWalletData() async {
+  static Future _fetchWalletData() async {
     var options = {'method': 'GET', 'endPoint': '/accounts', 'body': ''};
     return await RequestController.sendRequest(options);
   }
 
-  Future _fetchPrices() async {
+  static Future _fetchPrices() async {
     return (await RequestController.sendRequest(null))["data"]["rates"];
   }
 

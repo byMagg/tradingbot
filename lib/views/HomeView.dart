@@ -98,7 +98,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   _loadData() async {
-    await coinbaseController.refreshBalances();
+    await CoinbaseController.refreshBalances();
     // double tempNumber = CoinbaseController.totalBalance;
     // List<Currency> tempWallets = CoinbaseController.wallets;
 
