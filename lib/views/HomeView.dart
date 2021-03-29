@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:k_chart/entity/k_line_entity.dart';
+import 'package:tradingbot/models/Balance.dart';
+import 'package:tradingbot/streams/BalanceStream.dart';
 import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/views/PricesView.dart';
 import 'package:tradingbot/widgets/BalanceWidget.dart';
@@ -9,7 +11,7 @@ import 'package:tradingbot/widgets/OperationsWidget.dart';
 import 'package:tradingbot/widgets/ProductsWidget.dart';
 import 'package:tradingbot/widgets/TitleWidget.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
-import 'package:tradingbot/models/Currency.dart';
+import 'package:tradingbot/models/Wallet.dart';
 
 import 'dart:async';
 
@@ -66,7 +68,7 @@ class _HomeViewState extends State<HomeView> {
 
   CoinbaseController coinbaseController = new CoinbaseController();
   double resultNumber = -1;
-  List<Currency> resultWallets = [];
+  List<Wallet> resultWallets = [];
   List<Order> resultOrders = [];
   List<KLineEntity> resultCandles = [];
 
@@ -74,17 +76,23 @@ class _HomeViewState extends State<HomeView> {
   Future<List> _futureOrders;
   Future<List> _futureCandles;
 
+  Balance initialBalance;
+
+  Stream<Balance> _streamBalance;
+
   @override
   void initState() {
     super.initState();
 
-    _loadData();
+    // _loadData();
     _loadOrders();
     _futureOrders = CoinbaseController.getOrders();
     _futureProducts = CoinbaseController.getProducts();
+    _streamBalance = balanceStream.contactCount;
+    balanceStream.fetchData();
 
     Timer.periodic(Duration(seconds: 5), (Timer t) async {
-      _loadData();
+      // _loadData();
       _loadOrders();
     });
   }
@@ -97,20 +105,20 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 
-  _loadData() async {
-    await CoinbaseController.refreshBalances();
-    // double tempNumber = CoinbaseController.totalBalance;
-    // List<Currency> tempWallets = CoinbaseController.wallets;
+  // _loadData() async {
+  // await CoinbaseController.refreshBalances();
+  // double tempNumber = CoinbaseController.totalBalance;
+  // List<Currency> tempWallets = CoinbaseController.wallets;
 
-    // setState(() {
-    //   if (resultNumber != tempNumber) resultNumber = tempNumber;
-    //   if (!CoinbaseController.checkSameValueOfCurrencies(
-    //           resultWallets, tempWallets) ||
-    //       resultWallets.isEmpty) {
-    //     resultWallets = tempWallets;
-    //   }
-    // });
-  }
+  // setState(() {
+  //   if (resultNumber != tempNumber) resultNumber = tempNumber;
+  //   if (!CoinbaseController.checkSameValueOfCurrencies(
+  //           resultWallets, tempWallets) ||
+  //       resultWallets.isEmpty) {
+  //     resultWallets = tempWallets;
+  //   }
+  // });
+  // }
 
   // static List<charts.Series<LinearPrices, DateTime>> _createSampleData() {
   //   final data = [
@@ -167,111 +175,129 @@ class _HomeViewState extends State<HomeView> {
                   }),
             ],
           ),
-          body: Stack(
-            children: <Widget>[
-              ListView(
-                children: <Widget>[
-                  Container(
-                    height: expandedHeight,
-                    color: Theme.of(context).primaryColor,
-                    child: Column(
-                      children: <Widget>[
-                        BalanceWidget(
-                          number: CoinbaseController.totalBalance,
-                        ),
-                        WalletWidget(
-                          wallets: CoinbaseController.wallets,
-                          orders: resultOrders,
-                        )
-                      ],
-                    ),
-                  ),
-                  ProductsWidget(futureProducts: _futureProducts),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30),
-                    child: Divider(
-                      thickness: 2,
-                      color: Theme.of(context).primaryColor.withOpacity(0.5),
-                    ),
-                  ),
-                  Container(
-                    height: MediaQuery.of(context).size.height -
-                        expandedHeight -
-                        statusBarHeight -
-                        appBarHeight,
-                    alignment: Alignment.center,
-                    child: Stack(
-                      children: [
-                        PageView(
-                          controller: controller,
-                          children: <Widget>[
-                            page(LineChartWidget()),
-                            page(BarChartWidget()),
-                            page(LineChartWidget()),
-                            page(BarChartWidget()),
-                          ],
-                        ),
-                        Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 15),
-                            child: SmoothPageIndicator(
-                              controller: controller,
-                              count: 4,
-                              effect: ExpandingDotsEffect(
-                                  dotHeight: 5,
-                                  dotWidth: 15,
-                                  expansionFactor: 3,
-                                  activeDotColor:
-                                      Theme.of(context).primaryColor),
+          body: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Container(
+                  height: expandedHeight,
+                  width: MediaQuery.of(context).size.width,
+                  color: Theme.of(context).primaryColor,
+                  child: StreamBuilder(
+                      stream: balanceStream.contactCount,
+                      builder: (context, AsyncSnapshot<Balance> snapshot) {
+                        if (snapshot.hasData) {
+                          return Column(
+                            children: <Widget>[
+                              BalanceWidget(
+                                  totalBalance: snapshot.data.totalBalance),
+                              WalletWidget(
+                                wallets: snapshot.data.wallets,
+                                orders: resultOrders,
+                              )
+                            ],
+                          );
+                        }
+                        return Column(
+                          children: [
+                            LinearProgressIndicator(
+                              backgroundColor: Colors.white,
                             ),
+                            Expanded(
+                              child: Center(
+                                  child: Text(
+                                "We are loading your wallets...",
+                                style: TextStyle(
+                                    fontSize: 20, color: Colors.white),
+                              )),
+                            ),
+                          ],
+                        );
+                      }),
+                ),
+                ProductsWidget(futureProducts: _futureProducts),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 30),
+                  child: Divider(
+                    thickness: 2,
+                    color: Theme.of(context).primaryColor.withOpacity(0.5),
+                  ),
+                ),
+                Container(
+                  height: MediaQuery.of(context).size.height -
+                      expandedHeight -
+                      statusBarHeight -
+                      appBarHeight,
+                  alignment: Alignment.center,
+                  child: Stack(
+                    children: [
+                      PageView(
+                        controller: controller,
+                        children: <Widget>[
+                          page(LineChartWidget()),
+                          page(BarChartWidget()),
+                          page(LineChartWidget()),
+                          page(BarChartWidget()),
+                        ],
+                      ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 15),
+                          child: SmoothPageIndicator(
+                            controller: controller,
+                            count: 4,
+                            effect: ExpandingDotsEffect(
+                                dotHeight: 5,
+                                dotWidth: 15,
+                                expansionFactor: 3,
+                                activeDotColor: Theme.of(context).primaryColor),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30),
-                    child: Divider(
-                      thickness: 2,
-                      color: Theme.of(context).primaryColor.withOpacity(0.5),
-                    ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 30),
+                  child: Divider(
+                    thickness: 2,
+                    color: Theme.of(context).primaryColor.withOpacity(0.5),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        "Recent operations",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.bold,
-                        ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Recent operations",
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  OperationsWidget(
-                    everything: false,
-                    fixed: true,
-                    orders: resultOrders,
+                ),
+                OperationsWidget(
+                  everything: false,
+                  fixed: true,
+                  orders: resultOrders,
+                ),
+                MaterialButton(
+                  height: 50,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    child: Center(child: Text("View more")),
                   ),
-                  MaterialButton(
-                    height: 50,
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      child: Center(child: Text("View more")),
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => OperationsView(
-                                orders: resultOrders,
-                              )));
-                    },
-                  )
-                ],
-              ),
-            ],
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => OperationsView(
+                              orders: resultOrders,
+                            )));
+                  },
+                )
+              ],
+            ),
           ),
         ));
   }

@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'package:k_chart/entity/k_line_entity.dart';
-import 'package:tradingbot/models/Currency.dart';
+import 'package:tradingbot/models/Wallet.dart';
 import 'package:tradingbot/models/Order.dart';
+import 'package:tradingbot/models/Balance.dart';
 import 'package:tradingbot/controllers/RequestController.dart';
 
 class CoinbaseController {
   static double totalBalance = -1;
-  static List<Currency> wallets = [];
+  static List<Wallet> wallets = [];
 
   static Future<List> getProducts() async {
     return await _fetchProducts();
@@ -49,34 +50,34 @@ class CoinbaseController {
     return candles;
   }
 
-  static refreshBalances() async {
+  static Stream getPeriodicBalances() async* {
+    yield await getBalances();
+  }
+
+  static Future<Balance> getBalances() async {
     var balances = await _fetchWalletData();
     if (balances == null) return null;
 
-    List<Currency> wallets = [];
+    List<Wallet> wallets = [];
 
-    try {
-      double result = 0;
+    double result = 0;
 
-      var prices = await _fetchPrices();
+    for (var wallet in balances) {
+      String currency = wallet['currency'];
+      String name = currency;
+      double amount = double.parse(wallet['balance']);
+      var price = (await _fetchPriceOfCurrency(currency))['data']['amount'];
+      double priceUSD = double.parse(price);
+      double value = priceUSD * amount;
 
-      for (var wallet in balances) {
-        String currency = wallet['currency'];
-        String name = currency;
-        double amount = double.parse(wallet['balance']);
-        double priceUSD = 1 / double.parse(prices[currency]);
-        double value = priceUSD * amount;
+      wallets.add(new Wallet(currency, name, amount, value, priceUSD));
+      result += value;
 
-        wallets.add(new Currency(currency, name, amount, value, priceUSD));
-        result += value;
-      }
-      wallets.sort();
-
-      CoinbaseController.totalBalance = result;
-      CoinbaseController.wallets = wallets;
-    } catch (e) {
-      print("Error while loading wallet data");
+      // if (currency == "BTC") print("$currency : $priceUSD");
     }
+    // print(result);
+    wallets.sort();
+    return Balance.fromJson({'balances': wallets, 'value': result});
   }
 
   static Future _fetchWalletData() async {
@@ -84,8 +85,8 @@ class CoinbaseController {
     return await RequestController.sendRequest(options);
   }
 
-  static Future _fetchPrices() async {
-    return (await RequestController.sendRequest(null))["data"]["rates"];
+  static Future _fetchPriceOfCurrency(String currency) async {
+    return (await RequestController.sendRequest(null, currency));
   }
 
   static Future _fetchProducts() async {
@@ -123,7 +124,7 @@ class CoinbaseController {
   }
 
   static bool checkSameValueOfCurrencies(
-      List<Currency> before, List<Currency> after) {
+      List<Wallet> before, List<Wallet> after) {
     if (before == null || after == null) return null;
     for (var i = 0; i < before.length; i++) {
       if (before[i].value.toStringAsFixed(2) !=

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:tradingbot/models/Currency.dart';
+import 'package:tradingbot/models/Wallet.dart';
 
 class PricesView extends StatefulWidget {
-  final List<Currency> wallets;
+  final List<Wallet> wallets;
 
   PricesView({Key key, @required this.wallets}) : super(key: key);
 

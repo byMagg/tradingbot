@@ -1,11 +1,11 @@
-class Currency extends Comparable {
+class Wallet extends Comparable {
   String currency;
   String name;
   double amount;
   double value;
   double priceUSD;
 
-  Currency(String currency, String name, double amount, double value,
+  Wallet(String currency, String name, double amount, double value,
       double priceUSD) {
     this.currency = currency;
     this.name = name;

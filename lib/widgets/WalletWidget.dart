@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/views/CurrencyView.dart';
-import 'package:tradingbot/models/Currency.dart';
+import 'package:tradingbot/models/Wallet.dart';
 
 class WalletWidget extends StatefulWidget {
-  final List<Currency> wallets;
+  final List<Wallet> wallets;
   final List<Order> orders;
 
   WalletWidget({
@@ -25,7 +25,7 @@ class WalletWidgetState extends State<WalletWidget> {
 
     double cardWidth =
         MediaQuery.of(context).size.width * 0.2 - (cardMargin * 2);
-    List<Currency> it = widget.wallets;
+    List<Wallet> it = widget.wallets;
 
     return Expanded(
         child: (it.isEmpty)

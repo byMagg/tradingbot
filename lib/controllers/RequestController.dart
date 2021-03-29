@@ -14,10 +14,10 @@ class RequestController {
     return base64.encode(signature.bytes);
   }
 
-  static sendRequest(options) async {
+  static sendRequest(options, [String currency]) async {
     try {
       var response;
-      if (options != null) {
+      if (currency == null) {
         var timestamp = await get('https://api.coinbase.com/v2/time')
             .then((res) => json.decode(res.body))
             .then((res) => res['data']['epoch']);
@@ -35,7 +35,8 @@ class RequestController {
           'CB-ACCESS-PASSPHRASE': Config.API_PASSPHRASE
         });
       } else {
-        response = await get("https://api.coinbase.com/v2/exchange-rates");
+        response =
+            await get("https://api.coinbase.com/v2/prices/$currency-USD/spot");
       }
 
       if (response != null && response.statusCode == 200) {

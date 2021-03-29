@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:tradingbot/models/Balance.dart';
 
 import 'package:intl/intl.dart';
+import 'package:tradingbot/streams/BalanceStream.dart';
 
 class BalanceWidget extends StatefulWidget {
-  final double number;
-  BalanceWidget({Key key, @required this.number}) : super(key: key);
+  final double totalBalance;
 
+  BalanceWidget({Key key, @required this.totalBalance}) : super(key: key);
   @override
   BalanceWidgetState createState() => BalanceWidgetState();
 }
@@ -19,7 +21,7 @@ class BalanceWidgetState extends State<BalanceWidget> {
         color: Theme.of(context).primaryColor,
         child: Padding(
           padding: const EdgeInsets.only(bottom: 10),
-          child: (widget.number == -1)
+          child: (widget.totalBalance == -1)
               ? LinearProgressIndicator(
                   backgroundColor: Colors.white,
                 )
@@ -30,7 +32,7 @@ class BalanceWidgetState extends State<BalanceWidget> {
                       style: TextStyle(fontSize: fontSize, color: Colors.white),
                     ),
                     Text(
-                      '${NumberFormat.simpleCurrency().format(widget.number)}',
+                      '${NumberFormat.simpleCurrency().format(widget.totalBalance)}',
                       style:
                           TextStyle(fontSize: fontSize, color: Colors.white54),
                     )
