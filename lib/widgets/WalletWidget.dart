@@ -28,63 +28,57 @@ class WalletWidgetState extends State<WalletWidget> {
     List<Wallet> it = widget.wallets;
 
     return Expanded(
-        child: (it.isEmpty)
-            ? Center(
-                child: Text(
-                "We are loading your wallets...",
-                style: TextStyle(fontSize: 20, color: Colors.white),
-              ))
-            : ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: it.length,
-                itemBuilder: (context, index) {
-                  String currency = it[index].currency;
-                  String number = NumberFormat.compactCurrency(
-                          decimalDigits: 2, symbol: '\$ ')
+        child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: it.length,
+            itemBuilder: (context, index) {
+              String currency = it[index].currency;
+              String number =
+                  NumberFormat.compactCurrency(decimalDigits: 2, symbol: '\$ ')
                       .format(it[index].value);
 
-                  return Card(
-                    margin: EdgeInsets.only(
-                        left: cardMargin, right: cardMargin, bottom: 10),
-                    elevation: 10,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(15),
-                      onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => CurrencyView(
-                                  orders: widget.orders,
-                                  symbol: currency,
-                                )));
-                      },
-                      child: Container(
-                        width: cardWidth,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            SizedBox(
-                              height: 40,
-                              child: Image(
-                                image: AssetImage(
-                                    'lib/assets/currencies/color/${currency.toLowerCase()}.png'),
-                              ),
-                            ),
-                            Text(
-                              "$number",
-                              style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Montserrat',
-                              ),
-                            ),
-                          ],
+              return Card(
+                margin: EdgeInsets.only(
+                    left: cardMargin, right: cardMargin, bottom: 10),
+                elevation: 10,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(15),
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => CurrencyView(
+                              orders: widget.orders,
+                              symbol: currency,
+                            )));
+                  },
+                  child: Container(
+                    width: cardWidth,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        SizedBox(
+                          height: 40,
+                          child: Image(
+                            image: AssetImage(
+                                'lib/assets/currencies/color/${currency.toLowerCase()}.png'),
+                          ),
                         ),
-                      ),
+                        Text(
+                          "$number",
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Montserrat',
+                          ),
+                        ),
+                      ],
                     ),
-                  );
-                }));
+                  ),
+                ),
+              );
+            }));
   }
 }
