@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:tradingbot/models/Order.dart';
+import 'package:tradingbot/streams/OrdersStream.dart';
 
 import 'package:tradingbot/widgets/OperationsWidget.dart';
 
@@ -29,11 +31,18 @@ class _OperationsViewState extends State<OperationsView> {
               Navigator.of(context).pop();
             }),
       ),
-      body: OperationsWidget(
-        orders: widget.orders,
-        everything: true,
-        fixed: false,
-      ),
+      body: StreamBuilder(
+          stream: ordersStream.stream,
+          builder: (context, AsyncSnapshot<List<Order>> snapshot) {
+            if (snapshot.hasData) {
+              return OperationsWidget(
+                orders: snapshot.data,
+                everything: true,
+                fixed: false,
+              );
+            }
+            return Center(child: CircularProgressIndicator());
+          }),
     );
   }
 }

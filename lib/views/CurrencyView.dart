@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/models/Order.dart';
+import 'package:tradingbot/streams/BalanceStream.dart';
+import 'package:tradingbot/streams/OrdersStream.dart';
 import 'package:tradingbot/widgets/OperationsWidget.dart';
 
 class CurrencyView extends StatefulWidget {
   final String symbol;
-  final List<Order> orders;
 
   CurrencyView({
     Key key,
-    @required this.orders,
     @required this.symbol,
   }) : super(key: key);
 
@@ -19,9 +19,6 @@ class CurrencyView extends StatefulWidget {
 
 class _CurrencyViewState extends State<CurrencyView> {
   _listOperations() {
-    List<Order> specificOrders =
-        CoinbaseController.getSpecificOrders(widget.symbol, widget.orders);
-
     return Container(
       child: ListView(
         children: <Widget>[
@@ -49,11 +46,23 @@ class _CurrencyViewState extends State<CurrencyView> {
                     ),
                   ),
                 ),
-                OperationsWidget(
-                  everything: true,
-                  fixed: true,
-                  orders: specificOrders,
-                ),
+                StreamBuilder(
+                    stream: ordersStream.stream,
+                    builder: (context, AsyncSnapshot<List<Order>> snapshot) {
+                      if (snapshot.hasData) {
+                        List<Order> specificOrders =
+                            CoinbaseController.getSpecificOrders(
+                                widget.symbol, snapshot.data);
+
+                        print(snapshot.data);
+                        return OperationsWidget(
+                          everything: true,
+                          fixed: true,
+                          orders: specificOrders,
+                        );
+                      }
+                      return CircularProgressIndicator();
+                    }),
               ],
             ),
           ),

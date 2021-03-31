@@ -59,9 +59,8 @@ class _ProductsWidgetState extends State<ProductsWidget> {
                             },
                           );
                         });
-                  } else {
-                    return CircularProgressIndicator();
                   }
+                  return Center(child: CircularProgressIndicator());
                 }))
       ],
     );

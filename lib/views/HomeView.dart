@@ -3,6 +3,7 @@ import 'package:k_chart/entity/k_line_entity.dart';
 import 'package:tradingbot/models/Balance.dart';
 import 'package:tradingbot/streams/BalanceStream.dart';
 import 'package:tradingbot/models/Order.dart';
+import 'package:tradingbot/streams/OrdersStream.dart';
 import 'package:tradingbot/views/PricesView.dart';
 import 'package:tradingbot/widgets/BalanceWidget.dart';
 import 'package:tradingbot/widgets/BarChartWidget.dart';
@@ -84,41 +85,13 @@ class _HomeViewState extends State<HomeView> {
   void initState() {
     super.initState();
 
-    // _loadData();
-    _loadOrders();
-    _futureOrders = CoinbaseController.getOrders();
     _futureProducts = CoinbaseController.getProducts();
-    _streamBalance = balanceStream.contactCount;
-    balanceStream.fetchData();
 
-    Timer.periodic(Duration(seconds: 5), (Timer t) async {
-      // _loadData();
-      _loadOrders();
+    Timer.periodic(Duration(seconds: 10), (Timer t) async {
+      balanceStream.fetchData();
+      ordersStream.fetchData();
     });
   }
-
-  _loadOrders() async {
-    List<Order> tempOrders = await CoinbaseController.getOrders();
-
-    setState(() {
-      resultOrders = tempOrders;
-    });
-  }
-
-  // _loadData() async {
-  // await CoinbaseController.refreshBalances();
-  // double tempNumber = CoinbaseController.totalBalance;
-  // List<Currency> tempWallets = CoinbaseController.wallets;
-
-  // setState(() {
-  //   if (resultNumber != tempNumber) resultNumber = tempNumber;
-  //   if (!CoinbaseController.checkSameValueOfCurrencies(
-  //           resultWallets, tempWallets) ||
-  //       resultWallets.isEmpty) {
-  //     resultWallets = tempWallets;
-  //   }
-  // });
-  // }
 
   // static List<charts.Series<LinearPrices, DateTime>> _createSampleData() {
   //   final data = [
@@ -168,10 +141,8 @@ class _HomeViewState extends State<HomeView> {
               IconButton(
                   icon: Icon(Icons.account_balance_wallet),
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => PricesView(
-                              wallets: CoinbaseController.wallets,
-                            )));
+                    Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => PricesView()));
                   }),
             ],
           ),
@@ -183,16 +154,16 @@ class _HomeViewState extends State<HomeView> {
                   width: MediaQuery.of(context).size.width,
                   color: Theme.of(context).primaryColor,
                   child: StreamBuilder(
-                      stream: balanceStream.contactCount,
+                      stream: balanceStream.stream,
                       builder: (context, AsyncSnapshot<Balance> snapshot) {
                         if (snapshot.hasData) {
+                          print(snapshot.data.totalBalance);
                           return Column(
                             children: <Widget>[
                               BalanceWidget(
                                   totalBalance: snapshot.data.totalBalance),
                               WalletWidget(
                                 wallets: snapshot.data.wallets,
-                                orders: resultOrders,
                               )
                             ],
                           );
@@ -278,24 +249,46 @@ class _HomeViewState extends State<HomeView> {
                     ),
                   ),
                 ),
-                OperationsWidget(
-                  everything: false,
-                  fixed: true,
-                  orders: resultOrders,
-                ),
-                MaterialButton(
-                  height: 50,
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    child: Center(child: Text("View more")),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => OperationsView(
-                              orders: resultOrders,
-                            )));
-                  },
-                )
+                StreamBuilder(
+                    stream: ordersStream.stream,
+                    builder: (context, AsyncSnapshot<List<Order>> snapshot) {
+                      if (snapshot.hasData) {
+                        return Column(
+                          children: [
+                            OperationsWidget(
+                              everything: false,
+                              fixed: true,
+                              orders: snapshot.data,
+                            ),
+                            MaterialButton(
+                              height: 50,
+                              child: Container(
+                                width: MediaQuery.of(context).size.width,
+                                child: Center(child: Text("View more")),
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => OperationsView(
+                                          orders: resultOrders,
+                                        )));
+                              },
+                            ),
+                          ],
+                        );
+                      }
+                      return Container(
+                          height: 350,
+                          child: Center(
+                              child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                CircularProgressIndicator(),
+                                Padding(
+                                  padding: const EdgeInsets.all(20),
+                                  child: Text("Loading recent operations..."),
+                                )
+                              ])));
+                    }),
               ],
             ),
           ),

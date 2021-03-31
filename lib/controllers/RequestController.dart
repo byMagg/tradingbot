@@ -15,36 +15,31 @@ class RequestController {
   }
 
   static sendRequest(options, [String currency]) async {
-    try {
-      var response;
-      if (currency == null) {
-        var timestamp = await get('https://api.coinbase.com/v2/time')
-            .then((res) => json.decode(res.body))
-            .then((res) => res['data']['epoch']);
-        String query = timestamp.toString() +
-            options['method'] +
-            options['endPoint'] +
-            options['body'];
-        String signature = _hmacSha256Base64(query, Config.API_SECRET);
-        var url = Config.API_URL + options['endPoint'];
+    var response;
+    if (currency == null) {
+      var timestamp = await get('https://api.coinbase.com/v2/time')
+          .then((res) => json.decode(res.body))
+          .then((res) => res['data']['epoch']);
+      String query = timestamp.toString() +
+          options['method'] +
+          options['endPoint'] +
+          options['body'];
+      String signature = _hmacSha256Base64(query, Config.API_SECRET);
+      var url = Config.API_URL + options['endPoint'];
 
-        response = await get(url, headers: {
-          'CB-ACCESS-KEY': Config.API_KEY,
-          'CB-ACCESS-SIGN': signature,
-          'CB-ACCESS-TIMESTAMP': timestamp.toString(),
-          'CB-ACCESS-PASSPHRASE': Config.API_PASSPHRASE
-        });
-      } else {
-        response =
-            await get("https://api.coinbase.com/v2/prices/$currency-USD/spot");
-      }
+      response = await get(url, headers: {
+        'CB-ACCESS-KEY': Config.API_KEY,
+        'CB-ACCESS-SIGN': signature,
+        'CB-ACCESS-TIMESTAMP': timestamp.toString(),
+        'CB-ACCESS-PASSPHRASE': Config.API_PASSPHRASE
+      });
+    } else {
+      response =
+          await get("https://api.coinbase.com/v2/prices/$currency-USD/spot");
+    }
 
-      if (response != null && response.statusCode == 200) {
-        return json.decode(response.body);
-      }
-      return null;
-    } catch (e) {
-      return e;
+    if (response != null && response.statusCode == 200) {
+      return json.decode(response.body);
     }
   }
 }

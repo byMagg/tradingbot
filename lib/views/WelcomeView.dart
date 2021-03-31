@@ -3,9 +3,12 @@ import 'package:tradingbot/widgets/TitleWidget.dart';
 
 import 'HomeView.dart';
 
-class WelcomeView extends StatelessWidget {
-  WelcomeView({Key key}) : super(key: key);
+class WelcomeView extends StatefulWidget {
+  @override
+  _WelcomeViewState createState() => _WelcomeViewState();
+}
 
+class _WelcomeViewState extends State<WelcomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

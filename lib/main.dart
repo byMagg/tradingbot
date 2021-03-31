@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
+import 'package:tradingbot/streams/BalanceStream.dart';
+import 'package:tradingbot/streams/OrdersStream.dart';
 
 import 'views/WelcomeView.dart';
 
-void main() async {
+Future<void> main() async {
   await DotEnv.load(fileName: ".env");
+  await balanceStream.fetchData();
+  // await ordersStream.fetchData();
+
   runApp(MyApp());
 }
 
@@ -22,16 +27,19 @@ class MyApp extends StatelessWidget {
     800: Color.fromRGBO(100, 39, 49, .9),
     900: Color.fromRGBO(100, 39, 49, 1),
   };
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    ordersStream.fetchData();
+    precacheImage(AssetImage('lib/assets/welcome.jpg'), context);
+
     return MaterialApp(
       title: 'TradingBOT',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
           primarySwatch: MaterialColor(0xffFF637D, color),
           accentColor: Color(0xffFF637D)),
-      // home: WelcomeView(),
       home: WelcomeView(),
     );
   }

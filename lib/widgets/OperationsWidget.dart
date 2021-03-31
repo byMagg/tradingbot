@@ -88,7 +88,11 @@ class OperationsWidget extends StatefulWidget {
                 shrinkWrap: true,
                 padding: EdgeInsets.all(0),
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: everything ? _operations.length : 5,
+                itemCount: everything
+                    ? _operations.length
+                    : (_operations.length < 5)
+                        ? _operations.length
+                        : 5,
                 itemBuilder: (context, index) {
                   return getItemListTile(context, index, _operations[index]);
                 }));

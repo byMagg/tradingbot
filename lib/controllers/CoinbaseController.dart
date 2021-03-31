@@ -95,9 +95,12 @@ class CoinbaseController {
   }
 
   static Future _fetchOrders() async {
+    var end = new DateTime.now().toIso8601String();
+    var start =
+        new DateTime.now().subtract(Duration(days: 90)).toIso8601String();
     var options = {
       'method': 'GET',
-      'endPoint': '/orders?status=done',
+      'endPoint': '/orders?status=done&start_date=$start&after=$end',
       'body': ''
     };
     return await RequestController.sendRequest(options);
