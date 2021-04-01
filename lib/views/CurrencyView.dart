@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/models/Order.dart';
-import 'package:tradingbot/streams/BalanceStream.dart';
 import 'package:tradingbot/streams/OrdersStream.dart';
 import 'package:tradingbot/widgets/OperationsWidget.dart';
+import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
 
 class CurrencyView extends StatefulWidget {
   final String symbol;
@@ -20,52 +20,48 @@ class CurrencyView extends StatefulWidget {
 class _CurrencyViewState extends State<CurrencyView> {
   _listOperations() {
     return Container(
-      child: ListView(
+      decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(40), topRight: Radius.circular(40))),
+      child: Column(
         children: <Widget>[
-          SizedBox(
-            height: 270,
-          ),
-          Container(
-            decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(40),
-                    topRight: Radius.circular(40))),
-            child: Column(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Operations",
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    ),
-                  ),
-                ),
-                StreamBuilder(
-                    stream: ordersStream.stream,
-                    builder: (context, AsyncSnapshot<List<Order>> snapshot) {
-                      if (snapshot.hasData) {
-                        List<Order> specificOrders =
-                            CoinbaseController.getSpecificOrders(
-                                widget.symbol, snapshot.data);
-
-                        print(snapshot.data);
-                        return OperationsWidget(
-                          everything: true,
-                          fixed: true,
-                          orders: specificOrders,
-                        );
-                      }
-                      return CircularProgressIndicator();
-                    }),
-              ],
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Align(
+              alignment: Alignment.center,
+              child: Text(
+                "Operations",
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              ),
             ),
           ),
+          StreamBuilder(
+              stream: ordersStream.stream,
+              builder: (context, AsyncSnapshot<List<Order>> snapshot) {
+                if (snapshot.hasData) {
+                  List<Order> specificOrders =
+                      CoinbaseController.getSpecificOrders(
+                          widget.symbol, snapshot.data);
+
+                  return OperationsWidget(
+                    everything: true,
+                    fixed: true,
+                    orders: specificOrders,
+                  );
+                }
+                return Container(
+                  height: 350,
+                  child: Align(
+                      alignment: Alignment.center,
+                      child: CircularProgressIndicator(
+                        backgroundColor: Colors.white,
+                      )),
+                );
+              }),
         ],
       ),
     );
@@ -74,7 +70,7 @@ class _CurrencyViewState extends State<CurrencyView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
+      // backgroundColor: Theme.of(context).primaryColor,
       appBar: AppBar(
         elevation: 0,
         leading: IconButton(
@@ -97,27 +93,18 @@ class _CurrencyViewState extends State<CurrencyView> {
           ],
         ),
       ),
-      body: Stack(children: [
-        Column(
-          children: <Widget>[
-            Container(
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  height: 250,
-                  //  child: SimpleLineChart.withSampleData()
-                ),
-              ),
-            ),
-            Container(
-              height: 70,
-              color: Colors.white,
-            )
-          ],
-        ),
-        _listOperations(),
-      ]),
+      body: SingleChildScrollView(
+        child: Column(children: [
+          Container(
+            height: 270,
+            child: SimpleTimeSeriesChart.withSampleData(true),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: _listOperations(),
+          )
+        ]),
+      ),
     );
   }
 }

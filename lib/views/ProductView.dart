@@ -51,6 +51,7 @@ class _ProductViewState extends State<ProductView> {
                   snapshot.data,
                   onLoadMore: (bool a) {},
                   maDayList: [5, 10, 20],
+                  isLine: true,
                   isOnDrag: (isDrag) {},
                   // bgColor: [
                   //   Color.fromRGBO(255, 255, 255, 1),

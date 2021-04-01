@@ -4,6 +4,7 @@ import 'package:tradingbot/models/Balance.dart';
 import 'package:tradingbot/streams/BalanceStream.dart';
 import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/streams/OrdersStream.dart';
+import 'package:tradingbot/streams/ProductsStream.dart';
 import 'package:tradingbot/views/PricesView.dart';
 import 'package:tradingbot/widgets/BalanceWidget.dart';
 import 'package:tradingbot/widgets/BarChartWidget.dart';
@@ -73,23 +74,19 @@ class _HomeViewState extends State<HomeView> {
   List<Order> resultOrders = [];
   List<KLineEntity> resultCandles = [];
 
-  Future<List> _futureProducts;
-  Future<List> _futureOrders;
-  Future<List> _futureCandles;
-
   Balance initialBalance;
-
-  Stream<Balance> _streamBalance;
 
   @override
   void initState() {
     super.initState();
 
-    _futureProducts = CoinbaseController.getProducts();
-
-    Timer.periodic(Duration(seconds: 10), (Timer t) async {
-      balanceStream.fetchData();
+    Timer.periodic(Duration(seconds: 30), (Timer t) async {
       ordersStream.fetchData();
+    });
+
+    Timer.periodic(Duration(seconds: 5), (Timer t) async {
+      balanceStream.fetchData();
+      productsStream.fetchData();
     });
   }
 
@@ -157,7 +154,6 @@ class _HomeViewState extends State<HomeView> {
                       stream: balanceStream.stream,
                       builder: (context, AsyncSnapshot<Balance> snapshot) {
                         if (snapshot.hasData) {
-                          print(snapshot.data.totalBalance);
                           return Column(
                             children: <Widget>[
                               BalanceWidget(
@@ -185,7 +181,17 @@ class _HomeViewState extends State<HomeView> {
                         );
                       }),
                 ),
-                ProductsWidget(futureProducts: _futureProducts),
+                Container(
+                  height: 320,
+                  child: StreamBuilder(
+                      stream: productsStream.stream,
+                      builder: (context, AsyncSnapshot<List> snapshot) {
+                        if (snapshot.hasData) {
+                          return ProductsWidget(products: snapshot.data);
+                        }
+                        return CircularProgressIndicator();
+                      }),
+                ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 30),
                   child: Divider(

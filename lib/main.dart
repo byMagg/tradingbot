@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
 import 'package:tradingbot/streams/BalanceStream.dart';
 import 'package:tradingbot/streams/OrdersStream.dart';
+import 'package:tradingbot/streams/ProductsStream.dart';
 
 import 'views/WelcomeView.dart';
 
@@ -32,6 +33,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     ordersStream.fetchData();
+    productsStream.fetchData();
+
     precacheImage(AssetImage('lib/assets/welcome.jpg'), context);
 
     return MaterialApp(

@@ -1,34 +1,36 @@
 import 'dart:async';
 import 'package:k_chart/entity/k_line_entity.dart';
+import 'package:tradingbot/models/Product.dart';
 import 'package:tradingbot/models/Wallet.dart';
 import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/models/Balance.dart';
 import 'package:tradingbot/controllers/RequestController.dart';
 
 class CoinbaseController {
-  static double totalBalance = -1;
-  static List<Wallet> wallets = [];
+  static Future<List<Product>> getProducts() async {
+    var products = await _fetchProducts();
 
-  static Future<List> getProducts() async {
-    return await _fetchProducts();
+    List<Product> result = [];
+
+    for (var product in products) {
+      result.add(Product.fromJson(product));
+    }
+
+    return result;
   }
 
   static Future<List<Order>> getOrders() async {
     var orders = await _fetchOrders();
 
-    List<Order> data = [];
+    List<Order> result = [];
 
-    for (var item in orders) {
-      if (item['done_reason'] == "canceled") continue;
+    for (var order in orders) {
+      if (order['done_reason'] == "canceled") continue;
 
-      data.add(new Order(
-          item['product_id'],
-          double.parse(item['filled_size']),
-          double.parse(item['executed_value']),
-          DateTime.parse(item['created_at'])));
+      result.add(Order.fromJson(order));
     }
 
-    return data;
+    return result;
   }
 
   static Future<List<KLineEntity>> getCandles(String product) async {
@@ -50,10 +52,6 @@ class CoinbaseController {
     return candles;
   }
 
-  static Stream getPeriodicBalances() async* {
-    yield await getBalances();
-  }
-
   static Future<Balance> getBalances() async {
     var balances = await _fetchWalletData();
     if (balances == null) return null;
@@ -72,12 +70,9 @@ class CoinbaseController {
 
       wallets.add(new Wallet(currency, name, amount, value, priceUSD));
       result += value;
-
-      // if (currency == "BTC") print("$currency : $priceUSD");
     }
-    // print(result);
-    wallets.sort();
-    return Balance.fromJson({'balances': wallets, 'value': result});
+
+    return Balance(result, wallets);
   }
 
   static Future _fetchWalletData() async {

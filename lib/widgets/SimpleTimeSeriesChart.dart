@@ -5,30 +5,37 @@ import 'package:flutter/material.dart';
 class SimpleTimeSeriesChart extends StatelessWidget {
   final List<charts.Series> seriesList;
   final bool animate;
+  final bool lines;
 
-  SimpleTimeSeriesChart(this.seriesList, {this.animate});
+  SimpleTimeSeriesChart(this.seriesList, {this.animate, this.lines});
 
-  /// Creates a [TimeSeriesChart] with sample data and no transition.
-  factory SimpleTimeSeriesChart.withSampleData() {
+  factory SimpleTimeSeriesChart.withSampleData(bool lines) {
     return new SimpleTimeSeriesChart(
       _createSampleData(),
-
-      // Disable animations for image tests.
-      animate: false,
+      animate: true,
+      lines: lines,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return new charts.TimeSeriesChart(
-      seriesList,
-      animate: animate,
-      dateTimeFactory: const charts.LocalDateTimeFactory(),
-      primaryMeasureAxis:
-          new charts.NumericAxisSpec(renderSpec: new charts.NoneRenderSpec()),
-      domainAxis: new charts.DateTimeAxisSpec(
-          showAxisLine: true, renderSpec: new charts.NoneRenderSpec()),
-    );
+    if (lines) {
+      return new charts.TimeSeriesChart(
+        seriesList,
+        animate: animate,
+        dateTimeFactory: const charts.LocalDateTimeFactory(),
+      );
+    } else {
+      return new charts.TimeSeriesChart(
+        seriesList,
+        animate: animate,
+        dateTimeFactory: const charts.LocalDateTimeFactory(),
+        primaryMeasureAxis:
+            new charts.NumericAxisSpec(renderSpec: new charts.NoneRenderSpec()),
+        domainAxis: new charts.DateTimeAxisSpec(
+            renderSpec: new charts.NoneRenderSpec()),
+      );
+    }
   }
 
   /// Create one series with sample hard coded data.

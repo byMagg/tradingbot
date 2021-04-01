@@ -11,6 +11,12 @@ class Order extends Comparable {
     this.date = date;
   }
 
+  Order.fromJson(Map<String, dynamic> json)
+      : productId = json['product_id'],
+        currency1 = double.parse(json['filled_size']),
+        currency2 = double.parse(json['executed_value']),
+        date = DateTime.parse(json['created_at']);
+
   @override
   int compareTo(other) {
     return this.date.compareTo(other.date);

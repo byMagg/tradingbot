@@ -30,7 +30,7 @@ dependencies:
   fl_chart: ^0.8.7
   http: ^0.12.1
   flutter_candlesticks: ^0.1.4
-  start_chart: ^0.2.0
+  # start_chart: ^0.2.0
   crypto: ^2.1.4
   k_chart: ^0.1.1
 

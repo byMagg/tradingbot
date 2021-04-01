@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
+import 'package:tradingbot/models/Product.dart';
 import 'package:tradingbot/views/ProductView.dart';
 import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
 
 class ProductsWidget extends StatefulWidget {
-  final Future<List> futureProducts;
-  ProductsWidget({Key key, @required this.futureProducts}) : super(key: key);
+  final List<Product> products;
+  ProductsWidget({Key key, @required this.products}) : super(key: key);
 
   @override
   _ProductsWidgetState createState() => _ProductsWidgetState();
@@ -28,40 +29,35 @@ class _ProductsWidgetState extends State<ProductsWidget> {
                 fontWeight: FontWeight.bold),
           ),
         ),
-        Container(
-            height: 300,
-            child: FutureBuilder(
-                future: widget.futureProducts,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return ListView.builder(
-                        itemCount: snapshot.data.length,
-                        itemBuilder: (context, index) {
-                          var currency = snapshot.data[index]['id'];
-                          return ListTile(
-                            title: Text(currency),
-                            trailing: Container(
-                              width: 130,
-                              child: Row(children: [
-                                Container(
-                                    width: 100,
-                                    child:
-                                        SimpleTimeSeriesChart.withSampleData()),
-                                Icon(Icons.arrow_forward_ios)
-                              ]),
-                            ),
-                            onTap: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => ProductView(
-                                      product: currency,
-                                      future: CoinbaseController.getCandles(
-                                          currency))));
-                            },
-                          );
-                        });
-                  }
-                  return Center(child: CircularProgressIndicator());
-                }))
+        Expanded(
+          child: ListView.builder(
+              itemCount: widget.products.length,
+              itemBuilder: (context, index) {
+                String currencyId = widget.products[index].id;
+                String currencyDisplayName = widget.products[index].displayName;
+                return ListTile(
+                  title: Text(currencyDisplayName),
+                  trailing: Container(
+                    width: 130,
+                    child: Row(children: [
+                      Container(
+                          width: 100,
+                          child: AbsorbPointer(
+                              child:
+                                  SimpleTimeSeriesChart.withSampleData(false))),
+                      Icon(Icons.arrow_forward_ios)
+                    ]),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => ProductView(
+                            product: currencyDisplayName,
+                            future:
+                                CoinbaseController.getCandles(currencyId))));
+                  },
+                );
+              }),
+        )
       ],
     );
   }

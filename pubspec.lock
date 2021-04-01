@@ -70,7 +70,7 @@ packages:
       name: crypto
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.4"
+    version: "2.1.5"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -226,13 +226,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.10.0"
-  start_chart:
-    dependency: "direct main"
-    description:
-      name: start_chart
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.0"
   stream_channel:
     dependency: transitive
     description:
