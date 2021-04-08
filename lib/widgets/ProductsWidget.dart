@@ -51,7 +51,7 @@ class _ProductsWidgetState extends State<ProductsWidget> {
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => ProductView(
-                            product: currencyDisplayName,
+                            product: currencyId,
                             future:
                                 CoinbaseController.getCandles(currencyId))));
                   },

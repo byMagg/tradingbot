@@ -1,6 +1,11 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:k_chart/flutter_k_chart.dart';
 import 'package:k_chart/k_chart_widget.dart';
+import 'package:tradingbot/controllers/CoinbaseController.dart';
+import 'package:web_socket_channel/io.dart';
 
 class ProductView extends StatefulWidget {
   final String product;
@@ -20,6 +25,74 @@ class _ProductViewState extends State<ProductView> {
   //   DataUtil.calculate(candles);
   //   return candles;
   // }
+  //
+
+  final channel = IOWebSocketChannel.connect('wss://ws-feed.pro.coinbase.com');
+
+  List<KLineEntity> candles = [];
+
+  StreamController<List<KLineEntity>> streamController =
+      new StreamController<List<KLineEntity>>();
+
+  initCandles() async {
+    candles = await CoinbaseController.getCandles(widget.product);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initCandles();
+    channel.sink.add(jsonEncode({
+      "type": "subscribe",
+      "product_ids": [
+        // "ETH-USD",
+        widget.product
+      ],
+      "channels": ["matches"]
+    }));
+
+    channel.stream.listen((event) {
+      var msg = jsonDecode(event);
+      if (msg['price'] == null) return;
+      if (msg['size'] == null) return;
+
+      msg['price'] = double.parse(msg['price']);
+      msg['size'] = double.parse(msg['size']);
+
+      var productId = msg['product_id'];
+      var split = productId.split("-");
+      var base = split[0];
+      var quote = split[1];
+
+      var roundedTime =
+          (DateTime.parse(msg['time']).millisecondsSinceEpoch / 60000).round() *
+              60;
+      print(roundedTime);
+
+      candles.add(new KLineEntity.fromCustom(
+          time: roundedTime,
+          low: msg['price'].toDouble(),
+          high: msg['price'].toDouble(),
+          open: msg['price'].toDouble(),
+          close: msg['price'].toDouble(),
+          vol: msg['size'].toDouble()));
+      // candles.add(snapshot.data)
+      DataUtil.calculate(candles);
+    });
+
+    Timer.periodic(Duration(seconds: 5), (Timer t) async {
+      streamController.sink.add(candles);
+      print(candles);
+    });
+    // streamController.stream.listen((event) {});
+  }
+
+  @override
+  void dispose() {
+    channel.sink.close();
+    streamController.sink.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,17 +115,20 @@ class _ProductViewState extends State<ProductView> {
         color: Colors.white,
         width: MediaQuery.of(context).size.width,
         child: Center(
-          child: FutureBuilder(
-            future: widget.future,
-            builder: (context, snapshot) {
+          child: StreamBuilder(
+            stream: streamController.stream,
+            builder: (context, AsyncSnapshot<List<KLineEntity>> snapshot) {
               if (snapshot.hasData) {
-                DataUtil.calculate(snapshot.data);
                 return KChartWidget(
                   snapshot.data,
                   onLoadMore: (bool a) {},
                   maDayList: [5, 10, 20],
-                  isLine: true,
+                  // isLine: true,
+                  // mainState: MainState.MA,
+                  // secondaryState: SecondaryState.MACD,
                   isOnDrag: (isDrag) {},
+                  // timeFormat: TimeFormat.YEAR_MONTH_DAY,
+
                   // bgColor: [
                   //   Color.fromRGBO(255, 255, 255, 1),
                   //   Color.fromRGBO(255, 255, 255, 1)

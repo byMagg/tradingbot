@@ -31,7 +31,9 @@ dependencies:
   http: ^0.12.1
   flutter_candlesticks: ^0.1.4
   # start_chart: ^0.2.0
-  crypto: ^2.1.4
+  crypto: ^3.0.0
+  stomp:
+  web_socket_channel: ^2.0.0
   k_chart: ^0.1.1
 
   # The following adds the Cupertino Icons font to your application.
