@@ -36,6 +36,7 @@ class _ProductViewState extends State<ProductView> {
 
   initCandles() async {
     candles = await CoinbaseController.getCandles(widget.product);
+    candles.sort((a, b) => a.time.compareTo(b.time));
   }
 
   @override
@@ -44,10 +45,7 @@ class _ProductViewState extends State<ProductView> {
     initCandles();
     channel.sink.add(jsonEncode({
       "type": "subscribe",
-      "product_ids": [
-        // "ETH-USD",
-        widget.product
-      ],
+      "product_ids": [widget.product],
       "channels": ["matches"]
     }));
 
@@ -65,24 +63,37 @@ class _ProductViewState extends State<ProductView> {
       var quote = split[1];
 
       var roundedTime =
-          (DateTime.parse(msg['time']).millisecondsSinceEpoch / 60000).round() *
-              60;
-      print(roundedTime);
+          (DateTime.parse(msg['time']).millisecondsSinceEpoch / 1000).floor() -
+              ((DateTime.parse(msg['time']).millisecondsSinceEpoch / 1000)
+                      .floor() %
+                  60);
 
-      candles.add(new KLineEntity.fromCustom(
-          time: roundedTime,
-          low: msg['price'].toDouble(),
-          high: msg['price'].toDouble(),
-          open: msg['price'].toDouble(),
-          close: msg['price'].toDouble(),
-          vol: msg['size'].toDouble()));
-      // candles.add(snapshot.data)
+      if (candles.last.time == roundedTime) {
+        candles.last.low = msg['price'].toDouble();
+        candles.last.high = msg['price'].toDouble();
+        candles.last.close = msg['price'].toDouble();
+        // candles.last.low = msg['price'].toDouble();
+        // candles.last.low = msg['price'].toDouble();
+      } else {
+        candles.add(new KLineEntity.fromCustom(
+            time: roundedTime,
+            low: msg['price'].toDouble(),
+            high: msg['price'].toDouble(),
+            open: msg['price'].toDouble(),
+            close: msg['price'].toDouble(),
+            vol: msg['size'].toDouble()));
+        print(candles.last);
+      }
+
       DataUtil.calculate(candles);
+
+      print(candles.map((e) => e.time).last);
+      // candles.last
     });
 
     Timer.periodic(Duration(seconds: 5), (Timer t) async {
       streamController.sink.add(candles);
-      print(candles);
+      // print(candles);
     });
     // streamController.stream.listen((event) {});
   }
