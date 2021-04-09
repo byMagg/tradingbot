@@ -42,11 +42,12 @@ class CoinbaseController {
     for (var item in candleReq) {
       candles.add(new KLineEntity.fromCustom(
           time: item[0],
-          low: item[1].toDouble(),
-          high: item[2].toDouble(),
-          open: item[3].toDouble(),
-          close: item[4].toDouble(),
-          vol: item[5].toDouble()));
+          open: double.parse(item[1]),
+          high: double.parse(item[2]),
+          low: double.parse(item[3]),
+          close: double.parse(item[4]),
+          vol: double.parse(item[5]),
+          amount: double.parse(item[7])));
     }
 
     return candles;
@@ -110,7 +111,8 @@ class CoinbaseController {
       'endPoint': '/products/$product/candles?granularity=60',
       'body': ''
     };
-    return await RequestController.sendRequest(options);
+    return await RequestController.sendRequest(
+        options = options, product, "1h");
   }
 
   static List<Order> getSpecificOrders(String currency, List<Order> orders) {

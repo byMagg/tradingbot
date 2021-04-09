@@ -14,7 +14,7 @@ class RequestController {
     return base64.encode(signature.bytes);
   }
 
-  static sendRequest(options, [String currency]) async {
+  static sendRequest(options, [String currency, String interval]) async {
     var response;
     if (currency == null) {
       var timestamp = await get('https://api.coinbase.com/v2/time')
@@ -33,9 +33,12 @@ class RequestController {
         'CB-ACCESS-TIMESTAMP': timestamp.toString(),
         'CB-ACCESS-PASSPHRASE': Config.API_PASSPHRASE
       });
-    } else {
+    } else if (interval == null) {
       response =
           await get("https://api.coinbase.com/v2/prices/$currency-USD/spot");
+    } else {
+      response = await get(
+          "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m");
     }
 
     if (response != null && response.statusCode == 200) {

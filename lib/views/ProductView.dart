@@ -31,8 +31,7 @@ class _ProductViewState extends State<ProductView> {
 
   List<KLineEntity> candles = [];
 
-  StreamController<List<KLineEntity>> streamController =
-      new StreamController<List<KLineEntity>>();
+  StreamController<List<KLineEntity>> streamController;
 
   initCandles() async {
     candles = await CoinbaseController.getCandles(widget.product);
@@ -42,6 +41,7 @@ class _ProductViewState extends State<ProductView> {
   @override
   void initState() {
     super.initState();
+    streamController = new StreamController<List<KLineEntity>>();
     initCandles();
     channel.sink.add(jsonEncode({
       "type": "subscribe",
@@ -63,17 +63,17 @@ class _ProductViewState extends State<ProductView> {
       var quote = split[1];
 
       var roundedTime =
-          (DateTime.parse(msg['time']).millisecondsSinceEpoch / 1000).floor() -
-              ((DateTime.parse(msg['time']).millisecondsSinceEpoch / 1000)
-                      .floor() %
-                  60);
+          ((DateTime.parse(msg['time']).millisecondsSinceEpoch / 1000).floor() -
+                  ((DateTime.parse(msg['time']).millisecondsSinceEpoch / 1000)
+                          .floor() %
+                      60)) *
+              1000;
 
       if (candles.last.time == roundedTime) {
-        candles.last.low = msg['price'].toDouble();
-        candles.last.high = msg['price'].toDouble();
-        candles.last.close = msg['price'].toDouble();
-        // candles.last.low = msg['price'].toDouble();
-        // candles.last.low = msg['price'].toDouble();
+        if (candles.last.low > msg['price']) candles.last.low = msg['price'];
+        if (candles.last.high < msg['price']) candles.last.low = msg['price'];
+        candles.last.close = msg['price'];
+        candles.last.vol = msg['size'];
       } else {
         candles.add(new KLineEntity.fromCustom(
             time: roundedTime,
@@ -82,7 +82,7 @@ class _ProductViewState extends State<ProductView> {
             open: msg['price'].toDouble(),
             close: msg['price'].toDouble(),
             vol: msg['size'].toDouble()));
-        print(candles.last);
+        // print(candles.last);
       }
 
       DataUtil.calculate(candles);
@@ -91,19 +91,19 @@ class _ProductViewState extends State<ProductView> {
       // candles.last
     });
 
-    Timer.periodic(Duration(seconds: 5), (Timer t) async {
+    Timer.periodic(Duration(seconds: 10), (Timer t) async {
       streamController.sink.add(candles);
       // print(candles);
     });
     // streamController.stream.listen((event) {});
   }
 
-  @override
-  void dispose() {
-    channel.sink.close();
-    streamController.sink.close();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   channel.sink.close();
+  //   streamController.close();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -122,34 +122,80 @@ class _ProductViewState extends State<ProductView> {
           children: [SizedBox(width: 10), Text(widget.product)],
         ),
       ),
-      body: Container(
-        color: Colors.white,
-        width: MediaQuery.of(context).size.width,
-        child: Center(
-          child: StreamBuilder(
-            stream: streamController.stream,
-            builder: (context, AsyncSnapshot<List<KLineEntity>> snapshot) {
-              if (snapshot.hasData) {
-                return KChartWidget(
-                  snapshot.data,
-                  onLoadMore: (bool a) {},
-                  maDayList: [5, 10, 20],
-                  // isLine: true,
-                  // mainState: MainState.MA,
-                  // secondaryState: SecondaryState.MACD,
-                  isOnDrag: (isDrag) {},
-                  // timeFormat: TimeFormat.YEAR_MONTH_DAY,
+      body: Column(
+        children: [
+          Container(
+            height: 500,
+            color: Colors.white,
+            width: MediaQuery.of(context).size.width,
+            child: StreamBuilder(
+              stream: streamController.stream,
+              builder: (context, AsyncSnapshot<List<KLineEntity>> snapshot) {
+                if (snapshot.hasData) {
+                  return KChartWidget(
+                    snapshot.data,
+                    onLoadMore: (bool a) {},
+                    fixedLength: 2,
+                    maDayList: [5, 10, 20],
+                    // isLine: true,
+                    mainState: MainState.NONE,
+                    secondaryState: SecondaryState.NONE,
+                    isOnDrag: (isDrag) {},
+                    timeFormat: TimeFormat.YEAR_MONTH_DAY_WITH_HOUR,
+                    volHidden: true,
+                    isChinese: false,
 
-                  // bgColor: [
-                  //   Color.fromRGBO(255, 255, 255, 1),
-                  //   Color.fromRGBO(255, 255, 255, 1)
-                  // ],
-                );
-              }
-              return CircularProgressIndicator();
-            },
+                    // bgColor: [
+                    //   Color.fromRGBO(255, 255, 255, 1),
+                    //   Color.fromRGBO(255, 255, 255, 1)
+                    // ],
+                  );
+                }
+                return CircularProgressIndicator();
+              },
+            ),
           ),
-        ),
+          Expanded(
+            child: Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  TextButton(
+                    child: Text('1M'),
+                    style: TextButton.styleFrom(
+                      primary: Colors.white,
+                      backgroundColor: Theme.of(context).accentColor,
+                      shadowColor: Colors.red,
+                      elevation: 5,
+                    ),
+                    onPressed: () {},
+                  ),
+                  TextButton(
+                    child: Text('5M'),
+                    style: TextButton.styleFrom(
+                      primary: Colors.white,
+                      backgroundColor: Theme.of(context).accentColor,
+                      shadowColor: Colors.red,
+                      elevation: 5,
+                    ),
+                    onPressed: () {},
+                  ),
+                  TextButton(
+                    child: Text('15M'),
+                    style: TextButton.styleFrom(
+                      primary: Colors.white,
+                      backgroundColor: Theme.of(context).accentColor,
+                      shadowColor: Colors.red,
+                      elevation: 5,
+                    ),
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+              color: Colors.white,
+            ),
+          )
+        ],
       ),
       // ]),
     );
