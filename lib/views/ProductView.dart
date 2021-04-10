@@ -71,7 +71,7 @@ class _ProductViewState extends State<ProductView> {
 
       if (candles.last.time == roundedTime) {
         if (candles.last.low > msg['price']) candles.last.low = msg['price'];
-        if (candles.last.high < msg['price']) candles.last.low = msg['price'];
+        if (candles.last.high < msg['price']) candles.last.high = msg['price'];
         candles.last.close = msg['price'];
         candles.last.vol = msg['size'];
       } else {

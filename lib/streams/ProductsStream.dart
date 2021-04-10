@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:rxdart/rxdart.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
+import 'package:tradingbot/models/Product.dart';
 
 class ProductsStream {
-  final BehaviorSubject<List> _productsStream = BehaviorSubject<List>();
-  Stream<List> get stream => _productsStream.stream;
+  final BehaviorSubject<List<Product>> _productsStream =
+      BehaviorSubject<List<Product>>();
+  Stream<List<Product>> get stream => _productsStream.stream;
 
   fetchData() async {
     List products = await CoinbaseController.getProducts();

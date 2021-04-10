@@ -41,13 +41,12 @@ class CoinbaseController {
 
     for (var item in candleReq) {
       candles.add(new KLineEntity.fromCustom(
-          time: item[0],
-          open: double.parse(item[1]),
-          high: double.parse(item[2]),
-          low: double.parse(item[3]),
-          close: double.parse(item[4]),
-          vol: double.parse(item[5]),
-          amount: double.parse(item[7])));
+          time: item[0].toInt() * 1000,
+          low: item[1].toDouble(),
+          high: item[2].toDouble(),
+          open: item[3].toDouble(),
+          close: item[4].toDouble(),
+          vol: item[5].toDouble()));
     }
 
     return candles;
@@ -103,16 +102,19 @@ class CoinbaseController {
   }
 
   static Future _fetchCandlesData(String product) async {
-    // var end = new DateTime.now().toIso8601String();
-    // var start =
-    //     new DateTime.now().subtract(Duration(minutes: 2)).toIso8601String();
+    var end = new DateTime.now().toUtc().toIso8601String();
+    var start = new DateTime.now()
+        .subtract(Duration(hours: 1))
+        .toUtc()
+        .toIso8601String();
+
     var options = {
       'method': 'GET',
-      'endPoint': '/products/$product/candles?granularity=60',
+      'endPoint':
+          '/products/$product/candles?granularity=60&start=$start&end=$end',
       'body': ''
     };
-    return await RequestController.sendRequest(
-        options = options, product, "1h");
+    return await RequestController.sendRequest(options = options, null, true);
   }
 
   static List<Order> getSpecificOrders(String currency, List<Order> orders) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:k_chart/entity/k_line_entity.dart';
 import 'package:tradingbot/models/Balance.dart';
+import 'package:tradingbot/models/Product.dart';
 import 'package:tradingbot/streams/BalanceStream.dart';
 import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/streams/OrdersStream.dart';
@@ -185,8 +186,10 @@ class _HomeViewState extends State<HomeView> {
                   height: 320,
                   child: StreamBuilder(
                       stream: productsStream.stream,
-                      builder: (context, AsyncSnapshot<List> snapshot) {
+                      builder:
+                          (context, AsyncSnapshot<List<Product>> snapshot) {
                         if (snapshot.hasData) {
+                          snapshot.data.sort((a, b) => a.id.compareTo(b.id));
                           return ProductsWidget(products: snapshot.data);
                         }
                         return CircularProgressIndicator();
