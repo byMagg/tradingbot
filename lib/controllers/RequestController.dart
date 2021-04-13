@@ -16,7 +16,7 @@ class RequestController {
 
   static sendRequest(options, [String currency, bool candle]) async {
     var response;
-    if (currency == null) {
+    if (currency == null && candle == null) {
       var timestamp = await get('https://api.coinbase.com/v2/time')
           .then((res) => json.decode(res.body))
           .then((res) => res['data']['epoch']);
@@ -25,12 +25,7 @@ class RequestController {
           options['endPoint'] +
           options['body'];
       String signature = _hmacSha256Base64(query, Config.API_SECRET);
-      var url;
-      if (candle != null) {
-        url = Config.API_URL + options['endPoint'];
-      } else {
-        url = Config.API_URL_SANDBOX + options['endPoint'];
-      }
+      var url = Config.API_URL_SANDBOX + options['endPoint'];
 
       response = await get(url, headers: {
         'CB-ACCESS-KEY': Config.API_KEY,
@@ -38,6 +33,8 @@ class RequestController {
         'CB-ACCESS-TIMESTAMP': timestamp.toString(),
         'CB-ACCESS-PASSPHRASE': Config.API_PASSPHRASE
       });
+    } else if (candle != null) {
+      response = await get(Config.API_URL + options['endPoint']);
     } else {
       response =
           await get("https://api.coinbase.com/v2/prices/$currency-USD/spot");

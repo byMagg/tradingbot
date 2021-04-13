@@ -33,8 +33,9 @@ class CoinbaseController {
     return result;
   }
 
-  static Future<List<KLineEntity>> getCandles(String product) async {
-    var candleReq = await _fetchCandlesData(product);
+  static Future<List<KLineEntity>> getCandles(String product,
+      [String period = "1H"]) async {
+    var candleReq = await _fetchCandlesData(product, period = period);
     if (candleReq == null) return null;
 
     List<KLineEntity> candles = [];
@@ -101,19 +102,42 @@ class CoinbaseController {
     return await RequestController.sendRequest(options);
   }
 
-  static Future _fetchCandlesData(String product) async {
-    var end = new DateTime.now().toUtc().toIso8601String();
-    var start = new DateTime.now()
-        .subtract(Duration(hours: 1))
-        .toUtc()
-        .toIso8601String();
+  static Future _fetchCandlesData(String product,
+      [String period = "1h"]) async {
+    DateTime now = new DateTime.now();
+    DateTime start;
+    int granularity;
+
+    switch (period) {
+      case "1H":
+        start = new DateTime.now().subtract(Duration(hours: 1));
+        granularity = 60;
+        break;
+      case "1D":
+        start = new DateTime.now().subtract(Duration(days: 1));
+        granularity = 300;
+        break;
+      case "1W":
+        start = new DateTime.now().subtract(Duration(days: 7));
+        granularity = 3600;
+        break;
+      case "1M":
+        start = new DateTime(now.year, now.month - 1, now.day);
+        granularity = 21600;
+        break;
+      case "6M":
+        start = new DateTime(now.year, now.month - 6, now.day);
+        granularity = 86400;
+        break;
+    }
 
     var options = {
       'method': 'GET',
       'endPoint':
-          '/products/$product/candles?granularity=60&start=$start&end=$end',
+          '/products/$product/candles?granularity=$granularity&start=${start.toUtc().toIso8601String()}&end=${now.toUtc().toIso8601String()}',
       'body': ''
     };
+    print(options);
     return await RequestController.sendRequest(options = options, null, true);
   }
 

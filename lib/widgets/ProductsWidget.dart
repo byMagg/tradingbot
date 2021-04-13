@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:k_chart/flutter_k_chart.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/models/Product.dart';
 import 'package:tradingbot/views/ProductView.dart';
 import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
+import 'package:web_socket_channel/io.dart';
 
 class ProductsWidget extends StatefulWidget {
   final List<Product> products;
@@ -36,7 +40,8 @@ class _ProductsWidgetState extends State<ProductsWidget> {
                 String currencyId = widget.products[index].id;
                 String currencyDisplayName = widget.products[index].displayName;
                 return ListTile(
-                  title: Text(currencyDisplayName),
+                  title: Text(currencyDisplayName +
+                      " ${widget.products[index].candles.length}"),
                   trailing: Container(
                     width: 130,
                     child: Row(children: [
@@ -51,9 +56,8 @@ class _ProductsWidgetState extends State<ProductsWidget> {
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => ProductView(
-                            product: currencyId,
-                            future:
-                                CoinbaseController.getCandles(currencyId))));
+                              product: widget.products[index],
+                            )));
                   },
                 );
               }),

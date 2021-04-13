@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:k_chart/entity/k_line_entity.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:tradingbot/models/Balance.dart';
 import 'package:tradingbot/models/Product.dart';
 import 'package:tradingbot/streams/BalanceStream.dart';
@@ -75,6 +76,9 @@ class _HomeViewState extends State<HomeView> {
   List<Order> resultOrders = [];
   List<KLineEntity> resultCandles = [];
 
+   final BehaviorSubject<List<Product>> _productsStream =
+      BehaviorSubject<List<Product>>();
+
   Balance initialBalance;
 
   @override
@@ -90,35 +94,6 @@ class _HomeViewState extends State<HomeView> {
       productsStream.fetchData();
     });
   }
-
-  // static List<charts.Series<LinearPrices, DateTime>> _createSampleData() {
-  //   final data = [
-  //     new LinearPrices(DateTime.now(), double.parse("1000")),
-  //     new LinearPrices(DateTime.now(), double.parse("1000")),
-  //     new LinearPrices(DateTime.now(), double.parse("1000")),
-  //     new LinearPrices(DateTime.now(), double.parse("1000")),
-  //   ];
-
-  //   return [
-  //     new charts.Series<LinearPrices, DateTime>(
-  //       id: 'Sales',
-  //       colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-  //       domainFn: (LinearPrices sales, _) => sales.time,
-  //       measureFn: (LinearPrices sales, _) => sales.price,
-  //       data: data,
-  //     )
-  //   ];
-  // }
-
-  // _fetchChartPrices(List listPrices) {
-  //   var data = [];
-
-  //   for (var item in listPrices) {
-  //     data.add(LinearPrices(
-  //         DateTime.parse(item['time']), double.parse(item['price'])));
-  //   }
-  //   return data;
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -184,8 +159,8 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 Container(
                   height: 320,
-                  child: StreamBuilder(
-                      stream: productsStream.stream,
+                  child: FutureBuilder(
+                      future: CoinbaseController.getProducts(),
                       builder:
                           (context, AsyncSnapshot<List<Product>> snapshot) {
                         if (snapshot.hasData) {
