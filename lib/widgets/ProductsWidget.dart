@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:k_chart/flutter_k_chart.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
+import 'package:tradingbot/models/Balance.dart';
 import 'package:tradingbot/models/Product.dart';
 import 'package:tradingbot/views/ProductView.dart';
 import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
@@ -50,6 +51,9 @@ class _ProductsWidgetState extends State<ProductsWidget> {
                           child: AbsorbPointer(
                               child:
                                   SimpleTimeSeriesChart.withSampleData(false))),
+                      Container(
+                        child: Text(""),
+                      ),
                       Icon(Icons.arrow_forward_ios)
                     ]),
                   ),

@@ -8,9 +8,11 @@ import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/streams/OrdersStream.dart';
 import 'package:tradingbot/streams/ProductsStream.dart';
 import 'package:tradingbot/views/PricesView.dart';
+import 'package:tradingbot/views/MainPage.dart';
+
 import 'package:tradingbot/widgets/BalanceWidget.dart';
 import 'package:tradingbot/widgets/BarChartWidget.dart';
-import 'package:tradingbot/widgets/LineChartWidget.dart';
+import 'package:tradingbot/widgets/PagesWidget.dart';
 import 'package:tradingbot/widgets/OperationsWidget.dart';
 import 'package:tradingbot/widgets/ProductsWidget.dart';
 import 'package:tradingbot/widgets/TitleWidget.dart';
@@ -61,22 +63,15 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget page(Widget widget) {
-    return Container(
-      child: Padding(
-        padding: EdgeInsets.only(bottom: 35, left: 12, right: 12),
-        child: Column(children: [Expanded(child: widget)]),
-      ),
-    );
-  }
-
   CoinbaseController coinbaseController = new CoinbaseController();
   double resultNumber = -1;
   List<Wallet> resultWallets = [];
   List<Order> resultOrders = [];
   List<KLineEntity> resultCandles = [];
 
-   final BehaviorSubject<List<Product>> _productsStream =
+  int _currentIndex = 0;
+
+  final BehaviorSubject<List<Product>> _productsStream =
       BehaviorSubject<List<Product>>();
 
   Balance initialBalance;
@@ -102,180 +97,95 @@ class _HomeViewState extends State<HomeView> {
     final statusBarHeight = MediaQuery.of(context).padding.top;
     final appBarHeight = 50;
 
+    final List<Widget> _children = [
+      PricesView(),
+      MainPage(
+        expandedHeight: expandedHeight,
+        resultOrders: resultOrders,
+      )
+    ];
+
     return WillPopScope(
         onWillPop: () async => false,
         child: Scaffold(
-          backgroundColor: Colors.white,
-          drawer: drawer(),
-          appBar: AppBar(
-            elevation: 0,
-            title: TitleWidget(25),
-            actions: <Widget>[
-              IconButton(
-                  icon: Icon(Icons.account_balance_wallet),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => PricesView()));
-                  }),
-            ],
-          ),
-          body: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                Container(
-                  height: expandedHeight,
-                  width: MediaQuery.of(context).size.width,
-                  color: Theme.of(context).primaryColor,
-                  child: StreamBuilder(
-                      stream: balanceStream.stream,
-                      builder: (context, AsyncSnapshot<Balance> snapshot) {
-                        if (snapshot.hasData) {
-                          return Column(
-                            children: <Widget>[
-                              BalanceWidget(
-                                  totalBalance: snapshot.data.totalBalance),
-                              WalletWidget(
-                                wallets: snapshot.data.wallets,
-                              )
-                            ],
-                          );
-                        }
-                        return Column(
-                          children: [
-                            LinearProgressIndicator(
-                              backgroundColor: Colors.white,
-                            ),
-                            Expanded(
-                              child: Center(
-                                  child: Text(
-                                "We are loading your wallets...",
-                                style: TextStyle(
-                                    fontSize: 20, color: Colors.white),
-                              )),
-                            ),
-                          ],
-                        );
-                      }),
+            backgroundColor: Colors.white,
+            drawer: drawer(),
+            bottomNavigationBar: BottomNavigationBar(
+              onTap: onTabTapped,
+              currentIndex:
+                  _currentIndex, // this will be set when a new tab is tapped
+              items: [
+                BottomNavigationBarItem(
+                  icon: new Icon(Icons.home),
+                  title: new Text('Home'),
                 ),
-                Container(
-                  height: 320,
-                  child: FutureBuilder(
-                      future: CoinbaseController.getProducts(),
-                      builder:
-                          (context, AsyncSnapshot<List<Product>> snapshot) {
-                        if (snapshot.hasData) {
-                          snapshot.data.sort((a, b) => a.id.compareTo(b.id));
-                          return ProductsWidget(products: snapshot.data);
-                        }
-                        return CircularProgressIndicator();
-                      }),
+                BottomNavigationBarItem(
+                  icon: new Icon(Icons.mail),
+                  title: new Text('Messages'),
                 ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 30),
-                  child: Divider(
-                    thickness: 2,
-                    color: Theme.of(context).primaryColor.withOpacity(0.5),
-                  ),
-                ),
-                Container(
-                  height: MediaQuery.of(context).size.height -
-                      expandedHeight -
-                      statusBarHeight -
-                      appBarHeight,
-                  alignment: Alignment.center,
-                  child: Stack(
-                    children: [
-                      PageView(
-                        controller: controller,
-                        children: <Widget>[
-                          page(LineChartWidget()),
-                          page(BarChartWidget()),
-                          page(LineChartWidget()),
-                          page(BarChartWidget()),
-                        ],
-                      ),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 15),
-                          child: SmoothPageIndicator(
-                            controller: controller,
-                            count: 4,
-                            effect: ExpandingDotsEffect(
-                                dotHeight: 5,
-                                dotWidth: 15,
-                                expansionFactor: 3,
-                                activeDotColor: Theme.of(context).primaryColor),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 30),
-                  child: Divider(
-                    thickness: 2,
-                    color: Theme.of(context).primaryColor.withOpacity(0.5),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Recent operations",
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                StreamBuilder(
-                    stream: ordersStream.stream,
-                    builder: (context, AsyncSnapshot<List<Order>> snapshot) {
-                      if (snapshot.hasData) {
-                        return Column(
-                          children: [
-                            OperationsWidget(
-                              everything: false,
-                              fixed: true,
-                              orders: snapshot.data,
-                            ),
-                            MaterialButton(
-                              height: 50,
-                              child: Container(
-                                width: MediaQuery.of(context).size.width,
-                                child: Center(child: Text("View more")),
-                              ),
-                              onPressed: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => OperationsView(
-                                          orders: resultOrders,
-                                        )));
-                              },
-                            ),
-                          ],
-                        );
-                      }
-                      return Container(
-                          height: 350,
-                          child: Center(
-                              child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                CircularProgressIndicator(),
-                                Padding(
-                                  padding: const EdgeInsets.all(20),
-                                  child: Text("Loading recent operations..."),
-                                )
-                              ])));
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.person), title: Text('Profile'))
+              ],
+            ),
+            appBar: AppBar(
+              elevation: 0,
+              title: TitleWidget(25),
+              actions: <Widget>[
+                IconButton(
+                    icon: Icon(Icons.account_balance_wallet),
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => PricesView()));
                     }),
               ],
             ),
-          ),
-        ));
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Container(
+                    height: expandedHeight,
+                    width: MediaQuery.of(context).size.width,
+                    color: Theme.of(context).primaryColor,
+                    child: StreamBuilder(
+                        stream: balanceStream.stream,
+                        builder: (context, AsyncSnapshot<Balance> snapshot) {
+                          if (snapshot.hasData) {
+                            return Column(
+                              children: <Widget>[
+                                BalanceWidget(
+                                    totalBalance: snapshot.data.totalBalance),
+                                WalletWidget(
+                                  wallets: snapshot.data.wallets,
+                                )
+                              ],
+                            );
+                          }
+                          return Column(
+                            children: [
+                              LinearProgressIndicator(
+                                backgroundColor: Colors.white,
+                              ),
+                              Expanded(
+                                child: Center(
+                                    child: Text(
+                                  "We are loading your wallets...",
+                                  style: TextStyle(
+                                      fontSize: 20, color: Colors.white),
+                                )),
+                              ),
+                            ],
+                          );
+                        }),
+                  ),
+                  _children[_currentIndex],
+                ],
+              ),
+            )));
+  }
+
+  onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
   }
 }

@@ -8,8 +8,6 @@ class ProductsStream {
       BehaviorSubject<List<Product>>();
   Stream<List<Product>> get stream => _productsStream.stream;
 
-  ProductsStream() {}
-
   fetchData() async {
     List<Product> products = await CoinbaseController.getProducts();
     _productsStream.add(products);

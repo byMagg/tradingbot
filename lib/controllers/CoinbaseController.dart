@@ -50,7 +50,7 @@ class CoinbaseController {
           vol: item[5].toDouble()));
     }
 
-    return candles;
+    return candles.reversed.toList();
   }
 
   static Future<Balance> getBalances() async {
@@ -78,16 +78,17 @@ class CoinbaseController {
 
   static Future _fetchWalletData() async {
     var options = {'method': 'GET', 'endPoint': '/accounts', 'body': ''};
-    return await RequestController.sendRequest(options);
+    return await RequestController.sendRequestWithAuth(options);
   }
 
   static Future _fetchPriceOfCurrency(String currency) async {
-    return (await RequestController.sendRequest(null, currency));
+    return (await RequestController.sendRequestNoAuth(null,
+        currency: currency));
   }
 
   static Future _fetchProducts() async {
     var options = {'method': 'GET', 'endPoint': '/products', 'body': ''};
-    return await RequestController.sendRequest(options);
+    return await RequestController.sendRequestNoAuth(options);
   }
 
   static Future _fetchOrders() async {
@@ -99,7 +100,7 @@ class CoinbaseController {
       'endPoint': '/orders?status=done&start_date=$start&after=$end',
       'body': ''
     };
-    return await RequestController.sendRequest(options);
+    return await RequestController.sendRequestWithAuth(options);
   }
 
   static Future _fetchCandlesData(String product,
@@ -138,7 +139,7 @@ class CoinbaseController {
       'body': ''
     };
     print(options);
-    return await RequestController.sendRequest(options = options, null, true);
+    return await RequestController.sendRequestNoAuth(options, sandbox: false);
   }
 
   static List<Order> getSpecificOrders(String currency, List<Order> orders) {
