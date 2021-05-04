@@ -23,15 +23,14 @@ class _PricesViewState extends State<PricesView> {
           item.currency == "EUR" ||
           item.currency == "GBP" ||
           item.currency == "USDC") continue;
-      List<KLineEntity> actualCandles =
-          await CoinbaseController.getCandles("${item.currency}-USD", "6M");
+      List<KLineEntity> actualCandles = await CoinbaseController.getCandles(
+          "${item.currency}-USD", "1D", 300);
       for (var item1 in actualCandles) {
         temp.add(TimeSeriesSales(
             DateTime.fromMillisecondsSinceEpoch(item1.time), item1.low));
         result["${item.currency}"] = temp;
       }
     }
-    print(result);
     return result;
   }
 
@@ -72,14 +71,27 @@ class _PricesViewState extends State<PricesView> {
                                   _wallets[index].currency == "USDC")
                                 return Container();
                               var number = _wallets[index].priceUSD;
+                              bool gains = false;
+
+                              double initialValue =
+                                  data["${_wallets[index].currency}"].first.low;
+                              double finalValue =
+                                  data["${_wallets[index].currency}"].last.low;
+                              if (initialValue < finalValue) gains = true;
+
+                              double percentage = (finalValue - initialValue) /
+                                  ((finalValue + initialValue) / 2);
 
                               List<charts.Series<TimeSeriesSales, DateTime>>
                                   _createData() {
                                 return [
                                   new charts.Series<TimeSeriesSales, DateTime>(
                                     id: 'Sales',
-                                    colorFn: (_, __) => charts
-                                        .MaterialPalette.green.shadeDefault,
+                                    colorFn: (_, __) => gains
+                                        ? charts
+                                            .MaterialPalette.green.shadeDefault
+                                        : charts
+                                            .MaterialPalette.red.shadeDefault,
                                     domainFn: (TimeSeriesSales sales, _) =>
                                         sales.time,
                                     measureFn: (TimeSeriesSales sales, _) =>
@@ -120,11 +132,30 @@ class _PricesViewState extends State<PricesView> {
                                               _createData(),
                                               lines: false,
                                             ))),
-                                        Text(
-                                          "\$ ${number.toStringAsFixed(2)}",
-                                          style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .primaryColor),
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                              "\$ ${number.toStringAsFixed(2)}",
+                                              style: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .primaryColor),
+                                            ),
+                                            gains
+                                                ? Text(
+                                                    "+${(percentage * 100).toStringAsFixed(2)}%",
+                                                    style: TextStyle(
+                                                      color: Colors.green,
+                                                    ))
+                                                : Text(
+                                                    "${(percentage * 100).toStringAsFixed(2)}%",
+                                                    style: TextStyle(
+                                                      color: Colors.red,
+                                                    )),
+                                          ],
                                         )
                                       ]),
                                 ),

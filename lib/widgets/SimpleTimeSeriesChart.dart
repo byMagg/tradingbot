@@ -1,5 +1,6 @@
 /// Example of a simple line chart.
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:charts_flutter/flutter.dart';
 import 'package:flutter/material.dart';
 
 class SimpleTimeSeriesChart extends StatelessWidget {
@@ -17,8 +18,19 @@ class SimpleTimeSeriesChart extends StatelessWidget {
     );
   }
 
+  double min = double.infinity;
+  double max = double.negativeInfinity;
+
+  getMinMax() {
+    for (TimeSeriesSales item in seriesList.first.data) {
+      if (item.low < min) min = item.low;
+      if (item.low > max) max = item.low;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    getMinMax();
     if (lines) {
       return new charts.TimeSeriesChart(
         seriesList,
@@ -30,9 +42,13 @@ class SimpleTimeSeriesChart extends StatelessWidget {
         seriesList,
         animate: animate,
         dateTimeFactory: const charts.LocalDateTimeFactory(),
-        primaryMeasureAxis:
-            new charts.NumericAxisSpec(renderSpec: new charts.NoneRenderSpec()),
+        primaryMeasureAxis: new charts.NumericAxisSpec(
+            viewport: new charts.NumericExtents(min, max),
+            renderSpec: new charts.NoneRenderSpec()),
         domainAxis: new charts.DateTimeAxisSpec(
+            // viewport: new charts.DateTimeExtents(
+            //     start: DateTime.now().subtract(Duration(days: 30)),
+            //     end: DateTime.now()),
             renderSpec: new charts.NoneRenderSpec()),
       );
     }
