@@ -41,10 +41,14 @@ class SimpleTimeSeriesChart extends StatelessWidget {
   /// Create one series with sample hard coded data.
   static List<charts.Series<TimeSeriesSales, DateTime>> _createSampleData() {
     final data = [
-      new TimeSeriesSales(new DateTime(2017, 9, 19), 5),
-      new TimeSeriesSales(new DateTime(2017, 9, 26), 25),
-      new TimeSeriesSales(new DateTime(2017, 10, 3), 100),
-      new TimeSeriesSales(new DateTime(2017, 10, 10), 75),
+      new TimeSeriesSales(
+          DateTime.fromMillisecondsSinceEpoch(1620119700), 56101.49),
+      new TimeSeriesSales(
+          DateTime.fromMillisecondsSinceEpoch(1620119760), 56083.38),
+      new TimeSeriesSales(
+          DateTime.fromMillisecondsSinceEpoch(1620119820), 56083.39),
+      new TimeSeriesSales(
+          DateTime.fromMillisecondsSinceEpoch(1620119880), 56186.23),
     ];
 
     return [
@@ -52,7 +56,7 @@ class SimpleTimeSeriesChart extends StatelessWidget {
         id: 'Sales',
         colorFn: (_, __) => charts.MaterialPalette.green.shadeDefault,
         domainFn: (TimeSeriesSales sales, _) => sales.time,
-        measureFn: (TimeSeriesSales sales, _) => sales.sales,
+        measureFn: (TimeSeriesSales sales, _) => sales.low,
         data: data,
       )
     ];
@@ -62,7 +66,7 @@ class SimpleTimeSeriesChart extends StatelessWidget {
 /// Sample time series data type.
 class TimeSeriesSales {
   final DateTime time;
-  final int sales;
+  final double low;
 
-  TimeSeriesSales(this.time, this.sales);
+  TimeSeriesSales(this.time, this.low);
 }

@@ -112,19 +112,14 @@ class _HomeViewState extends State<HomeView> {
             drawer: drawer(),
             bottomNavigationBar: BottomNavigationBar(
               onTap: onTabTapped,
+              showSelectedLabels: false,
+              showUnselectedLabels: false,
               currentIndex:
                   _currentIndex, // this will be set when a new tab is tapped
               items: [
                 BottomNavigationBarItem(
-                  icon: new Icon(Icons.home),
-                  title: new Text('Home'),
-                ),
-                BottomNavigationBarItem(
-                  icon: new Icon(Icons.mail),
-                  title: new Text('Messages'),
-                ),
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.person), title: Text('Profile'))
+                    icon: new Icon(Icons.analytics), label: ""),
+                BottomNavigationBarItem(icon: new Icon(Icons.mail), label: ""),
               ],
             ),
             appBar: AppBar(
