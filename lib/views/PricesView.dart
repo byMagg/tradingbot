@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:k_chart/entity/k_line_entity.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/models/Balance.dart';
 import 'package:tradingbot/models/Wallet.dart';
 import 'package:tradingbot/streams/BalanceStream.dart';
+import 'package:tradingbot/streams/PriceStream.dart';
+
 import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
@@ -13,30 +17,18 @@ class PricesView extends StatefulWidget {
 }
 
 class _PricesViewState extends State<PricesView> {
-  getCharts(List<Wallet> wallets) async {
-    Map<String, List<TimeSeriesSales>> result =
-        new Map<String, List<TimeSeriesSales>>();
+  @override
+  void initState() {
+    pricesStream.fetchData();
 
-    for (Wallet item in wallets) {
-      List<TimeSeriesSales> temp = [];
-      if (item.currency == "USD" ||
-          item.currency == "EUR" ||
-          item.currency == "GBP" ||
-          item.currency == "USDC") continue;
-      List<KLineEntity> actualCandles = await CoinbaseController.getCandles(
-          "${item.currency}-USD", "1D", 300);
-      for (var item1 in actualCandles) {
-        temp.add(TimeSeriesSales(
-            DateTime.fromMillisecondsSinceEpoch(item1.time), item1.low));
-        result["${item.currency}"] = temp;
-      }
-    }
-    return result;
+    Timer.periodic(Duration(seconds: 5), (Timer t) async {
+      pricesStream.fetchData();
+    });
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    balanceStream.fetchData();
     return Column(
       children: [
         Padding(
@@ -55,8 +47,8 @@ class _PricesViewState extends State<PricesView> {
               if (snapshot.hasData) {
                 List<Wallet> _wallets = snapshot.data.wallets;
 
-                return FutureBuilder(
-                    future: getCharts(_wallets),
+                return StreamBuilder(
+                    stream: pricesStream.stream,
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         Map<String, List<TimeSeriesSales>> data = snapshot.data;
@@ -70,7 +62,7 @@ class _PricesViewState extends State<PricesView> {
                                   _wallets[index].currency == "GBP" ||
                                   _wallets[index].currency == "USDC")
                                 return Container();
-                              var number = _wallets[index].priceUSD;
+                              double number = _wallets[index].priceUSD;
                               bool gains = false;
 
                               double initialValue =
