@@ -49,6 +49,8 @@ class PriceStream {
       List<KLineEntity> actualCandles =
           await CoinbaseController.getCandles("$currency-USD", "1D", 300);
 
+      if (actualCandles == null) return;
+
       for (KLineEntity candle in actualCandles) {
         temp.add(TimeSeriesSales(
             DateTime.fromMillisecondsSinceEpoch(candle.time), candle.close));
