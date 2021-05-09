@@ -9,6 +9,7 @@ class BalanceStream {
 
   fetchData() async {
     Balance balance = await CoinbaseController.getBalances();
+
     _balanceCount.add(balance);
   }
 }

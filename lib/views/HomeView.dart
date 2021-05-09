@@ -6,6 +6,7 @@ import 'package:tradingbot/models/Product.dart';
 import 'package:tradingbot/streams/BalanceStream.dart';
 import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/streams/OrdersStream.dart';
+import 'package:tradingbot/streams/PriceStream.dart';
 import 'package:tradingbot/streams/ProductsStream.dart';
 import 'package:tradingbot/views/PricesView.dart';
 import 'package:tradingbot/views/MainPage.dart';
@@ -134,48 +135,52 @@ class _HomeViewState extends State<HomeView> {
                     }),
               ],
             ),
-            body: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Container(
+            body: StreamBuilder<Balance>(
+                stream: balanceStream.stream,
+                builder: (context, AsyncSnapshot<Balance> snapshot) {
+                  if (snapshot.hasData) {
+                    return SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Container(
+                              height: expandedHeight,
+                              width: MediaQuery.of(context).size.width,
+                              color: Theme.of(context).primaryColor,
+                              child: Column(
+                                children: <Widget>[
+                                  BalanceWidget(
+                                      totalBalance: snapshot.data.totalBalance),
+                                  WalletWidget(
+                                    wallets: snapshot.data.wallets,
+                                  ),
+                                ],
+                              )),
+                          _children[_currentIndex],
+                        ],
+                      ),
+                    );
+                  }
+
+                  return Container(
                     height: expandedHeight,
                     width: MediaQuery.of(context).size.width,
                     color: Theme.of(context).primaryColor,
-                    child: StreamBuilder(
-                        stream: balanceStream.stream,
-                        builder: (context, AsyncSnapshot<Balance> snapshot) {
-                          if (snapshot.hasData) {
-                            return Column(
-                              children: <Widget>[
-                                BalanceWidget(
-                                    totalBalance: snapshot.data.totalBalance),
-                                WalletWidget(
-                                  wallets: snapshot.data.wallets,
-                                )
-                              ],
-                            );
-                          }
-                          return Column(
-                            children: [
-                              LinearProgressIndicator(
-                                backgroundColor: Colors.white,
-                              ),
-                              Expanded(
-                                child: Center(
-                                    child: Text(
-                                  "We are loading your wallets...",
-                                  style: TextStyle(
-                                      fontSize: 20, color: Colors.white),
-                                )),
-                              ),
-                            ],
-                          );
-                        }),
-                  ),
-                  _children[_currentIndex],
-                ],
-              ),
-            )));
+                    child: Column(
+                      children: [
+                        LinearProgressIndicator(
+                          backgroundColor: Colors.white,
+                        ),
+                        Expanded(
+                          child: Center(
+                              child: Text(
+                            "We are loading your wallets...",
+                            style: TextStyle(fontSize: 20, color: Colors.white),
+                          )),
+                        ),
+                      ],
+                    ),
+                  );
+                })));
   }
 
   onTabTapped(int index) {

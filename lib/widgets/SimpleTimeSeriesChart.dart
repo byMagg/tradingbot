@@ -22,6 +22,7 @@ class SimpleTimeSeriesChart extends StatelessWidget {
   double max = double.negativeInfinity;
 
   getMinMax() {
+    if (seriesList == null) return;
     for (TimeSeriesSales item in seriesList.first.data) {
       if (item.low < min) min = item.low;
       if (item.low > max) max = item.low;

@@ -19,12 +19,9 @@ class PricesView extends StatefulWidget {
 class _PricesViewState extends State<PricesView> {
   @override
   void initState() {
-    pricesStream.fetchData();
-
-    Timer.periodic(Duration(seconds: 5), (Timer t) async {
-      pricesStream.fetchData();
-    });
     super.initState();
+
+    pricesStream.fetchData();
   }
 
   @override
@@ -64,11 +61,11 @@ class _PricesViewState extends State<PricesView> {
                                 return Container();
                               double number = _wallets[index].priceUSD;
                               bool gains = false;
-
                               double initialValue =
                                   data["${_wallets[index].currency}"].first.low;
                               double finalValue =
                                   data["${_wallets[index].currency}"].last.low;
+
                               if (initialValue < finalValue) gains = true;
 
                               double percentage = (finalValue - initialValue) /
