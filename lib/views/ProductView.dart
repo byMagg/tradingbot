@@ -82,16 +82,9 @@ class _ProductViewState extends State<ProductView> {
             open: msg['price'].toDouble(),
             close: msg['price'].toDouble(),
             vol: msg['last_size'].toDouble()));
-        // print(candles.last);
       }
 
       DataUtil.calculate(widget.product.candles);
-
-      print(widget.product.candles.map((e) => e.time).last);
-      // candles.last
-    });
-
-    Timer.periodic(Duration(seconds: 1), (Timer t) async {
       streamController.sink.add(widget.product.candles);
     });
   }
