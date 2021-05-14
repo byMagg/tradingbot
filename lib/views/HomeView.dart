@@ -87,7 +87,7 @@ class _HomeViewState extends State<HomeView> {
 
     Timer.periodic(Duration(seconds: 5), (Timer t) async {
       balanceStream.fetchData();
-      productsStream.fetchData();
+      // productsStream.fetchData();
     });
   }
 

@@ -1,32 +1,21 @@
 import 'dart:async';
-import 'package:k_chart/entity/k_line_entity.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
-import 'package:tradingbot/models/Balance.dart';
 import 'package:tradingbot/models/Product.dart';
-import 'package:tradingbot/models/Wallet.dart';
-import 'package:tradingbot/streams/BalanceStream.dart';
+
+import 'package:k_chart/entity/k_line_entity.dart';
+
 import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
 
 class PriceStream {
   final BehaviorSubject<Map<String, List<TimeSeriesSales>>> _candlesCount =
       BehaviorSubject<Map<String, List<TimeSeriesSales>>>();
   Stream<Map<String, List<TimeSeriesSales>>> get stream => _candlesCount.stream;
-  List<Wallet> wallets;
-
-  PriceStream() {
-    initProducts();
-  }
-
-  initProducts() async {
-    Balance balance = await balanceStream.stream.first;
-    wallets = balance.wallets;
-  }
 
   initTimer() {
     if (!_candlesCount.hasValue) {
-      Timer.periodic(Duration(seconds: 5), (Timer t) async {
-        pricesStream.fetchData();
+      Timer.periodic(Duration(seconds: 15), (Timer t) async {
+        priceStream.fetchData();
       });
     }
   }
@@ -37,19 +26,16 @@ class PriceStream {
     Map<String, List<TimeSeriesSales>> result =
         new Map<String, List<TimeSeriesSales>>();
 
-    if (wallets == null) return;
+    List<Product> products = await CoinbaseController.getProducts();
 
-    for (Wallet item in wallets) {
+    for (Product item in products) {
       List<TimeSeriesSales> temp = [];
-      String currency = item.currency;
-      if (currency == "USD" ||
-          currency == "EUR" ||
-          currency == "GBP" ||
-          currency == "USDC") continue;
-      List<KLineEntity> actualCandles =
-          await CoinbaseController.getCandles("$currency-USD", "1D", 300);
+      String currency = item.id;
 
-      if (actualCandles == null) return;
+      List<KLineEntity> actualCandles =
+          await CoinbaseController.getCandles(currency, "1D", 3600);
+
+      if (actualCandles == null) continue;
 
       for (KLineEntity candle in actualCandles) {
         temp.add(TimeSeriesSales(
@@ -61,4 +47,4 @@ class PriceStream {
   }
 }
 
-final pricesStream = PriceStream();
+final priceStream = PriceStream();

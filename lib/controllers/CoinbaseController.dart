@@ -138,7 +138,7 @@ class CoinbaseController {
           '/products/$product/candles?granularity=$granularity&start=${start.toUtc().toIso8601String()}&end=${now.toUtc().toIso8601String()}',
       'body': ''
     };
-    print(options);
+    // print(options);
     return await RequestController.sendRequestNoAuth(options, sandbox: false);
   }
 

@@ -1,13 +1,10 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:k_chart/flutter_k_chart.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
-import 'package:tradingbot/models/Balance.dart';
 import 'package:tradingbot/models/Product.dart';
+import 'package:tradingbot/streams/PriceStream.dart';
 import 'package:tradingbot/views/ProductView.dart';
 import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
-import 'package:web_socket_channel/io.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 class ProductsWidget extends StatefulWidget {
   final List<Product> products;
@@ -19,6 +16,12 @@ class ProductsWidget extends StatefulWidget {
 
 class _ProductsWidgetState extends State<ProductsWidget> {
   CoinbaseController coinbaseController = new CoinbaseController();
+
+  @override
+  void initState() {
+    super.initState();
+    priceStream.fetchData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,34 +38,77 @@ class _ProductsWidgetState extends State<ProductsWidget> {
           ),
         ),
         Expanded(
-          child: ListView.builder(
-              itemCount: widget.products.length,
-              itemBuilder: (context, index) {
-                String currencyId = widget.products[index].id;
-                String currencyDisplayName = widget.products[index].displayName;
-                return ListTile(
-                  title: Text(currencyDisplayName +
-                      " ${widget.products[index].candles.length}"),
-                  trailing: Container(
-                    width: 130,
-                    child: Row(children: [
-                      Container(
-                          width: 100,
-                          child: AbsorbPointer(
-                              child:
-                                  SimpleTimeSeriesChart.withSampleData(false))),
-                      Container(
-                        child: Text(""),
-                      ),
-                      Icon(Icons.arrow_forward_ios)
-                    ]),
-                  ),
-                  onTap: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => ProductView(
-                              product: widget.products[index],
-                            )));
-                  },
+          child: StreamBuilder(
+              stream: priceStream.stream,
+              builder: (context,
+                  AsyncSnapshot<Map<String, List<TimeSeriesSales>>> snapshot) {
+                if (snapshot.hasData) {
+                  Map<String, List<TimeSeriesSales>> data = snapshot.data;
+
+                  return ListView.builder(
+                      itemCount: widget.products.length,
+                      itemBuilder: (context, index) {
+                        bool gains = false;
+                        if (data["${widget.products[index].id}"] == null)
+                          return Container();
+                        double initialValue =
+                            data["${widget.products[index].id}"].first.low;
+                        double finalValue =
+                            data["${widget.products[index].id}"].last.low;
+
+                        if (initialValue < finalValue) gains = true;
+
+                        double percentage = (finalValue - initialValue) /
+                            ((finalValue + initialValue) / 2);
+                        List<charts.Series<TimeSeriesSales, DateTime>>
+                            _createData() {
+                          return [
+                            new charts.Series<TimeSeriesSales, DateTime>(
+                              id: 'Sales',
+                              colorFn: (_, __) => gains
+                                  ? charts.MaterialPalette.green.shadeDefault
+                                  : charts.MaterialPalette.red.shadeDefault,
+                              domainFn: (TimeSeriesSales sales, _) =>
+                                  sales.time,
+                              measureFn: (TimeSeriesSales sales, _) =>
+                                  sales.low,
+                              data: data["${widget.products[index].id}"],
+                            )
+                          ];
+                        }
+
+                        String currencyId = widget.products[index].id;
+                        String currencyDisplayName =
+                            widget.products[index].displayName;
+                        return ListTile(
+                          title: Text(currencyDisplayName),
+                          trailing: Container(
+                            width: 130,
+                            child: Row(children: [
+                              Container(
+                                  width: 100,
+                                  child: AbsorbPointer(
+                                      child: SimpleTimeSeriesChart(
+                                    _createData(),
+                                    lines: false,
+                                  ))),
+                              Container(
+                                child: Text(""),
+                              ),
+                              Icon(Icons.arrow_forward_ios)
+                            ]),
+                          ),
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => ProductView(
+                                      product: widget.products[index],
+                                    )));
+                          },
+                        );
+                      });
+                }
+                return Center(
+                  child: CircularProgressIndicator(),
                 );
               }),
         )

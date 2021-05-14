@@ -5,6 +5,7 @@ import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/models/Product.dart';
 import 'package:tradingbot/streams/BalanceStream.dart';
 import 'package:tradingbot/streams/OrdersStream.dart';
+import 'package:tradingbot/streams/ProductsStream.dart';
 import 'package:tradingbot/widgets/BalanceWidget.dart';
 import 'package:tradingbot/widgets/OperationsWidget.dart';
 import 'package:tradingbot/widgets/ProductsWidget.dart';
@@ -29,14 +30,14 @@ class MainPage extends StatelessWidget {
       children: <Widget>[
         Container(
             height: 320,
-            child: FutureBuilder(
-                future: CoinbaseController.getProducts(),
+            child: StreamBuilder(
+                stream: productsStream.stream,
                 builder: (context, AsyncSnapshot<List<Product>> snapshot) {
                   if (snapshot.hasData) {
                     snapshot.data.sort((a, b) => a.id.compareTo(b.id));
                     return ProductsWidget(products: snapshot.data);
                   }
-                  return CircularProgressIndicator();
+                  return Center(child: CircularProgressIndicator());
                 })),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 30),

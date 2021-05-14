@@ -21,7 +21,7 @@ class _PricesViewState extends State<PricesView> {
   void initState() {
     super.initState();
 
-    pricesStream.fetchData();
+    priceStream.fetchData();
   }
 
   @override
@@ -39,124 +39,109 @@ class _PricesViewState extends State<PricesView> {
           ),
         ),
         StreamBuilder(
-            stream: balanceStream.stream,
-            builder: (context, AsyncSnapshot<Balance> snapshot) {
+            stream: priceStream.stream,
+            builder: (context,
+                AsyncSnapshot<Map<String, List<TimeSeriesSales>>> snapshot) {
               if (snapshot.hasData) {
-                List<Wallet> _wallets = snapshot.data.wallets;
+                Map<String, List<TimeSeriesSales>> data =
+                    new Map.from(snapshot.data);
 
-                return StreamBuilder(
-                    stream: pricesStream.stream,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        Map<String, List<TimeSeriesSales>> data = snapshot.data;
-                        return ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: _wallets.length,
-                            itemBuilder: (context, index) {
-                              if (_wallets[index].currency == "USD" ||
-                                  _wallets[index].currency == "EUR" ||
-                                  _wallets[index].currency == "GBP" ||
-                                  _wallets[index].currency == "USDC")
-                                return Container();
-                              double number = _wallets[index].priceUSD;
-                              bool gains = false;
-                              double initialValue =
-                                  data["${_wallets[index].currency}"].first.low;
-                              double finalValue =
-                                  data["${_wallets[index].currency}"].last.low;
+                data.removeWhere((key, value) => !key.endsWith("USD"));
+                return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: data.length,
+                    itemBuilder: (context, index) {
+                      String key = data.keys.elementAt(index);
 
-                              if (initialValue < finalValue) gains = true;
+                      List<TimeSeriesSales> value =
+                          data.values.elementAt(index);
+                      // double number = _wallets[index].priceUSD;
+                      bool gains = false;
+                      double initialValue = value.first.low;
+                      double finalValue = value.last.low;
 
-                              double percentage = (finalValue - initialValue) /
-                                  ((finalValue + initialValue) / 2);
+                      if (initialValue < finalValue) gains = true;
 
-                              List<charts.Series<TimeSeriesSales, DateTime>>
-                                  _createData() {
-                                return [
-                                  new charts.Series<TimeSeriesSales, DateTime>(
-                                    id: 'Sales',
-                                    colorFn: (_, __) => gains
-                                        ? charts
-                                            .MaterialPalette.green.shadeDefault
-                                        : charts
-                                            .MaterialPalette.red.shadeDefault,
-                                    domainFn: (TimeSeriesSales sales, _) =>
-                                        sales.time,
-                                    measureFn: (TimeSeriesSales sales, _) =>
-                                        sales.low,
-                                    data: data["${_wallets[index].currency}"],
-                                  )
-                                ];
-                              }
+                      double percentage = (finalValue - initialValue) /
+                          ((finalValue + initialValue) / 2);
 
-                              return ListTile(
-                                leading: SizedBox(
-                                  height: 30,
-                                  child: Image(
-                                    image: AssetImage(
-                                        'lib/assets/currencies/color/${_wallets[index].currency.toLowerCase()}.png'),
-                                  ),
-                                ),
-                                title: Text(
-                                  _wallets[index].name,
-                                  style: TextStyle(
-                                      color: Theme.of(context).primaryColor),
-                                ),
-                                subtitle: Text(
-                                  _wallets[index].currency,
-                                  style: TextStyle(color: Colors.black45),
-                                ),
-
-                                trailing: Container(
-                                  width: 240,
-                                  child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
-                                            width: 150,
-                                            child: AbsorbPointer(
-                                                child: SimpleTimeSeriesChart(
-                                              _createData(),
-                                              lines: false,
-                                            ))),
-                                        Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          children: [
-                                            Text(
-                                              "\$ ${number.toStringAsFixed(2)}",
-                                              style: TextStyle(
-                                                  color: Theme.of(context)
-                                                      .primaryColor),
-                                            ),
-                                            gains
-                                                ? Text(
-                                                    "+${(percentage * 100).toStringAsFixed(2)}%",
-                                                    style: TextStyle(
-                                                      color: Colors.green,
-                                                    ))
-                                                : Text(
-                                                    "${(percentage * 100).toStringAsFixed(2)}%",
-                                                    style: TextStyle(
-                                                      color: Colors.red,
-                                                    )),
-                                          ],
-                                        )
-                                      ]),
-                                ),
-                                // trailing: Text(
-                                //   "\$ ${number.toStringAsFixed(2)}",
-                                //   style: TextStyle(color: Theme.of(context).primaryColor),
-                                // ),
-                                onTap: () {},
-                              );
-                            });
+                      List<charts.Series<TimeSeriesSales, DateTime>>
+                          _createData() {
+                        return [
+                          new charts.Series<TimeSeriesSales, DateTime>(
+                            id: 'Sales',
+                            colorFn: (_, __) => gains
+                                ? charts.MaterialPalette.green.shadeDefault
+                                : charts.MaterialPalette.red.shadeDefault,
+                            domainFn: (TimeSeriesSales sales, _) => sales.time,
+                            measureFn: (TimeSeriesSales sales, _) => sales.low,
+                            data: value,
+                          )
+                        ];
                       }
-                      return CircularProgressIndicator();
+
+                      return ListTile(
+                        leading: SizedBox(
+                          height: 30,
+                          child: Image(
+                            image: AssetImage(
+                                'lib/assets/currencies/color/${key.split("-")[0].toLowerCase()}.png'),
+                          ),
+                        ),
+                        title: Text(
+                          key.split("-")[0],
+                          style:
+                              TextStyle(color: Theme.of(context).primaryColor),
+                        ),
+                        subtitle: Text(
+                          key.split("-")[0],
+                          style: TextStyle(color: Colors.black45),
+                        ),
+
+                        trailing: Container(
+                          width: 240,
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                    width: 150,
+                                    child: AbsorbPointer(
+                                        child: SimpleTimeSeriesChart(
+                                      _createData(),
+                                      lines: false,
+                                    ))),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      "\$ ${value.last.low.toStringAsFixed(2)}",
+                                      style: TextStyle(
+                                          color:
+                                              Theme.of(context).primaryColor),
+                                    ),
+                                    gains
+                                        ? Text(
+                                            "+${(percentage * 100).toStringAsFixed(2)}%",
+                                            style: TextStyle(
+                                              color: Colors.green,
+                                            ))
+                                        : Text(
+                                            "${(percentage * 100).toStringAsFixed(2)}%",
+                                            style: TextStyle(
+                                              color: Colors.red,
+                                            )),
+                                  ],
+                                )
+                              ]),
+                        ),
+                        // trailing: Text(
+                        //   "\$ ${number.toStringAsFixed(2)}",
+                        //   style: TextStyle(color: Theme.of(context).primaryColor),
+                        // ),
+                        onTap: () {},
+                      );
                     });
               }
               return Center(child: CircularProgressIndicator());

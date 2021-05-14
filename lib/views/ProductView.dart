@@ -12,8 +12,12 @@ import 'package:web_socket_channel/io.dart';
 class ProductView extends StatefulWidget {
   // final String product;
   final Product product;
+  // final List<KLineEntity> candles;
 
-  ProductView({Key key, @required this.product}) : super(key: key);
+  ProductView({Key key, @required this.product
+      // , @required this.candles
+      })
+      : super(key: key);
 
   @override
   _ProductViewState createState() => _ProductViewState();
@@ -22,7 +26,8 @@ class ProductView extends StatefulWidget {
 class _ProductViewState extends State<ProductView> {
   final channel = IOWebSocketChannel.connect('wss://ws-feed.pro.coinbase.com');
 
-  BehaviorSubject<List<KLineEntity>> streamController;
+  BehaviorSubject<List<KLineEntity>> streamController =
+      new BehaviorSubject<List<KLineEntity>>();
 
   initCandles(String period) async {
     widget.product.candles =
@@ -36,59 +41,59 @@ class _ProductViewState extends State<ProductView> {
     super.initState();
     streamController = new BehaviorSubject<List<KLineEntity>>();
     initCandles("1H");
-    // channel.sink.add(jsonEncode({
-    //   "type": "subscribe",
-    //   "product_ids": [widget.product.id],
-    //   "channels": ["matches"]
-    // }));
+    channel.sink.add(jsonEncode({
+      "type": "subscribe",
+      "product_ids": [widget.product.id],
+      "channels": ["ticker"]
+    }));
 
-    // channel.stream.listen((event) {
-    //   var msg = jsonDecode(event);
-    //   if (msg['price'] == null) return;
-    //   if (msg['size'] == null) return;
+    channel.stream.listen((event) {
+      var msg = jsonDecode(event);
+      if (msg['price'] == null) return;
+      if (msg['last_size'] == null) return;
 
-    //   msg['price'] = double.parse(msg['price']);
-    //   msg['size'] = double.parse(msg['size']);
+      msg['price'] = double.parse(msg['price']);
+      msg['last_size'] = double.parse(msg['last_size']);
 
-    //   var productId = msg['product_id'];
-    //   var split = productId.split("-");
-    //   var base = split[0];
-    //   var quote = split[1];
+      var productId = msg['product_id'];
+      var split = productId.split("-");
+      var base = split[0];
+      var quote = split[1];
 
-    //   var roundedTime =
-    //       ((DateTime.parse(msg['time']).millisecondsSinceEpoch / 1000).floor() -
-    //               ((DateTime.parse(msg['time']).millisecondsSinceEpoch / 1000)
-    //                       .floor() %
-    //                   60)) *
-    //           1000;
+      var roundedTime =
+          ((DateTime.parse(msg['time']).millisecondsSinceEpoch / 1000).floor() -
+                  ((DateTime.parse(msg['time']).millisecondsSinceEpoch / 1000)
+                          .floor() %
+                      60)) *
+              1000;
 
-    //   if (widget.product.candles.last.time == roundedTime) {
-    //     if (widget.product.candles.last.low > msg['price'])
-    //       widget.product.candles.last.low = msg['price'];
-    //     if (widget.product.candles.last.high < msg['price'])
-    //       widget.product.candles.last.high = msg['price'];
-    //     widget.product.candles.last.close = msg['price'];
-    //     widget.product.candles.last.vol = msg['size'];
-    //   } else {
-    //     widget.product.candles.add(new KLineEntity.fromCustom(
-    //         time: roundedTime,
-    //         low: msg['price'].toDouble(),
-    //         high: msg['price'].toDouble(),
-    //         open: msg['price'].toDouble(),
-    //         close: msg['price'].toDouble(),
-    //         vol: msg['size'].toDouble()));
-    //     // print(candles.last);
-    //   }
+      if (widget.product.candles.last.time == roundedTime) {
+        if (widget.product.candles.last.low > msg['price'])
+          widget.product.candles.last.low = msg['price'];
+        if (widget.product.candles.last.high < msg['price'])
+          widget.product.candles.last.high = msg['price'];
+        widget.product.candles.last.close = msg['price'];
+        widget.product.candles.last.vol = msg['last_size'];
+      } else {
+        widget.product.candles.add(new KLineEntity.fromCustom(
+            time: roundedTime,
+            low: msg['price'].toDouble(),
+            high: msg['price'].toDouble(),
+            open: msg['price'].toDouble(),
+            close: msg['price'].toDouble(),
+            vol: msg['last_size'].toDouble()));
+        // print(candles.last);
+      }
 
-    // DataUtil.calculate(widget.product.candles);
+      DataUtil.calculate(widget.product.candles);
 
-    // print(widget.product.candles.map((e) => e.time).last);
-    // candles.last
-    // });
+      print(widget.product.candles.map((e) => e.time).last);
+      // candles.last
+    });
 
-    // Timer.periodic(Duration(seconds: 10), (Timer t) async {
-    //   streamController.sink.add(widget.product.candles);
-    // });
+    Timer.periodic(Duration(seconds: 1), (Timer t) async {
+      streamController.sink.add(widget.product.candles);
+    });
   }
 
   @override
@@ -138,7 +143,7 @@ class _ProductViewState extends State<ProductView> {
                     ],
                   );
                 }
-                return CircularProgressIndicator();
+                return Center(child: CircularProgressIndicator());
               },
             ),
           ),
