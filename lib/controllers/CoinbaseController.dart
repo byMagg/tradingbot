@@ -34,7 +34,7 @@ class CoinbaseController {
   }
 
   static Future<List<KLineEntity>> getCandles(String product,
-      [String period = "1H", String gran]) async {
+      [String gran]) async {
     int granularityNum = 60;
 
     switch (gran) {
@@ -56,9 +56,12 @@ class CoinbaseController {
       case "1D":
         granularityNum = 86400;
         break;
+      default:
+        granularityNum = null;
+        break;
     }
 
-    var candleReq = await _fetchCandlesData(product, period, granularityNum);
+    var candleReq = await _fetchCandlesData(product, granularityNum);
     if (candleReq == null) return null;
 
     List<KLineEntity> candles = [];
@@ -126,11 +129,13 @@ class CoinbaseController {
     return await RequestController.sendRequestWithAuth(options);
   }
 
-  static Future _fetchCandlesData(String product,
-      [String period = "1h", int granularity]) async {
+  static Future _fetchCandlesData(String product, [int granularity]) async {
     DateTime now = new DateTime.now();
-    DateTime start =
-        new DateTime.now().subtract(Duration(seconds: (granularity * 300)));
+    DateTime start = (granularity == null)
+        ? new DateTime.now().subtract(Duration(days: 1))
+        : new DateTime.now().subtract(Duration(seconds: (granularity * 300)));
+
+    if (granularity == null) granularity = 3600;
 
     var options = {
       'method': 'GET',

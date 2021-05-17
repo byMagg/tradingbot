@@ -34,8 +34,8 @@ class _ProductViewState extends State<ProductView> {
   initCandles(String period, [String granularity]) async {
     setGranularity();
     this.period = period;
-    widget.product.candles = await CoinbaseController.getCandles(
-        widget.product.id, period, granularity);
+    widget.product.candles =
+        await CoinbaseController.getCandles(widget.product.id, granularity);
     DataUtil.calculate(widget.product.candles);
     streamController.sink.add(widget.product.candles);
   }

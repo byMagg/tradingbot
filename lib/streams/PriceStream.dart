@@ -33,7 +33,7 @@ class PriceStream {
       String currency = item.id;
 
       List<KLineEntity> actualCandles =
-          await CoinbaseController.getCandles(currency, "1D", "1H");
+          await CoinbaseController.getCandles(currency);
 
       if (actualCandles == null) continue;
 

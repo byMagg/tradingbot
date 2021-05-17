@@ -30,12 +30,24 @@ class _PricesViewState extends State<PricesView> {
       children: [
         Padding(
           padding: const EdgeInsets.all(10),
-          child: Text(
-            "Market Prices",
-            style: TextStyle(
-                fontSize: 25,
-                color: Theme.of(context).primaryColor,
-                fontWeight: FontWeight.bold),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // Text(
+              //   "24hr",
+              //   style: TextStyle(
+              //       fontSize: 10,
+              //       color: Theme.of(context).primaryColor,
+              //       fontWeight: FontWeight.w400),
+              // ),
+              Text(
+                "Market Prices",
+                style: TextStyle(
+                    fontSize: 25,
+                    color: Theme.of(context).primaryColor,
+                    fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
         ),
         StreamBuilder(
