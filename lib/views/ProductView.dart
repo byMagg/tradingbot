@@ -26,21 +26,51 @@ class ProductView extends StatefulWidget {
 class _ProductViewState extends State<ProductView> {
   final channel = IOWebSocketChannel.connect('wss://ws-feed.pro.coinbase.com');
 
+  String period = "1H";
+
   BehaviorSubject<List<KLineEntity>> streamController =
       new BehaviorSubject<List<KLineEntity>>();
 
-  initCandles(String period) async {
-    widget.product.candles =
-        await CoinbaseController.getCandles(widget.product.id, period = period);
+  initCandles(String period, [String granularity]) async {
+    setGranularity();
+    this.period = period;
+    widget.product.candles = await CoinbaseController.getCandles(
+        widget.product.id, period, granularity);
     DataUtil.calculate(widget.product.candles);
     streamController.sink.add(widget.product.candles);
+  }
+
+  checkNumCandles() {}
+
+  setGranularity() {
+    switch (_chosenValue) {
+      case "1m":
+        granularityNum = 60;
+        break;
+      case "5m":
+        granularityNum = 300;
+        break;
+      case "15m":
+        granularityNum = 900;
+        break;
+      case "1H":
+        granularityNum = 3600;
+        break;
+      case "6H":
+        granularityNum = 21600;
+        break;
+      case "1D":
+        granularityNum = 86400;
+        break;
+    }
   }
 
   @override
   void initState() {
     super.initState();
     streamController = new BehaviorSubject<List<KLineEntity>>();
-    initCandles("1H");
+    setGranularity();
+    initCandles("1H", _chosenValue);
     channel.sink.add(jsonEncode({
       "type": "subscribe",
       "product_ids": [widget.product.id],
@@ -64,8 +94,10 @@ class _ProductViewState extends State<ProductView> {
           ((DateTime.parse(msg['time']).millisecondsSinceEpoch / 1000).floor() -
                   ((DateTime.parse(msg['time']).millisecondsSinceEpoch / 1000)
                           .floor() %
-                      60)) *
+                      granularityNum)) *
               1000;
+
+      print(granularityNum);
 
       if (widget.product.candles.last.time == roundedTime) {
         if (widget.product.candles.last.low > msg['price'])
@@ -89,9 +121,12 @@ class _ProductViewState extends State<ProductView> {
     });
   }
 
+  int granularityNum = 60;
+
+  String _chosenValue = "1m";
+
   @override
   Widget build(BuildContext context) {
-    // _fetchCandles();
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
       appBar: AppBar(
@@ -122,7 +157,7 @@ class _ProductViewState extends State<ProductView> {
                     fixedLength: 2,
                     maDayList: [5, 10, 20],
                     // isLine: true,
-                    mainState: MainState.NONE,
+                    mainState: MainState.MA,
                     secondaryState: SecondaryState.NONE,
                     isOnDrag: (isDrag) {},
                     timeFormat: TimeFormat.YEAR_MONTH_DAY_WITH_HOUR,
@@ -142,72 +177,41 @@ class _ProductViewState extends State<ProductView> {
           ),
           Expanded(
             child: Container(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  TextButton(
-                    child: Text('1H'),
-                    style: TextButton.styleFrom(
-                      primary: Colors.white,
-                      backgroundColor: Theme.of(context).accentColor,
-                      shadowColor: Colors.red,
-                      elevation: 5,
-                    ),
-                    onPressed: () {
-                      initCandles('1H');
-                    },
-                  ),
-                  TextButton(
-                    child: Text('1D'),
-                    style: TextButton.styleFrom(
-                      primary: Colors.white,
-                      backgroundColor: Theme.of(context).accentColor,
-                      shadowColor: Colors.red,
-                      elevation: 5,
-                    ),
-                    onPressed: () {
-                      initCandles('1D');
-                    },
-                  ),
-                  TextButton(
-                    child: Text('1W'),
-                    style: TextButton.styleFrom(
-                      primary: Colors.white,
-                      backgroundColor: Theme.of(context).accentColor,
-                      shadowColor: Colors.red,
-                      elevation: 5,
-                    ),
-                    onPressed: () {
-                      initCandles('1W');
-                    },
-                  ),
-                  TextButton(
-                    child: Text('1M'),
-                    style: TextButton.styleFrom(
-                      primary: Colors.white,
-                      backgroundColor: Theme.of(context).accentColor,
-                      shadowColor: Colors.red,
-                      elevation: 5,
-                    ),
-                    onPressed: () {
-                      initCandles('1M');
-                    },
-                  ),
-                  TextButton(
-                    child: Text('6M'),
-                    style: TextButton.styleFrom(
-                      primary: Colors.white,
-                      backgroundColor: Theme.of(context).accentColor,
-                      shadowColor: Colors.red,
-                      elevation: 5,
-                    ),
-                    onPressed: () {
-                      initCandles('6M');
-                    },
-                  ),
-                ],
-              ),
+              alignment: Alignment.center,
+              width: MediaQuery.of(context).size.width,
               color: Colors.white,
+              child: DropdownButton<String>(
+                value: _chosenValue,
+                //elevation: 5,
+                style: TextStyle(color: Colors.black),
+
+                items: <String>[
+                  '1m',
+                  '5m',
+                  '15m',
+                  '1H',
+                  '6H',
+                  '1D',
+                ].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                hint: Text(
+                  "1m",
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600),
+                ),
+                onChanged: (String value) {
+                  initCandles(this.period, value);
+                  setState(() {
+                    _chosenValue = value;
+                  });
+                },
+              ),
             ),
           )
         ],

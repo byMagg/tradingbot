@@ -34,9 +34,31 @@ class CoinbaseController {
   }
 
   static Future<List<KLineEntity>> getCandles(String product,
-      [String period = "1H", int granularity]) async {
-    var candleReq = await _fetchCandlesData(
-        product, period = period, granularity = granularity);
+      [String period = "1H", String gran]) async {
+    int granularityNum = 60;
+
+    switch (gran) {
+      case "1m":
+        granularityNum = 60;
+        break;
+      case "5m":
+        granularityNum = 300;
+        break;
+      case "15m":
+        granularityNum = 900;
+        break;
+      case "1H":
+        granularityNum = 3600;
+        break;
+      case "6H":
+        granularityNum = 21600;
+        break;
+      case "1D":
+        granularityNum = 86400;
+        break;
+    }
+
+    var candleReq = await _fetchCandlesData(product, period, granularityNum);
     if (candleReq == null) return null;
 
     List<KLineEntity> candles = [];
@@ -107,30 +129,8 @@ class CoinbaseController {
   static Future _fetchCandlesData(String product,
       [String period = "1h", int granularity]) async {
     DateTime now = new DateTime.now();
-    DateTime start;
-
-    switch (period) {
-      case "1H":
-        start = new DateTime.now().subtract(Duration(hours: 1));
-        if (granularity == null) granularity = 60;
-        break;
-      case "1D":
-        start = new DateTime.now().subtract(Duration(days: 1));
-        if (granularity == null) granularity = 300;
-        break;
-      case "1W":
-        start = new DateTime.now().subtract(Duration(days: 7));
-        if (granularity == null) granularity = 3600;
-        break;
-      case "1M":
-        start = new DateTime(now.year, now.month - 1, now.day);
-        if (granularity == null) granularity = 21600;
-        break;
-      case "6M":
-        start = new DateTime(now.year, now.month - 6, now.day);
-        if (granularity == null) granularity = 86400;
-        break;
-    }
+    DateTime start =
+        new DateTime.now().subtract(Duration(seconds: (granularity * 300)));
 
     var options = {
       'method': 'GET',
