@@ -5,6 +5,7 @@ import 'package:tradingbot/models/Wallet.dart';
 import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/models/Balance.dart';
 import 'package:tradingbot/controllers/RequestController.dart';
+import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
 
 class CoinbaseController {
   static Future<List<Product>> getProducts() async {
@@ -102,8 +103,50 @@ class CoinbaseController {
     return Balance(result, wallets);
   }
 
+  static Future getHistoric() async {
+    var balances = await _fetchWalletData();
+    if (balances == null) return null;
+
+    List<HistoricCurrency> result = [];
+
+    for (var wallet in balances) {
+      List<HistoricCurrency> test = await getHistoricCurrency(wallet['id']);
+
+      print(test);
+    }
+
+    return result;
+  }
+
+  static Future<List<HistoricCurrency>> getHistoricCurrency(String id) async {
+    var test = await _fetchHistoric(id);
+
+    List<HistoricCurrency> result = [];
+    for (var temp in test) {
+      HistoricCurrency rightBefore = HistoricCurrency(
+          DateTime.parse(temp['created_at']).subtract(Duration(seconds: 1)),
+          result.isEmpty ? 0 : result.last.balance);
+      HistoricCurrency actual = HistoricCurrency(
+          DateTime.parse(temp['created_at']), double.parse(temp['balance']));
+      result.add(rightBefore);
+      result.add(actual);
+    }
+    result.sort((a, b) => a.time.compareTo(b.time));
+
+    return result;
+  }
+
   static Future _fetchWalletData() async {
     var options = {'method': 'GET', 'endPoint': '/accounts', 'body': ''};
+    return await RequestController.sendRequestWithAuth(options);
+  }
+
+  static Future _fetchHistoric(String id) async {
+    var options = {
+      'method': 'GET',
+      'endPoint': '/accounts/$id/ledger',
+      'body': ''
+    };
     return await RequestController.sendRequestWithAuth(options);
   }
 

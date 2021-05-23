@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
+import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/streams/BalanceStream.dart';
 import 'package:tradingbot/streams/OrdersStream.dart';
 import 'package:tradingbot/streams/ProductsStream.dart';
@@ -10,6 +11,7 @@ import 'views/WelcomeView.dart';
 Future<void> main() async {
   await DotEnv.load(fileName: ".env");
   await balanceStream.fetchData();
+  // await CoinbaseController.getHistoric();
   // await ordersStream.fetchData();
 
   runApp(MyApp());

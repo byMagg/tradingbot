@@ -41,9 +41,9 @@ class _ProductsWidgetState extends State<ProductsWidget> {
           child: StreamBuilder(
               stream: priceStream.stream,
               builder: (context,
-                  AsyncSnapshot<Map<String, List<TimeSeriesSales>>> snapshot) {
+                  AsyncSnapshot<Map<String, List<HistoricCurrency>>> snapshot) {
                 if (snapshot.hasData) {
-                  Map<String, List<TimeSeriesSales>> data = snapshot.data;
+                  Map<String, List<HistoricCurrency>> data = snapshot.data;
 
                   return ListView.builder(
                       itemCount: widget.products.length,
@@ -52,26 +52,26 @@ class _ProductsWidgetState extends State<ProductsWidget> {
                         if (data["${widget.products[index].id}"] == null)
                           return Container();
                         double initialValue =
-                            data["${widget.products[index].id}"].first.low;
+                            data["${widget.products[index].id}"].first.balance;
                         double finalValue =
-                            data["${widget.products[index].id}"].last.low;
+                            data["${widget.products[index].id}"].last.balance;
 
                         if (initialValue < finalValue) gains = true;
 
                         double percentage = (finalValue - initialValue) /
                             ((finalValue + initialValue) / 2);
-                        List<charts.Series<TimeSeriesSales, DateTime>>
+                        List<charts.Series<HistoricCurrency, DateTime>>
                             _createData() {
                           return [
-                            new charts.Series<TimeSeriesSales, DateTime>(
+                            new charts.Series<HistoricCurrency, DateTime>(
                               id: 'Sales',
                               colorFn: (_, __) => gains
                                   ? charts.MaterialPalette.green.shadeDefault
                                   : charts.MaterialPalette.red.shadeDefault,
-                              domainFn: (TimeSeriesSales sales, _) =>
+                              domainFn: (HistoricCurrency sales, _) =>
                                   sales.time,
-                              measureFn: (TimeSeriesSales sales, _) =>
-                                  sales.low,
+                              measureFn: (HistoricCurrency sales, _) =>
+                                  sales.balance,
                               data: data["${widget.products[index].id}"],
                             )
                           ];

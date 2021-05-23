@@ -53,9 +53,9 @@ class _PricesViewState extends State<PricesView> {
         StreamBuilder(
             stream: priceStream.stream,
             builder: (context,
-                AsyncSnapshot<Map<String, List<TimeSeriesSales>>> snapshot) {
+                AsyncSnapshot<Map<String, List<HistoricCurrency>>> snapshot) {
               if (snapshot.hasData) {
-                Map<String, List<TimeSeriesSales>> data =
+                Map<String, List<HistoricCurrency>> data =
                     new Map.from(snapshot.data);
 
                 data.removeWhere((key, value) => !key.endsWith("USD"));
@@ -66,28 +66,29 @@ class _PricesViewState extends State<PricesView> {
                     itemBuilder: (context, index) {
                       String key = data.keys.elementAt(index);
 
-                      List<TimeSeriesSales> value =
+                      List<HistoricCurrency> value =
                           data.values.elementAt(index);
                       // double number = _wallets[index].priceUSD;
                       bool gains = false;
-                      double initialValue = value.first.low;
-                      double finalValue = value.last.low;
+                      double initialValue = value.first.balance;
+                      double finalValue = value.last.balance;
 
                       if (initialValue < finalValue) gains = true;
 
                       double percentage = (finalValue - initialValue) /
                           ((finalValue + initialValue) / 2);
 
-                      List<charts.Series<TimeSeriesSales, DateTime>>
+                      List<charts.Series<HistoricCurrency, DateTime>>
                           _createData() {
                         return [
-                          new charts.Series<TimeSeriesSales, DateTime>(
+                          new charts.Series<HistoricCurrency, DateTime>(
                             id: 'Sales',
                             colorFn: (_, __) => gains
                                 ? charts.MaterialPalette.green.shadeDefault
                                 : charts.MaterialPalette.red.shadeDefault,
-                            domainFn: (TimeSeriesSales sales, _) => sales.time,
-                            measureFn: (TimeSeriesSales sales, _) => sales.low,
+                            domainFn: (HistoricCurrency sales, _) => sales.time,
+                            measureFn: (HistoricCurrency sales, _) =>
+                                sales.balance,
                             data: value,
                           )
                         ];
@@ -128,7 +129,7 @@ class _PricesViewState extends State<PricesView> {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text(
-                                      "\$ ${value.last.low.toStringAsFixed(2)}",
+                                      "\$ ${value.last.balance.toStringAsFixed(2)}",
                                       style: TextStyle(
                                           color:
                                               Theme.of(context).primaryColor),

@@ -4,6 +4,7 @@ import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/streams/OrdersStream.dart';
 import 'package:tradingbot/widgets/OperationsWidget.dart';
 import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 class CurrencyView extends StatefulWidget {
   final String symbol;
@@ -97,12 +98,38 @@ class _CurrencyViewState extends State<CurrencyView> {
         child: Column(children: [
           Container(
             height: 270,
-            child: SimpleTimeSeriesChart.withSampleData(true),
+            child: FutureBuilder(
+                future: CoinbaseController.getHistoricCurrency(
+                    "f6f21298-0b69-4a59-97d5-ea4cd12a3722"),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    List<charts.Series<HistoricCurrency, DateTime>>
+                        _createData() {
+                      return [
+                        new charts.Series<HistoricCurrency, DateTime>(
+                          id: 'Sales',
+                          colorFn: (_, __) =>
+                              charts.MaterialPalette.blue.shadeDefault,
+                          domainFn: (HistoricCurrency sales, _) => sales.time,
+                          measureFn: (HistoricCurrency sales, _) =>
+                              sales.balance,
+                          data: snapshot.data,
+                        )
+                      ];
+                    }
+
+                    return SimpleTimeSeriesChart(
+                      _createData(),
+                      lines: true,
+                    );
+                  }
+                  return LinearProgressIndicator();
+                }),
           ),
-          Padding(
-            padding: EdgeInsets.only(top: 10),
-            child: _listOperations(),
-          )
+          // Padding(
+          //   padding: EdgeInsets.only(top: 10),
+          //   child: _listOperations(),
+          // )
         ]),
       ),
     );

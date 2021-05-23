@@ -23,9 +23,9 @@ class SimpleTimeSeriesChart extends StatelessWidget {
 
   getMinMax() {
     if (seriesList == null) return;
-    for (TimeSeriesSales item in seriesList.first.data) {
-      if (item.low < min) min = item.low;
-      if (item.low > max) max = item.low;
+    for (HistoricCurrency item in seriesList.first.data) {
+      if (item.balance < min) min = item.balance;
+      if (item.balance > max) max = item.balance;
     }
   }
 
@@ -56,24 +56,24 @@ class SimpleTimeSeriesChart extends StatelessWidget {
   }
 
   /// Create one series with sample hard coded data.
-  static List<charts.Series<TimeSeriesSales, DateTime>> _createSampleData() {
+  static List<charts.Series<HistoricCurrency, DateTime>> _createSampleData() {
     final data = [
-      new TimeSeriesSales(
+      new HistoricCurrency(
           DateTime.fromMillisecondsSinceEpoch(1620119700), 56101.49),
-      new TimeSeriesSales(
+      new HistoricCurrency(
           DateTime.fromMillisecondsSinceEpoch(1620119760), 56083.38),
-      new TimeSeriesSales(
+      new HistoricCurrency(
           DateTime.fromMillisecondsSinceEpoch(1620119820), 56083.39),
-      new TimeSeriesSales(
+      new HistoricCurrency(
           DateTime.fromMillisecondsSinceEpoch(1620119880), 56186.23),
     ];
 
     return [
-      new charts.Series<TimeSeriesSales, DateTime>(
+      new charts.Series<HistoricCurrency, DateTime>(
         id: 'Sales',
         colorFn: (_, __) => charts.MaterialPalette.green.shadeDefault,
-        domainFn: (TimeSeriesSales sales, _) => sales.time,
-        measureFn: (TimeSeriesSales sales, _) => sales.low,
+        domainFn: (HistoricCurrency sales, _) => sales.time,
+        measureFn: (HistoricCurrency sales, _) => sales.balance,
         data: data,
       )
     ];
@@ -81,9 +81,9 @@ class SimpleTimeSeriesChart extends StatelessWidget {
 }
 
 /// Sample time series data type.
-class TimeSeriesSales {
+class HistoricCurrency {
   final DateTime time;
-  final double low;
+  final double balance;
 
-  TimeSeriesSales(this.time, this.low);
+  HistoricCurrency(this.time, this.balance);
 }

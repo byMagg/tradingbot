@@ -8,12 +8,15 @@ import 'package:k_chart/entity/k_line_entity.dart';
 import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
 
 class PriceStream {
-  final BehaviorSubject<Map<String, List<TimeSeriesSales>>> _candlesCount =
-      BehaviorSubject<Map<String, List<TimeSeriesSales>>>();
-  Stream<Map<String, List<TimeSeriesSales>>> get stream => _candlesCount.stream;
+  final BehaviorSubject<Map<String, List<HistoricCurrency>>> _candlesCount =
+      BehaviorSubject<Map<String, List<HistoricCurrency>>>();
+  Stream<Map<String, List<HistoricCurrency>>> get stream =>
+      _candlesCount.stream;
+  List<Product> products;
 
-  initTimer() {
+  initTimer() async {
     if (!_candlesCount.hasValue) {
+      products = await CoinbaseController.getProducts();
       Timer.periodic(Duration(seconds: 15), (Timer t) async {
         priceStream.fetchData();
       });
@@ -21,15 +24,13 @@ class PriceStream {
   }
 
   void fetchData() async {
-    initTimer();
+    await initTimer();
 
-    Map<String, List<TimeSeriesSales>> result =
-        new Map<String, List<TimeSeriesSales>>();
-
-    List<Product> products = await CoinbaseController.getProducts();
+    Map<String, List<HistoricCurrency>> result =
+        new Map<String, List<HistoricCurrency>>();
 
     for (Product item in products) {
-      List<TimeSeriesSales> temp = [];
+      List<HistoricCurrency> temp = [];
       String currency = item.id;
 
       List<KLineEntity> actualCandles =
@@ -38,7 +39,7 @@ class PriceStream {
       if (actualCandles == null) continue;
 
       for (KLineEntity candle in actualCandles) {
-        temp.add(TimeSeriesSales(
+        temp.add(HistoricCurrency(
             DateTime.fromMillisecondsSinceEpoch(candle.time), candle.close));
         result["$currency"] = temp;
       }
