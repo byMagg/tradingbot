@@ -126,10 +126,10 @@ class _CurrencyViewState extends State<CurrencyView> {
                   return LinearProgressIndicator();
                 }),
           ),
-          // Padding(
-          //   padding: EdgeInsets.only(top: 10),
-          //   child: _listOperations(),
-          // )
+          Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: _listOperations(),
+          )
         ]),
       ),
     );
