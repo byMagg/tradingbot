@@ -31,6 +31,9 @@ class _ProductViewState extends State<ProductView> {
   BehaviorSubject<List<KLineEntity>> streamController =
       new BehaviorSubject<List<KLineEntity>>();
 
+  bool gains = false;
+  double lastValue = 0;
+
   initCandles(String period, [String granularity]) async {
     setGranularity();
     this.period = period;
@@ -118,6 +121,12 @@ class _ProductViewState extends State<ProductView> {
 
       DataUtil.calculate(widget.product.candles);
       streamController.sink.add(widget.product.candles);
+      if (widget.product.candles.last.close > lastValue) {
+        gains = true;
+      } else {
+        gains = false;
+      }
+      lastValue = widget.product.candles.last.close;
     });
   }
 
@@ -140,6 +149,55 @@ class _ProductViewState extends State<ProductView> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [SizedBox(width: 10), Text(widget.product.id)],
         ),
+        actions: [
+          StreamBuilder<List<KLineEntity>>(
+              stream: streamController.stream,
+              builder: (context, AsyncSnapshot<List<KLineEntity>> snapshot) {
+                if (snapshot.hasData) {
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(40))),
+                        child: gains
+                            ? Row(
+                                children: [
+                                  Icon(
+                                    Icons.arrow_drop_up,
+                                    color: Colors.green,
+                                  ),
+                                  Text(
+                                    "${snapshot.data.last.close}",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20,
+                                        color: Colors.green),
+                                  ),
+                                ],
+                              )
+                            : Row(
+                                children: [
+                                  Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.red,
+                                  ),
+                                  Text(
+                                    "${snapshot.data.last.close}",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20,
+                                        color: Colors.red),
+                                  ),
+                                ],
+                              )),
+                  );
+                }
+                return Container();
+              })
+        ],
       ),
       body: Column(
         children: [

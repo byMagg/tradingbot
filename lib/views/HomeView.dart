@@ -6,16 +6,11 @@ import 'package:tradingbot/models/Product.dart';
 import 'package:tradingbot/streams/BalanceStream.dart';
 import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/streams/OrdersStream.dart';
-import 'package:tradingbot/streams/PriceStream.dart';
-import 'package:tradingbot/streams/ProductsStream.dart';
 import 'package:tradingbot/views/PricesView.dart';
 import 'package:tradingbot/views/MainPage.dart';
+import 'package:tradingbot/views/ProfileView.dart';
 
 import 'package:tradingbot/widgets/BalanceWidget.dart';
-import 'package:tradingbot/widgets/BarChartWidget.dart';
-import 'package:tradingbot/widgets/PagesWidget.dart';
-import 'package:tradingbot/widgets/OperationsWidget.dart';
-import 'package:tradingbot/widgets/ProductsWidget.dart';
 import 'package:tradingbot/widgets/TitleWidget.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/models/Wallet.dart';
@@ -128,10 +123,10 @@ class _HomeViewState extends State<HomeView> {
               title: TitleWidget(25),
               actions: <Widget>[
                 IconButton(
-                    icon: Icon(Icons.account_balance_wallet),
+                    icon: Icon(Icons.account_circle),
                     onPressed: () {
                       Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => PricesView()));
+                          builder: (context) => ProfileView()));
                     }),
               ],
             ),
