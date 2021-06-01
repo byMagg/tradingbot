@@ -29,7 +29,7 @@ class MainPage extends StatelessWidget {
     return Column(
       children: <Widget>[
         Container(
-            height: 320,
+            height: 370,
             child: StreamBuilder(
                 stream: productsStream.stream,
                 builder: (context, AsyncSnapshot<List<Product>> snapshot) {
