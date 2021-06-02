@@ -9,7 +9,7 @@ import 'package:tradingbot/streams/ProductsStream.dart';
 import 'package:tradingbot/widgets/BalanceWidget.dart';
 import 'package:tradingbot/widgets/OperationsWidget.dart';
 import 'package:tradingbot/widgets/ProductsWidget.dart';
-import 'package:tradingbot/widgets/WalletWidget.dart';
+import 'package:tradingbot/views/DonutView.dart';
 import 'package:tradingbot/widgets/PagesWidget.dart';
 
 import 'OperationsView.dart';
@@ -46,6 +46,12 @@ class MainPage extends StatelessWidget {
             color: Theme.of(context).primaryColor.withOpacity(0.5),
           ),
         ),
+        MaterialButton(
+            child: Text("TEST"),
+            onPressed: () {
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => DonutView()));
+            }),
         PagesWidget(),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 30),
