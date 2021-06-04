@@ -8,6 +8,7 @@ import 'package:tradingbot/models/Wallet.dart';
 import 'package:tradingbot/streams/PriceStream.dart';
 import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:charts_common/src/common/palette.dart' show Palette;
 
 class CompareView extends StatefulWidget {
   final List<Product> products;
@@ -22,7 +23,7 @@ class _CompareViewState extends State<CompareView> {
   Map<String, bool> activeIndex = {};
   int _choiceIndex;
   String compareValue = "Price";
-  List<Pair<charts.MaterialPalette, String>> paletteAssign = [];
+  List<Pair<Palette, String>> paletteAssign = [];
 
   @override
   void initState() {
@@ -38,10 +39,14 @@ class _CompareViewState extends State<CompareView> {
       i++;
     }
 
-    List palettes = charts.MaterialPalette.getOrderedPalettes(10);
+    List<Palette> palettes = charts.MaterialPalette.getOrderedPalettes(10);
 
     for (var i = 0; i < palettes.length; i++) {
-      paletteAssign[i] = Pair(palettes[i], "");
+      if (i == 0) {
+        paletteAssign.add(Pair(palettes[i], activeIndex.keys.first));
+      } else {
+        paletteAssign.add(Pair(palettes[i], ""));
+      }
     }
   }
 
@@ -89,12 +94,11 @@ class _CompareViewState extends State<CompareView> {
                             list.add(
                                 new charts.Series<HistoricCurrency, DateTime>(
                               id: item.key,
-                              colorFn: (_, __) =>
-                                  charts.ColorUtil.fromDartColor(widget.wallets
-                                      .firstWhere((element) =>
-                                          element.currency ==
-                                          item.key.split("-")[0])
-                                      .color),
+                              colorFn: (_, __) => paletteAssign
+                                  .firstWhere(
+                                      (element) => element.b == item.key)
+                                  .a
+                                  .shadeDefault,
                               domainFn: (HistoricCurrency sales, _) =>
                                   sales.time,
                               measureFn: (HistoricCurrency sales, _) =>
@@ -108,12 +112,11 @@ class _CompareViewState extends State<CompareView> {
                             list.add(
                                 new charts.Series<HistoricCurrency, DateTime>(
                               id: item.key,
-                              colorFn: (_, __) =>
-                                  charts.ColorUtil.fromDartColor(widget.wallets
-                                      .firstWhere((element) =>
-                                          element.currency ==
-                                          item.key.split("-")[0])
-                                      .color),
+                              colorFn: (_, __) => paletteAssign
+                                  .firstWhere(
+                                      (element) => element.b == item.key)
+                                  .a
+                                  .shadeDefault,
                               domainFn: (HistoricCurrency sales, _) =>
                                   sales.time,
                               measureFn: (HistoricCurrency sales, _) =>
