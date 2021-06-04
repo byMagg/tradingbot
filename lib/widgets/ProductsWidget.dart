@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
+import 'package:tradingbot/models/Balance.dart';
 import 'package:tradingbot/models/Product.dart';
+import 'package:tradingbot/streams/BalanceStream.dart';
 import 'package:tradingbot/streams/PriceStream.dart';
 import 'package:tradingbot/views/ProductView.dart';
 import 'package:tradingbot/views/CompareView.dart';
@@ -114,16 +116,21 @@ class _ProductsWidgetState extends State<ProductsWidget> {
                 );
               }),
         ),
-        Container(
-          child: MaterialButton(
-              child: Text("Compare Products"),
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => CompareView(
-                          products: widget.products,
-                        )));
-              }),
-        )
+        StreamBuilder<Balance>(
+            stream: balanceStream.stream,
+            builder: (context, snapshot) {
+              return Container(
+                child: MaterialButton(
+                    child: Text("Compare Products"),
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => CompareView(
+                                wallets: snapshot.data.wallets,
+                                products: widget.products,
+                              )));
+                    }),
+              );
+            })
       ],
     );
   }

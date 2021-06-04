@@ -40,7 +40,9 @@ class PriceStream {
 
       for (KLineEntity candle in actualCandles) {
         temp.add(HistoricCurrency(
-            DateTime.fromMillisecondsSinceEpoch(candle.time), candle.close));
+            DateTime.fromMillisecondsSinceEpoch(candle.time),
+            candle.close,
+            candle.vol));
         result["$currency"] = temp;
       }
     }

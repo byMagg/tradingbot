@@ -3,7 +3,7 @@ class Order extends Comparable {
   double currency1;
   double currency2;
   DateTime date;
-  bool buy;
+  bool buy; //TRUE = BUY
 
   Order(String productId, double currency1, double currency2, DateTime date,
       bool buy) {

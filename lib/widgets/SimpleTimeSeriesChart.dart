@@ -83,35 +83,35 @@ class SimpleTimeSeriesChart extends StatelessWidget {
   static List<charts.Series<HistoricCurrency, DateTime>> _createSampleData() {
     final data1 = [
       new HistoricCurrency(
-          DateTime.fromMillisecondsSinceEpoch(1620119700), 56101.49),
+          DateTime.fromMillisecondsSinceEpoch(1620119700), 56101.49, null),
       new HistoricCurrency(
-          DateTime.fromMillisecondsSinceEpoch(1620119760), 56083.38),
+          DateTime.fromMillisecondsSinceEpoch(1620119760), 56083.38, null),
       new HistoricCurrency(
-          DateTime.fromMillisecondsSinceEpoch(1620119820), 56083.39),
+          DateTime.fromMillisecondsSinceEpoch(1620119820), 56083.39, null),
       new HistoricCurrency(
-          DateTime.fromMillisecondsSinceEpoch(1620119880), 56186.23),
+          DateTime.fromMillisecondsSinceEpoch(1620119880), 56186.23, null),
     ];
 
     final data2 = [
       new HistoricCurrency(
-          DateTime.fromMillisecondsSinceEpoch(1620119700), 2333.49),
+          DateTime.fromMillisecondsSinceEpoch(1620119700), 2333.49, null),
       new HistoricCurrency(
-          DateTime.fromMillisecondsSinceEpoch(1620119760), 123333.38),
+          DateTime.fromMillisecondsSinceEpoch(1620119760), 123333.38, null),
       new HistoricCurrency(
-          DateTime.fromMillisecondsSinceEpoch(1620119820), 4455.39),
+          DateTime.fromMillisecondsSinceEpoch(1620119820), 4455.39, null),
       new HistoricCurrency(
-          DateTime.fromMillisecondsSinceEpoch(1620119880), 112.23),
+          DateTime.fromMillisecondsSinceEpoch(1620119880), 112.23, null),
     ];
 
     final data3 = [
       new HistoricCurrency(
-          DateTime.fromMillisecondsSinceEpoch(1620119700), 664112.49),
+          DateTime.fromMillisecondsSinceEpoch(1620119700), 664112.49, null),
       new HistoricCurrency(
-          DateTime.fromMillisecondsSinceEpoch(1620119760), 233.38),
+          DateTime.fromMillisecondsSinceEpoch(1620119760), 233.38, null),
       new HistoricCurrency(
-          DateTime.fromMillisecondsSinceEpoch(1620119820), 3456.39),
+          DateTime.fromMillisecondsSinceEpoch(1620119820), 3456.39, null),
       new HistoricCurrency(
-          DateTime.fromMillisecondsSinceEpoch(1620119880), 12344.23),
+          DateTime.fromMillisecondsSinceEpoch(1620119880), 12344.23, null),
     ];
 
     return [
@@ -144,8 +144,9 @@ class SimpleTimeSeriesChart extends StatelessWidget {
 class HistoricCurrency {
   final DateTime time;
   final double balance;
+  final double volume;
 
-  HistoricCurrency(this.time, this.balance);
+  HistoricCurrency(this.time, this.balance, this.volume);
 }
 
 class CustomCircleSymbolRenderer extends CircleSymbolRenderer {

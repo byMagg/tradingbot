@@ -95,8 +95,10 @@ class CoinbaseController {
       var price = (await _fetchPriceOfCurrency(currency))['data']['amount'];
       double priceUSD = double.parse(price);
       double value = priceUSD * amount;
+      var tempWallet = new Wallet(currency, name, amount, value, priceUSD);
+      await tempWallet.getImagePalette();
+      wallets.add(tempWallet);
 
-      wallets.add(new Wallet(currency, name, amount, value, priceUSD));
       result += value;
     }
 
@@ -125,9 +127,12 @@ class CoinbaseController {
     for (var temp in test) {
       HistoricCurrency rightBefore = HistoricCurrency(
           DateTime.parse(temp['created_at']).subtract(Duration(seconds: 1)),
-          result.isEmpty ? 0 : result.last.balance);
+          result.isEmpty ? 0 : result.last.balance,
+          null);
       HistoricCurrency actual = HistoricCurrency(
-          DateTime.parse(temp['created_at']), double.parse(temp['balance']));
+          DateTime.parse(temp['created_at']),
+          double.parse(temp['balance']),
+          null);
       result.add(rightBefore);
       result.add(actual);
     }

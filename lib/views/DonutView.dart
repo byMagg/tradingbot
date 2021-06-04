@@ -17,121 +17,101 @@ class DonutView extends StatefulWidget {
 class DonutViewState extends State {
   int touchedIndex = -1;
   bool initColor = false;
-  List colors = [];
+  List<Color> colors = [];
 
   @override
   Widget build(BuildContext context) {
-    return MainLayout(
-      child: StreamBuilder<Balance>(
-          stream: balanceStream.stream,
-          builder: (context, AsyncSnapshot<Balance> snapshot) {
-            if (snapshot.hasData) {
-              if (!initColor) {
-                for (var i = 0; i < snapshot.data.wallets.length; i++) {
-                  colors.add(Color(Random().nextInt(0xffffffff)));
-                }
-                initColor = true;
-              }
-              List<PieChartSectionData> sections = [];
-              Map<String, double> percentages = {};
-              for (var i = 0; i < snapshot.data.wallets.length; i++) {
-                // final isTouched = false;
-                final isTouched = i == touchedIndex;
-                final fontSize = isTouched ? 25.0 : 16.0;
-                final radius = isTouched ? 60.0 : 50.0;
-                var wallet = snapshot.data.wallets[i];
-                var value = ((wallet.priceUSD * wallet.amount) /
-                        snapshot.data.totalBalance) *
-                    100;
-                percentages[wallet.currency] = value;
-                sections.add(PieChartSectionData(
-                  color: colors[i],
-                  value: value,
-                  title: value > 10 ? '${wallet.currency}' : "",
-                  radius: radius,
-                  titleStyle: TextStyle(
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xffffffff)),
-                ));
-              }
+    return StreamBuilder<Balance>(
+        stream: balanceStream.stream,
+        builder: (context, AsyncSnapshot<Balance> snapshot) {
+          if (snapshot.hasData) {
+            List<PieChartSectionData> sections = [];
+            Map<String, double> percentages = {};
+            for (var i = 0; i < snapshot.data.wallets.length; i++) {
+              // final isTouched = false;
+              final isTouched = i == touchedIndex;
+              final fontSize = isTouched ? 25.0 : 16.0;
+              final radius = isTouched ? 60.0 : 50.0;
+              var wallet = snapshot.data.wallets[i];
+              var value = ((wallet.priceUSD * wallet.amount) /
+                      snapshot.data.totalBalance) *
+                  100;
+              percentages[wallet.currency] = value;
+              sections.add(PieChartSectionData(
+                color: wallet.color,
+                value: value,
+                title: value > 10 ? '${wallet.currency}' : "",
+                radius: radius,
+                titleStyle: TextStyle(
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xffffffff)),
+              ));
+            }
 
-              return AspectRatio(
-                aspectRatio: 1.3,
-                child: Card(
-                  color: Colors.white,
-                  child: Row(
+            return AspectRatio(
+              aspectRatio: 1.6,
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: PieChart(
+                        PieChartData(
+                            pieTouchData:
+                                PieTouchData(touchCallback: (pieTouchResponse) {
+                              setState(() {
+                                if (pieTouchResponse.touchInput
+                                        is FlLongPressEnd ||
+                                    pieTouchResponse.touchInput is FlPanEnd) {
+                                  touchedIndex = -1;
+                                } else {
+                                  touchedIndex =
+                                      pieTouchResponse.touchedSectionIndex;
+                                }
+                              });
+                            }),
+                            borderData: FlBorderData(
+                              show: false,
+                            ),
+                            sectionsSpace: 0,
+                            centerSpaceRadius: 60,
+                            sections: sections),
+                      ),
+                    ),
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
-                      const SizedBox(
-                        height: 18,
-                      ),
-                      Expanded(
-                        child: AspectRatio(
-                          aspectRatio: 1,
-                          child: PieChart(
-                            PieChartData(
-                                pieTouchData: PieTouchData(
-                                    touchCallback: (pieTouchResponse) {
-                                  setState(() {
-                                    if (pieTouchResponse.touchInput
-                                            is FlLongPressEnd ||
-                                        pieTouchResponse.touchInput
-                                            is FlPanEnd) {
-                                      touchedIndex = -1;
-                                    } else {
-                                      touchedIndex =
-                                          pieTouchResponse.touchedSectionIndex;
-                                    }
-                                  });
-                                }),
-                                borderData: FlBorderData(
-                                  show: false,
-                                ),
-                                sectionsSpace: 0,
-                                centerSpaceRadius: 60,
-                                sections: sections),
-                          ),
-                        ),
-                      ),
-                      Column(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(
-                            height: 200,
-                            width: 120,
-                            child: ListView.builder(
-                                itemCount: snapshot.data.wallets.length,
-                                physics: NeverScrollableScrollPhysics(),
-                                itemBuilder: (context, index) {
-                                  if (percentages[snapshot
-                                          .data.wallets[index].currency] <
-                                      1) return Container();
-                                  return Indicator(
-                                    color: colors[index],
-                                    text:
-                                        '${snapshot.data.wallets[index].currency} | ${percentages[snapshot.data.wallets[index].currency].toStringAsFixed(2)}%',
-                                    isSquare: true,
-                                  );
-                                }),
-                          ),
-                          SizedBox(
-                            height: 18,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        width: 28,
+                      SizedBox(
+                        height: 170,
+                        width: 120,
+                        child: ListView.builder(
+                            itemCount: snapshot.data.wallets.length,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              if (percentages[
+                                      snapshot.data.wallets[index].currency] <
+                                  0.1) return Container();
+                              return Indicator(
+                                color: snapshot.data.wallets[index].color,
+                                text:
+                                    '${snapshot.data.wallets[index].currency} | ${percentages[snapshot.data.wallets[index].currency].toStringAsFixed(2)}%',
+                                isSquare: true,
+                              );
+                            }),
                       ),
                     ],
                   ),
-                ),
-              );
-            }
-            return CircularProgressIndicator();
-          }),
-    );
+                  const SizedBox(
+                    width: 28,
+                  ),
+                ],
+              ),
+            );
+          }
+          return CircularProgressIndicator();
+        });
   }
 
   List<PieChartSectionData> showingSections() {

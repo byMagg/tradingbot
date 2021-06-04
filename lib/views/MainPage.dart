@@ -46,12 +46,6 @@ class MainPage extends StatelessWidget {
             color: Theme.of(context).primaryColor.withOpacity(0.5),
           ),
         ),
-        MaterialButton(
-            child: Text("TEST"),
-            onPressed: () {
-              Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (context) => DonutView()));
-            }),
         PagesWidget(),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 30),

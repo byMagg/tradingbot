@@ -2,14 +2,18 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:tradingbot/models/Pair.dart';
 import 'package:tradingbot/models/Product.dart';
+import 'package:tradingbot/models/Wallet.dart';
 import 'package:tradingbot/streams/PriceStream.dart';
 import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
 class CompareView extends StatefulWidget {
   final List<Product> products;
-  CompareView({Key key, @required this.products}) : super(key: key);
+  final List<Wallet> wallets;
+  CompareView({Key key, @required this.products, @required this.wallets})
+      : super(key: key);
   @override
   _CompareViewState createState() => _CompareViewState();
 }
@@ -17,14 +21,27 @@ class CompareView extends StatefulWidget {
 class _CompareViewState extends State<CompareView> {
   Map<String, bool> activeIndex = {};
   int _choiceIndex;
+  String compareValue = "Price";
+  List<Pair<charts.MaterialPalette, String>> paletteAssign = [];
 
   @override
   void initState() {
     super.initState();
     priceStream.fetchData();
-    int _choiceIndex = 0;
+    int i = 0;
     for (Product product in widget.products) {
-      activeIndex[product.id] = false;
+      if (i == 0) {
+        activeIndex[product.id] = true;
+      } else {
+        activeIndex[product.id] = false;
+      }
+      i++;
+    }
+
+    List palettes = charts.MaterialPalette.getOrderedPalettes(10);
+
+    for (var i = 0; i < palettes.length; i++) {
+      paletteAssign[i] = Pair(palettes[i], "");
     }
   }
 
@@ -50,25 +67,60 @@ class _CompareViewState extends State<CompareView> {
                     if (snapshot.hasData) {
                       var data = snapshot.data.entries
                           .where((element) => activeIndex[element.key] == true);
-                      var palette =
-                          charts.MaterialPalette.getOrderedPalettes(11);
 
                       List<charts.Series<HistoricCurrency, DateTime>>
                           _createData() {
                         var list = new List<
                             charts.Series<HistoricCurrency, DateTime>>();
-                        for (MapEntry<String, List<HistoricCurrency>> item
-                            in data) {
+                        if (data.isEmpty) {
                           list.add(
                               new charts.Series<HistoricCurrency, DateTime>(
-                            id: item.key,
+                            id: "",
                             colorFn: (_, __) =>
                                 charts.MaterialPalette.blue.shadeDefault,
                             domainFn: (HistoricCurrency sales, _) => sales.time,
                             measureFn: (HistoricCurrency sales, _) =>
                                 sales.balance,
-                            data: item.value,
+                            data: [],
                           ));
+                        } else if (compareValue == "Price") {
+                          for (MapEntry<String, List<HistoricCurrency>> item
+                              in data) {
+                            list.add(
+                                new charts.Series<HistoricCurrency, DateTime>(
+                              id: item.key,
+                              colorFn: (_, __) =>
+                                  charts.ColorUtil.fromDartColor(widget.wallets
+                                      .firstWhere((element) =>
+                                          element.currency ==
+                                          item.key.split("-")[0])
+                                      .color),
+                              domainFn: (HistoricCurrency sales, _) =>
+                                  sales.time,
+                              measureFn: (HistoricCurrency sales, _) =>
+                                  sales.balance,
+                              data: item.value,
+                            ));
+                          }
+                        } else {
+                          for (MapEntry<String, List<HistoricCurrency>> item
+                              in data) {
+                            list.add(
+                                new charts.Series<HistoricCurrency, DateTime>(
+                              id: item.key,
+                              colorFn: (_, __) =>
+                                  charts.ColorUtil.fromDartColor(widget.wallets
+                                      .firstWhere((element) =>
+                                          element.currency ==
+                                          item.key.split("-")[0])
+                                      .color),
+                              domainFn: (HistoricCurrency sales, _) =>
+                                  sales.time,
+                              measureFn: (HistoricCurrency sales, _) =>
+                                  sales.volume,
+                              data: item.value,
+                            ));
+                          }
                         }
 
                         return list;
@@ -82,25 +134,88 @@ class _CompareViewState extends State<CompareView> {
                     return Center(child: CircularProgressIndicator());
                   })),
           Container(
-            height: 250,
+            height: 15,
+            alignment: Alignment.center,
+            // width: 90,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: DropdownButton<String>(
+                value: compareValue,
+                //elevation: 5,
+                style: TextStyle(color: Colors.black),
+
+                items: <String>[
+                  'Price',
+                  'Volume',
+                  '15m',
+                  '1H',
+                  '6H',
+                  '1D',
+                ].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                hint: Text(
+                  "Price",
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600),
+                ),
+                onChanged: (String value) {
+                  setState(() {
+                    compareValue = value;
+                  });
+                },
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text("Max 10"),
+            ),
+          ),
+          Container(
+            height: 40,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
+              shrinkWrap: true,
               itemCount: widget.products.length,
               itemBuilder: (BuildContext context, int index) {
                 return Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: ChoiceChip(
                     label: Text(widget.products[index].id),
                     selected: activeIndex[widget.products[index].id] == true,
-                    selectedColor: Colors.red,
+                    selectedColor: Colors.blueGrey.shade200,
                     onSelected: (bool selected) {
                       setState(() {
                         activeIndex[widget.products[index].id] =
                             selected ? true : false;
+                        if (activeIndex[widget.products[index].id] == true) {
+                          paletteAssign
+                              .firstWhere((element) => element.b == "")
+                              .b = widget.products[index].id;
+                        } else {
+                          paletteAssign
+                              .firstWhere((element) =>
+                                  element.b == widget.products[index].id)
+                              .b = "";
+                        }
+                        if (activeIndex.length > 10) {
+                          MapEntry<String, bool> temp = activeIndex.entries
+                              .firstWhere((element) => element.value == true);
+                          activeIndex[temp.key] = false;
+                        }
                       });
                     },
-                    backgroundColor: Colors.green,
-                    labelStyle: TextStyle(color: Colors.white),
+                    backgroundColor: Colors.white,
+                    labelStyle:
+                        TextStyle(color: Theme.of(context).primaryColor),
                   ),
                 );
               },

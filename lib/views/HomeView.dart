@@ -9,6 +9,7 @@ import 'package:tradingbot/streams/OrdersStream.dart';
 import 'package:tradingbot/views/PricesView.dart';
 import 'package:tradingbot/views/MainPage.dart';
 import 'package:tradingbot/views/ProfileView.dart';
+import 'package:tradingbot/views/SettingsView.dart';
 
 import 'package:tradingbot/widgets/BalanceWidget.dart';
 import 'package:tradingbot/widgets/TitleWidget.dart';
