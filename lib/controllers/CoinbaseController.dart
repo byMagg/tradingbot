@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:k_chart/entity/k_line_entity.dart';
+import 'package:tradingbot/models/Pair.dart';
 import 'package:tradingbot/models/Product.dart';
 import 'package:tradingbot/models/Wallet.dart';
 import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/models/Balance.dart';
 import 'package:tradingbot/controllers/RequestController.dart';
+import 'package:tradingbot/widgets/SimpleBarChart.dart';
 import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
 
 class CoinbaseController {
@@ -18,6 +20,14 @@ class CoinbaseController {
     }
 
     return result;
+  }
+
+  static Future<Pair<CurrencyVolume, CurrencyVolume>> get24hrStats(
+      String productId) async {
+    var stats = await _fetch24hrStats(productId);
+
+    return Pair(CurrencyVolume(productId, double.parse(stats["volume"])),
+        CurrencyVolume(productId, double.parse(stats["volume_30day"])));
   }
 
   static Future<List<Order>> getOrders() async {
@@ -162,6 +172,15 @@ class CoinbaseController {
 
   static Future _fetchProducts() async {
     var options = {'method': 'GET', 'endPoint': '/products', 'body': ''};
+    return await RequestController.sendRequestNoAuth(options);
+  }
+
+  static Future _fetch24hrStats(String productId) async {
+    var options = {
+      'method': 'GET',
+      'endPoint': '/products/$productId/stats',
+      'body': ''
+    };
     return await RequestController.sendRequestNoAuth(options);
   }
 

@@ -2,11 +2,14 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/models/Pair.dart';
 import 'package:tradingbot/models/Product.dart';
 import 'package:tradingbot/models/Wallet.dart';
 import 'package:tradingbot/streams/PriceStream.dart';
 import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
+import 'package:tradingbot/widgets/SimpleBarChart.dart';
+
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:charts_common/src/common/palette.dart' show Palette;
 
@@ -21,14 +24,28 @@ class CompareView extends StatefulWidget {
 
 class _CompareViewState extends State<CompareView> {
   Map<String, bool> activeIndex = {};
-  int _choiceIndex;
   String compareValue = "Price";
   List<Pair<Palette, String>> paletteAssign = [];
+
+  Future<List<Pair<CurrencyVolume, CurrencyVolume>>> dataVolumes;
+
+  Future<List<Pair<CurrencyVolume, CurrencyVolume>>> get24hrStats() async {
+    List<Pair<CurrencyVolume, CurrencyVolume>> dataVolumes = [];
+    for (Product product in widget.products) {
+      Pair<CurrencyVolume, CurrencyVolume> temp =
+          await CoinbaseController.get24hrStats(product.id);
+      // if (temp.volume == 0) continue;
+      dataVolumes.add(temp);
+    }
+
+    return dataVolumes;
+  }
 
   @override
   void initState() {
     super.initState();
     priceStream.fetchData();
+    dataVolumes = get24hrStats();
     int i = 0;
     for (Product product in widget.products) {
       if (i == 0) {
@@ -129,10 +146,60 @@ class _CompareViewState extends State<CompareView> {
                         return list;
                       }
 
-                      return SimpleTimeSeriesChart(
-                        _createData(),
-                        lines: true,
-                      );
+                      List<charts.Series<CurrencyVolume, String>>
+                          _createDataVolumes(List<CurrencyVolume> list) {
+                        return [
+                          new charts.Series<CurrencyVolume, String>(
+                            id: "",
+                            colorFn: (_, __) =>
+                                charts.MaterialPalette.blue.shadeDefault,
+                            domainFn: (CurrencyVolume sales, _) =>
+                                sales.currency,
+                            measureFn: (CurrencyVolume sales, _) =>
+                                sales.volume,
+                            data: list,
+                          )
+                        ];
+                      }
+
+                      if (compareValue == "30 Day Volume") {
+                        return FutureBuilder<
+                                List<Pair<CurrencyVolume, CurrencyVolume>>>(
+                            future: dataVolumes,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                List<CurrencyVolume> test = snapshot.data
+                                    .where((element) =>
+                                        activeIndex[element.a.currency] == true)
+                                    .toList()
+                                    .map((e) => e.a)
+                                    .toList();
+                                return SimpleBarChart(_createDataVolumes(test));
+                              }
+                              return Center(child: CircularProgressIndicator());
+                            });
+                      } else if (compareValue == "24hr Volume") {
+                        return FutureBuilder<
+                                List<Pair<CurrencyVolume, CurrencyVolume>>>(
+                            future: dataVolumes,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                List<CurrencyVolume> test = snapshot.data
+                                    .where((element) =>
+                                        activeIndex[element.b.currency] == true)
+                                    .toList()
+                                    .map((e) => e.b)
+                                    .toList();
+                                return SimpleBarChart(_createDataVolumes(test));
+                              }
+                              return Center(child: CircularProgressIndicator());
+                            });
+                      } else {
+                        return SimpleTimeSeriesChart(
+                          _createData(),
+                          lines: true,
+                        );
+                      }
                     }
                     return Center(child: CircularProgressIndicator());
                   })),
@@ -150,8 +217,8 @@ class _CompareViewState extends State<CompareView> {
                 items: <String>[
                   'Price',
                   'Volume',
-                  '15m',
-                  '1H',
+                  '30 Day Volume',
+                  '24hr Volume',
                   '6H',
                   '1D',
                 ].map<DropdownMenuItem<String>>((String value) {
@@ -179,7 +246,10 @@ class _CompareViewState extends State<CompareView> {
             alignment: Alignment.centerLeft,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text("Max 10"),
+              child: Text(
+                "Max 10",
+                style: TextStyle(color: Colors.black45),
+              ),
             ),
           ),
           Container(
