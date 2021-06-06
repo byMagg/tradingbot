@@ -26,7 +26,7 @@ class BalanceWidgetState extends State<BalanceWidget> {
                 style: TextStyle(fontSize: fontSize, color: Colors.white),
               ),
               Text(
-                '${NumberFormat.simpleCurrency().format(widget.totalBalance)}',
+                '\$${NumberFormat.decimalPattern("eu").format(widget.totalBalance).toString()}',
                 style: TextStyle(fontSize: fontSize, color: Colors.white54),
               )
             ],

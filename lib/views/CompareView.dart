@@ -8,7 +8,8 @@ import 'package:tradingbot/models/Product.dart';
 import 'package:tradingbot/models/Wallet.dart';
 import 'package:tradingbot/streams/PriceStream.dart';
 import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
-import 'package:tradingbot/widgets/SimpleBarChart.dart';
+import 'package:tradingbot/widgets/VerticalBarLabelChart.dart';
+import 'package:intl/intl.dart';
 
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:charts_common/src/common/palette.dart' show Palette;
@@ -150,15 +151,16 @@ class _CompareViewState extends State<CompareView> {
                           _createDataVolumes(List<CurrencyVolume> list) {
                         return [
                           new charts.Series<CurrencyVolume, String>(
-                            id: "",
-                            colorFn: (_, __) =>
-                                charts.MaterialPalette.blue.shadeDefault,
-                            domainFn: (CurrencyVolume sales, _) =>
-                                sales.currency,
-                            measureFn: (CurrencyVolume sales, _) =>
-                                sales.volume,
-                            data: list,
-                          )
+                              id: "",
+                              colorFn: (_, __) =>
+                                  charts.MaterialPalette.blue.shadeDefault,
+                              domainFn: (CurrencyVolume sales, _) =>
+                                  sales.currency,
+                              measureFn: (CurrencyVolume sales, _) =>
+                                  sales.volume,
+                              data: list,
+                              labelAccessorFn: (CurrencyVolume sales, _) =>
+                                  '\$${NumberFormat.decimalPattern("eu").format(sales.volume).toString()}')
                         ];
                       }
 
@@ -174,7 +176,8 @@ class _CompareViewState extends State<CompareView> {
                                     .toList()
                                     .map((e) => e.a)
                                     .toList();
-                                return SimpleBarChart(_createDataVolumes(test));
+                                return VerticalBarLabelChart(
+                                    _createDataVolumes(test));
                               }
                               return Center(child: CircularProgressIndicator());
                             });
@@ -190,7 +193,8 @@ class _CompareViewState extends State<CompareView> {
                                     .toList()
                                     .map((e) => e.b)
                                     .toList();
-                                return SimpleBarChart(_createDataVolumes(test));
+                                return VerticalBarLabelChart(
+                                    _createDataVolumes(test));
                               }
                               return Center(child: CircularProgressIndicator());
                             });
@@ -219,8 +223,6 @@ class _CompareViewState extends State<CompareView> {
                   'Volume',
                   '30 Day Volume',
                   '24hr Volume',
-                  '6H',
-                  '1D',
                 ].map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,

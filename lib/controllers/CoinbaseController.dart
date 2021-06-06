@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:k_chart/entity/k_line_entity.dart';
 import 'package:tradingbot/models/Pair.dart';
 import 'package:tradingbot/models/Product.dart';
@@ -6,7 +7,7 @@ import 'package:tradingbot/models/Wallet.dart';
 import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/models/Balance.dart';
 import 'package:tradingbot/controllers/RequestController.dart';
-import 'package:tradingbot/widgets/SimpleBarChart.dart';
+import 'package:tradingbot/widgets/VerticalBarLabelChart.dart';
 import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
 
 class CoinbaseController {
@@ -28,6 +29,25 @@ class CoinbaseController {
 
     return Pair(CurrencyVolume(productId, double.parse(stats["volume"])),
         CurrencyVolume(productId, double.parse(stats["volume_30day"])));
+  }
+
+  static Future<Pair<Map, Map>> getOrderBook(String productId) async {
+    Map orderBook = await _fetchOrderBook(productId);
+    List bids = orderBook['bids'];
+    List asks = orderBook['asks'];
+
+    Map<double, double> resultBids = {};
+    Map<double, double> resultAsks = {};
+
+    bids.forEach((element) {
+      resultBids[double.parse(element[0])] = double.parse(element[1]);
+    });
+
+    asks.forEach((element) {
+      resultAsks[double.parse(element[0])] = double.parse(element[1]);
+    });
+
+    return Pair(resultBids, resultAsks);
   }
 
   static Future<List<Order>> getOrders() async {
@@ -172,6 +192,15 @@ class CoinbaseController {
 
   static Future _fetchProducts() async {
     var options = {'method': 'GET', 'endPoint': '/products', 'body': ''};
+    return await RequestController.sendRequestNoAuth(options);
+  }
+
+  static Future _fetchOrderBook(String productId) async {
+    var options = {
+      'method': 'GET',
+      'endPoint': '/products/$productId/book?level=2',
+      'body': ''
+    };
     return await RequestController.sendRequestNoAuth(options);
   }
 
