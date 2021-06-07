@@ -16,6 +16,8 @@ class CoinbaseController {
 
     List<Product> result = [];
 
+    if (products == null) return result;
+
     for (var product in products) {
       result.add(Product.fromJson(product));
     }
@@ -33,6 +35,7 @@ class CoinbaseController {
 
   static Future<Pair<Map, Map>> getOrderBook(String productId) async {
     Map orderBook = await _fetchOrderBook(productId);
+    if (orderBook == null) return Pair(Map(), Map());
     List bids = orderBook['bids'];
     List asks = orderBook['asks'];
 
@@ -40,11 +43,13 @@ class CoinbaseController {
     Map<double, double> resultAsks = {};
 
     bids.forEach((element) {
-      resultBids[double.parse(element[0])] = double.parse(element[1]);
+      resultBids[double.parse(double.parse(element[0]).toStringAsFixed(1))] =
+          double.parse(element[1]);
     });
 
     asks.forEach((element) {
-      resultAsks[double.parse(element[0])] = double.parse(element[1]);
+      resultAsks[double.parse(double.parse(element[0]).toStringAsFixed(1))] =
+          double.parse(element[1]);
     });
 
     return Pair(resultBids, resultAsks);

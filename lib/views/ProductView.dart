@@ -96,6 +96,7 @@ class _ProductViewState extends State<ProductView> {
     this.period = period;
     widget.product.candles =
         await CoinbaseController.getCandles(widget.product.id, granularity);
+    if (widget.product.candles == null) return;
     DataUtil.calculate(widget.product.candles);
     streamController.sink.add(widget.product.candles);
   }
@@ -202,18 +203,30 @@ class _ProductViewState extends State<ProductView> {
         setState(() {
           var temp = msg['changes'][0];
           if (temp[0] == "sell") {
+            double number =
+                double.parse(double.parse(temp[1]).toStringAsFixed(1));
             if (temp[2] == "0.00000000") {
-              asks.remove(double.parse(temp[1]));
+              asks.remove(number);
             } else {
-              asks[double.parse(temp[1])] = double.parse(temp[2]);
+              if (asks.containsKey(number)) {
+                asks[number] += double.parse(temp[2]);
+              } else {
+                asks[number] = double.parse(temp[2]);
+              }
             }
           }
 
           if (temp[0] == "buy") {
+            double number =
+                double.parse(double.parse(temp[1]).toStringAsFixed(1));
             if (temp[2] == "0.00000000") {
-              bids.remove(double.parse(temp[1]));
+              bids.remove(number);
             } else {
-              bids[double.parse(temp[1])] = double.parse(temp[2]);
+              if (bids.containsKey(number)) {
+                bids[number] += double.parse(temp[2]);
+              } else {
+                bids[number] = double.parse(temp[2]);
+              }
             }
           }
 
@@ -226,32 +239,42 @@ class _ProductViewState extends State<ProductView> {
           asksEntries = asks.entries.toList();
           bidsEntries.sort((a, b) => -a.key.compareTo(b.key));
           asksEntries.sort((a, b) => a.key.compareTo(b.key));
-          if (bidsEntries.length > 50) bidsEntries.getRange(0, 50);
-          if (asksEntries.length > 50) asksEntries.getRange(0, 50);
+          if (bidsEntries.length > 50)
+            bidsEntries = bidsEntries.getRange(0, 50).toList();
+          if (asksEntries.length > 50)
+            asksEntries = asksEntries.getRange(0, 50).toList();
 
           double total = 0;
           double bidSum = 0;
           double askSum = 0;
 
+          totalAsks.clear();
+          totalBids.clear();
+
           for (var i = 0; i < bidsEntries.length; i++) {
             var tempBidAmount = 0.0;
-            var tempAskAmount = 0.0;
             tempBidAmount = bidsEntries[i].value;
-            if (i < asksEntries.length - 1)
-              tempAskAmount = asksEntries[i].value;
-            total += tempBidAmount + tempAskAmount;
+            total += tempBidAmount;
+          }
+
+          for (var i = 0; i < asksEntries.length; i++) {
+            var tempAskAmount = 0.0;
+            tempAskAmount = asksEntries[i].value;
+            total += tempAskAmount;
           }
 
           for (var i = 0; i < bidsEntries.length; i++) {
             var tempBidAmount = 0.0;
-            var tempAskAmount = 0.0;
             tempBidAmount = bidsEntries[i].value;
-            if (i < asksEntries.length - 1)
-              tempAskAmount = asksEntries[i].value;
             bidSum += tempBidAmount;
+
+            totalBids.add(bidSum / total);
+          }
+          for (var i = 0; i < asksEntries.length; i++) {
+            var tempAskAmount = 0.0;
+            tempAskAmount = asksEntries[i].value;
             askSum += tempAskAmount;
 
-            totalBids.add((bidSum / total));
             totalAsks.add(askSum / total);
           }
         });
