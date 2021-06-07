@@ -123,6 +123,9 @@ class _ProductViewState extends State<ProductView> {
     }
   }
 
+  List totalBids = [];
+  List totalAsks = [];
+
   @override
   void initState() {
     super.initState();
@@ -218,10 +221,39 @@ class _ProductViewState extends State<ProductView> {
               (key, value) => key > widget.product.candles.last.close);
           asks.removeWhere(
               (key, value) => key < widget.product.candles.last.close);
+
           bidsEntries = bids.entries.toList();
           asksEntries = asks.entries.toList();
           bidsEntries.sort((a, b) => -a.key.compareTo(b.key));
           asksEntries.sort((a, b) => a.key.compareTo(b.key));
+          if (bidsEntries.length > 50) bidsEntries.getRange(0, 50);
+          if (asksEntries.length > 50) asksEntries.getRange(0, 50);
+
+          double total = 0;
+          double bidSum = 0;
+          double askSum = 0;
+
+          for (var i = 0; i < bidsEntries.length; i++) {
+            var tempBidAmount = 0.0;
+            var tempAskAmount = 0.0;
+            tempBidAmount = bidsEntries[i].value;
+            if (i < asksEntries.length - 1)
+              tempAskAmount = asksEntries[i].value;
+            total += tempBidAmount + tempAskAmount;
+          }
+
+          for (var i = 0; i < bidsEntries.length; i++) {
+            var tempBidAmount = 0.0;
+            var tempAskAmount = 0.0;
+            tempBidAmount = bidsEntries[i].value;
+            if (i < asksEntries.length - 1)
+              tempAskAmount = asksEntries[i].value;
+            bidSum += tempBidAmount;
+            askSum += tempAskAmount;
+
+            totalBids.add((bidSum / total));
+            totalAsks.add(askSum / total);
+          }
         });
       }
     });
@@ -352,17 +384,42 @@ class _ProductViewState extends State<ProductView> {
                             // height: 100,
                             child: Column(
                               children: [
-                                // Text("Price"),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      width: MediaQuery.of(context).size.width /
+                                              2 -
+                                          10,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text("Market Size"),
+                                          Text("Price"),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      width: MediaQuery.of(context).size.width /
+                                              2 -
+                                          10,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text("Price"),
+                                          Text("Market Size"),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                                 Container(
                                   height: 160,
                                   child: ListView.builder(
-                                      // addAutomaticKeepAlives: true,
-                                      // physics:
-                                      //     NeverScrollableScrollPhysics(),
-                                      itemCount: bids.length,
-                                      // shrinkWrap: true,
-                                      // reverse: true,
-
+                                      itemCount: 50,
                                       itemBuilder: (context, index) {
                                         double containerW =
                                             MediaQuery.of(context).size.width /
@@ -381,22 +438,22 @@ class _ProductViewState extends State<ProductView> {
                                                       ? Container()
                                                       : Stack(
                                                           children: [
-                                                            // Align(
-                                                            //   alignment: Alignment
-                                                            //       .centerRight,
-                                                            //   child: Container(
-                                                            //     height: 15,
-                                                            //     color: Colors
-                                                            //         .green
-                                                            //         .shade300,
-                                                            //     child:
-                                                            //         FractionallySizedBox(
-                                                            //       widthFactor:
-                                                            //           totalBids[
-                                                            //               index],
-                                                            //     ),
-                                                            //   ),
-                                                            // ),
+                                                            Align(
+                                                              alignment: Alignment
+                                                                  .centerRight,
+                                                              child: Container(
+                                                                height: 15,
+                                                                color: Colors
+                                                                    .green
+                                                                    .shade300,
+                                                                child:
+                                                                    FractionallySizedBox(
+                                                                  widthFactor:
+                                                                      totalBids[
+                                                                          index],
+                                                                ),
+                                                              ),
+                                                            ),
                                                             Row(
                                                               mainAxisAlignment:
                                                                   MainAxisAlignment
@@ -438,22 +495,22 @@ class _ProductViewState extends State<ProductView> {
                                                       ? Container()
                                                       : Stack(
                                                           children: [
-                                                            // Align(
-                                                            //   alignment: Alignment
-                                                            //       .centerLeft,
-                                                            //   child: Container(
-                                                            //     height: 15,
-                                                            //     color: Colors
-                                                            //         .red
-                                                            //         .shade300,
-                                                            //     child:
-                                                            //         FractionallySizedBox(
-                                                            //       widthFactor:
-                                                            //           totalAsks[
-                                                            //               index],
-                                                            //     ),
-                                                            //   ),
-                                                            // ),
+                                                            Align(
+                                                              alignment: Alignment
+                                                                  .centerLeft,
+                                                              child: Container(
+                                                                height: 15,
+                                                                color: Colors
+                                                                    .red
+                                                                    .shade300,
+                                                                child:
+                                                                    FractionallySizedBox(
+                                                                  widthFactor:
+                                                                      totalAsks[
+                                                                          index],
+                                                                ),
+                                                              ),
+                                                            ),
                                                             Row(
                                                               mainAxisAlignment:
                                                                   MainAxisAlignment
