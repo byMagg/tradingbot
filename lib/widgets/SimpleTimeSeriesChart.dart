@@ -47,20 +47,22 @@ class SimpleTimeSeriesChart extends StatelessWidget {
         seriesList,
         animate: animate,
         dateTimeFactory: const charts.LocalDateTimeFactory(),
-        behaviors: [
-          LinePointHighlighter(
-              symbolRenderer:
-                  CustomCircleSymbolRenderer() // add this line in behaviours
-              )
-        ],
-        selectionModels: [
-          SelectionModelConfig(changedListener: (SelectionModel model) {
-            if (model.hasDatumSelection) {
-              CustomCircleSymbolRenderer.list =
-                  model.selectedDatum; // paints the tapped value
-            }
-          })
-        ],
+        behaviors: [new charts.SeriesLegend(), new charts.PanAndZoomBehavior()],
+
+        // behaviors: [
+        //   LinePointHighlighter(
+        //       symbolRenderer:
+        //           CustomCircleSymbolRenderer() // add this line in behaviours
+        //       )
+        // ],
+        // selectionModels: [
+        //   SelectionModelConfig(changedListener: (SelectionModel model) {
+        //     if (model.hasDatumSelection) {
+        //       CustomCircleSymbolRenderer.list =
+        //           model.selectedDatum; // paints the tapped value
+        //     }
+        //   })
+        // ],
       );
     } else {
       return new charts.TimeSeriesChart(
