@@ -51,44 +51,20 @@ class _ProductViewState extends State<ProductView> {
   bool gains = false;
   double lastValue = 0;
 
+  int listLength = 0;
+
   initOrderBook() async {
-    Pair<Map, Map> temp =
-        await CoinbaseController.getOrderBook(widget.product.id);
-    bids = temp.a;
-    asks = temp.b;
-    bidsEntries = bids.entries.toList();
-    asksEntries = asks.entries.toList();
-  }
-
-  reloadOrderBook() async {
-    // List totalBids = [];
-    // List totalAsks = [];
-
-    // int maxLength = max(bids.length, asks.length);
-    // double total = 0;
-    // double bidSum = 0;
-    // double askSum = 0;
-    // for (var i = 0; i < bids.length; i++) {
-    //   var temp = bids[i];
-    //   total += temp;
-    // }
-
-    // for (var i = 0; i < asks.length; i++) {
-    //   var temp = asks[i].value;
-    //   total += temp;
-    // }
-
-    // for (var i = 0; i < bids.length; i++) {
-    //   var temp = bids[i].value;
-    //   bidSum += temp;
-    //   totalBids.add(bidSum / total);
-    // }
-
-    // for (var i = 0; i < asks.length; i++) {
-    //   var temp = asks[i].value;
-    //   askSum += temp;
-    //   totalAsks.add(askSum / total);
-    // }
+    // Pair<Map, Map> temp =
+    //     await CoinbaseController.getOrderBook(widget.product.id);
+    // bids = temp.a;
+    // asks = temp.b;
+    // bidsEntries = bids.entries.toList();
+    // asksEntries = asks.entries.toList();
+    channel.sink.add(jsonEncode({
+      "type": "subscribe",
+      "product_ids": [widget.product.id],
+      "channels": ["level2"]
+    }));
   }
 
   initCandles(String period, [String granularity]) async {
@@ -131,19 +107,13 @@ class _ProductViewState extends State<ProductView> {
   void initState() {
     super.initState();
     streamController = new BehaviorSubject<List<KLineEntity>>();
-    setGranularity();
     initOrderBook();
+    setGranularity();
     initCandles("1H", _chosenValue);
     channel.sink.add(jsonEncode({
       "type": "subscribe",
       "product_ids": [widget.product.id],
       "channels": ["ticker"]
-    }));
-
-    channel.sink.add(jsonEncode({
-      "type": "subscribe",
-      "product_ids": [widget.product.id],
-      "channels": ["level2"]
     }));
 
     channel.stream.listen((event) {
@@ -202,38 +172,26 @@ class _ProductViewState extends State<ProductView> {
         if (!mounted) return;
         setState(() {
           var temp = msg['changes'][0];
+          double price = double.parse(temp[1]);
+          double marketSize = double.parse(temp[2]);
           if (temp[0] == "sell") {
-            double number =
-                double.parse(double.parse(temp[1]).toStringAsFixed(1));
-            if (temp[2] == "0.00000000") {
-              asks.remove(number);
+            if (marketSize == 0.0) {
+              asks.remove(price);
             } else {
-              if (asks.containsKey(number)) {
-                asks[number] += double.parse(temp[2]);
-              } else {
-                asks[number] = double.parse(temp[2]);
-              }
+              asks[price] = marketSize;
+            }
+          } else if (temp[0] == "buy") {
+            if (marketSize == 0.0) {
+              bids.remove(price);
+            } else {
+              bids[price] = marketSize;
             }
           }
 
-          if (temp[0] == "buy") {
-            double number =
-                double.parse(double.parse(temp[1]).toStringAsFixed(1));
-            if (temp[2] == "0.00000000") {
-              bids.remove(number);
-            } else {
-              if (bids.containsKey(number)) {
-                bids[number] += double.parse(temp[2]);
-              } else {
-                bids[number] = double.parse(temp[2]);
-              }
-            }
-          }
-
-          bids.removeWhere(
-              (key, value) => key > widget.product.candles.last.close);
-          asks.removeWhere(
-              (key, value) => key < widget.product.candles.last.close);
+          // bids.removeWhere(
+          //     (key, value) => key > widget.product.candles.last.close);
+          // asks.removeWhere(
+          //     (key, value) => key < widget.product.candles.last.close);
 
           bidsEntries = bids.entries.toList();
           asksEntries = asks.entries.toList();
@@ -248,35 +206,34 @@ class _ProductViewState extends State<ProductView> {
           double bidSum = 0;
           double askSum = 0;
 
+          listLength = min(asksEntries.length, bidsEntries.length);
+
           totalAsks.clear();
           totalBids.clear();
 
-          for (var i = 0; i < bidsEntries.length; i++) {
+          for (var i = 0; i < listLength; i++) {
             var tempBidAmount = 0.0;
-            tempBidAmount = bidsEntries[i].value;
-            total += tempBidAmount;
-          }
-
-          for (var i = 0; i < asksEntries.length; i++) {
             var tempAskAmount = 0.0;
+            tempBidAmount = bidsEntries[i].value;
             tempAskAmount = asksEntries[i].value;
-            total += tempAskAmount;
+            total += tempBidAmount + tempAskAmount;
           }
 
-          for (var i = 0; i < bidsEntries.length; i++) {
+          for (var i = 0; i < listLength; i++) {
             var tempBidAmount = 0.0;
+            var tempAskAmount = 0.0;
             tempBidAmount = bidsEntries[i].value;
+            tempAskAmount = asksEntries[i].value;
+
             bidSum += tempBidAmount;
-
-            totalBids.add(bidSum / total);
-          }
-          for (var i = 0; i < asksEntries.length; i++) {
-            var tempAskAmount = 0.0;
-            tempAskAmount = asksEntries[i].value;
             askSum += tempAskAmount;
 
             totalAsks.add(askSum / total);
+            totalBids.add(bidSum / total);
           }
+
+          print(
+              "${bidsEntries.length} | ${asksEntries.length}\t${totalBids.length} | ${totalAsks.length}\t$total");
         });
       }
     });
@@ -356,7 +313,7 @@ class _ProductViewState extends State<ProductView> {
       body: Column(
         children: [
           Container(
-            height: 450,
+            height: 350,
             color: Colors.white,
             width: MediaQuery.of(context).size.width,
             child: StreamBuilder(
@@ -440,9 +397,9 @@ class _ProductViewState extends State<ProductView> {
                                   ],
                                 ),
                                 Container(
-                                  height: 160,
+                                  height: 270,
                                   child: ListView.builder(
-                                      itemCount: 50,
+                                      itemCount: listLength,
                                       itemBuilder: (context, index) {
                                         double containerW =
                                             MediaQuery.of(context).size.width /
@@ -607,7 +564,7 @@ class _ProductViewState extends State<ProductView> {
                                         child: Center(child: Text("Time"))),
                                   ]),
                               Container(
-                                height: 160,
+                                height: 270,
                                 child: ListView.builder(
                                     itemCount: lastTrades.length,
                                     shrinkWrap: true,

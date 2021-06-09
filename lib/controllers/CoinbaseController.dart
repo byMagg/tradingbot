@@ -43,13 +43,15 @@ class CoinbaseController {
     Map<double, double> resultAsks = {};
 
     bids.forEach((element) {
-      resultBids[double.parse(double.parse(element[0]).toStringAsFixed(1))] =
-          double.parse(element[1]);
+      // resultBids[double.parse(double.parse(element[0]).toStringAsFixed(1))] =
+      //     double.parse(element[1]);
+      resultBids[double.parse(element[0])] = double.parse(element[1]);
     });
 
     asks.forEach((element) {
-      resultAsks[double.parse(double.parse(element[0]).toStringAsFixed(1))] =
-          double.parse(element[1]);
+      // resultAsks[double.parse(double.parse(element[0]).toStringAsFixed(1))] =
+      //     double.parse(element[1]);
+      resultAsks[double.parse(element[0])] = double.parse(element[1]);
     });
 
     return Pair(resultBids, resultAsks);
