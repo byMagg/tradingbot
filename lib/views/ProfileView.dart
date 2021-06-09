@@ -100,7 +100,7 @@ class ProfileView extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                    "${actualWallet.value.toStringAsFixed(7)}"),
+                                    "${actualWallet.amount.toStringAsFixed(7)}"),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8.0),
