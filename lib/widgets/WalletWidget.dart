@@ -46,7 +46,7 @@ class WalletWidgetState extends State<WalletWidget> {
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => CurrencyView(
-                              symbol: currency,
+                              wallet: it[index],
                             )));
                   },
                   child: Container(

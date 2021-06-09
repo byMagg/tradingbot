@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
 import 'package:tradingbot/models/Order.dart';
+import 'package:tradingbot/models/Wallet.dart';
 import 'package:tradingbot/streams/OrdersStream.dart';
 import 'package:tradingbot/widgets/OperationsWidget.dart';
 import 'package:tradingbot/widgets/SimpleTimeSeriesChart.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
 class CurrencyView extends StatefulWidget {
-  final String symbol;
+  final Wallet wallet;
 
   CurrencyView({
     Key key,
-    @required this.symbol,
+    @required this.wallet,
   }) : super(key: key);
 
   @override
@@ -46,7 +47,7 @@ class _CurrencyViewState extends State<CurrencyView> {
                 if (snapshot.hasData) {
                   List<Order> specificOrders =
                       CoinbaseController.getSpecificOrders(
-                          widget.symbol, snapshot.data);
+                          widget.wallet.currency, snapshot.data);
 
                   return OperationsWidget(
                     everything: true,
@@ -86,11 +87,11 @@ class _CurrencyViewState extends State<CurrencyView> {
               height: 25,
               child: Image(
                 image: AssetImage(
-                    'lib/assets/currencies/color/${widget.symbol.toLowerCase()}.png'),
+                    'lib/assets/currencies/color/${widget.wallet.currency.toLowerCase()}.png'),
               ),
             ),
             SizedBox(width: 10),
-            Text(widget.symbol)
+            Text(widget.wallet.currency)
           ],
         ),
       ),
@@ -99,8 +100,8 @@ class _CurrencyViewState extends State<CurrencyView> {
           Container(
             height: 270,
             child: FutureBuilder(
-                future: CoinbaseController.getHistoricCurrency(
-                    "f6f21298-0b69-4a59-97d5-ea4cd12a3722"),
+                future:
+                    CoinbaseController.getHistoricCurrency(widget.wallet.id),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     List<charts.Series<HistoricCurrency, DateTime>>

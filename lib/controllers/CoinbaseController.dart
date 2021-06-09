@@ -132,7 +132,8 @@ class CoinbaseController {
       var price = (await _fetchPriceOfCurrency(currency))['data']['amount'];
       double priceUSD = double.parse(price);
       double value = priceUSD * amount;
-      var tempWallet = new Wallet(currency, name, amount, value, priceUSD);
+      String id = wallet['id'];
+      var tempWallet = new Wallet(id, currency, name, amount, value, priceUSD);
       await tempWallet.getImagePalette();
       wallets.add(tempWallet);
 

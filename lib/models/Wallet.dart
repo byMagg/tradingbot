@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:palette_generator/palette_generator.dart';
 
 class Wallet extends Comparable {
+  String id;
   String currency;
   String name;
   double amount;
@@ -11,8 +12,9 @@ class Wallet extends Comparable {
   double priceUSD;
   Color color;
 
-  Wallet(String currency, String name, double amount, double value,
+  Wallet(String id, String currency, String name, double amount, double value,
       double priceUSD) {
+    this.id = id;
     this.currency = currency;
     this.name = name;
     this.amount = amount;
