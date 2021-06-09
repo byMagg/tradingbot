@@ -231,9 +231,6 @@ class _ProductViewState extends State<ProductView> {
             totalAsks.add(askSum / total);
             totalBids.add(bidSum / total);
           }
-
-          print(
-              "${bidsEntries.length} | ${asksEntries.length}\t${totalBids.length} | ${totalAsks.length}\t$total");
         });
       }
     });
@@ -397,7 +394,9 @@ class _ProductViewState extends State<ProductView> {
                                   ],
                                 ),
                                 Container(
-                                  height: 270,
+                                  height:
+                                      MediaQuery.of(context).size.height / 2 -
+                                          100,
                                   child: ListView.builder(
                                       itemCount: listLength,
                                       itemBuilder: (context, index) {
@@ -564,7 +563,8 @@ class _ProductViewState extends State<ProductView> {
                                         child: Center(child: Text("Time"))),
                                   ]),
                               Container(
-                                height: 270,
+                                height: MediaQuery.of(context).size.height / 2 -
+                                    100,
                                 child: ListView.builder(
                                     itemCount: lastTrades.length,
                                     shrinkWrap: true,
