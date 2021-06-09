@@ -163,15 +163,15 @@ class CoinbaseController {
 
     List<HistoricCurrency> result = [];
     for (var temp in test) {
-      // HistoricCurrency rightBefore = HistoricCurrency(
-      //     DateTime.parse(temp['created_at']).subtract(Duration(seconds: 1)),
-      //     result.isEmpty ? 0 : result.last.balance,
-      //     null);
+      HistoricCurrency rightBefore = HistoricCurrency(
+          DateTime.parse(temp['created_at']).subtract(Duration(hours: 1)),
+          result.isEmpty ? 0 : result.last.balance,
+          null);
       HistoricCurrency actual = HistoricCurrency(
           DateTime.parse(temp['created_at']),
           double.parse(temp['balance']),
           null);
-      // result.add(rightBefore);
+      result.add(rightBefore);
       result.add(actual);
     }
     result.sort((a, b) => a.time.compareTo(b.time));

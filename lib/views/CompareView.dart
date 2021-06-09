@@ -202,6 +202,7 @@ class _CompareViewState extends State<CompareView> {
                         return SimpleTimeSeriesChart(
                           _createData(),
                           lines: true,
+                          legend: true,
                         );
                       }
                     }

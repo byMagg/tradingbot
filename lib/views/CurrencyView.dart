@@ -122,6 +122,7 @@ class _CurrencyViewState extends State<CurrencyView> {
                     return SimpleTimeSeriesChart(
                       _createData(),
                       lines: true,
+                      legend: true,
                     );
                   }
                   return LinearProgressIndicator();

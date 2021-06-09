@@ -16,8 +16,10 @@ class SimpleTimeSeriesChart extends StatelessWidget {
   final List<charts.Series> seriesList;
   final bool animate;
   final bool lines;
+  bool legend = true;
 
-  SimpleTimeSeriesChart(this.seriesList, {this.animate, this.lines});
+  SimpleTimeSeriesChart(this.seriesList,
+      {this.animate, this.lines, this.legend});
 
   factory SimpleTimeSeriesChart.withSampleData(bool lines) {
     return new SimpleTimeSeriesChart(
@@ -43,27 +45,28 @@ class SimpleTimeSeriesChart extends StatelessWidget {
     getMinMax();
 
     if (lines) {
-      return new charts.TimeSeriesChart(
-        seriesList,
-        animate: animate,
-        dateTimeFactory: const charts.LocalDateTimeFactory(),
-        behaviors: [new charts.SeriesLegend(), new charts.PanAndZoomBehavior()],
-
-        // behaviors: [
-        //   LinePointHighlighter(
-        //       symbolRenderer:
-        //           CustomCircleSymbolRenderer() // add this line in behaviours
-        //       )
-        // ],
-        // selectionModels: [
-        //   SelectionModelConfig(changedListener: (SelectionModel model) {
-        //     if (model.hasDatumSelection) {
-        //       CustomCircleSymbolRenderer.list =
-        //           model.selectedDatum; // paints the tapped value
-        //     }
-        //   })
-        // ],
-      );
+      if (legend) {
+        return new charts.TimeSeriesChart(
+          seriesList,
+          animate: animate,
+          dateTimeFactory: const charts.LocalDateTimeFactory(),
+          behaviors: [
+            new charts.SeriesLegend(),
+            // new charts.DatumLegend(),
+            new charts.PanAndZoomBehavior(),
+          ],
+        );
+      } else {
+        return new charts.TimeSeriesChart(
+          seriesList,
+          animate: animate,
+          dateTimeFactory: const charts.LocalDateTimeFactory(),
+          behaviors: [
+            // new charts.DatumLegend(),
+            new charts.PanAndZoomBehavior()
+          ],
+        );
+      }
     } else {
       return new charts.TimeSeriesChart(
         seriesList,
