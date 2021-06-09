@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
@@ -10,9 +11,12 @@ import 'package:k_chart/k_chart_widget.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:tradingbot/controllers/CoinbaseController.dart';
+import 'package:tradingbot/models/Balance.dart';
 import 'package:tradingbot/models/Order.dart';
 import 'package:tradingbot/models/Product.dart';
 import 'package:tradingbot/models/Pair.dart';
+import 'package:tradingbot/models/Wallet.dart';
+import 'package:tradingbot/streams/BalanceStream.dart';
 
 import 'package:web_socket_channel/io.dart';
 
@@ -51,6 +55,8 @@ class _ProductViewState extends State<ProductView> {
   bool gains = false;
   double lastValue = 0;
 
+  bool init = false;
+
   int listLength = 0;
 
   initOrderBook() async {
@@ -75,6 +81,12 @@ class _ProductViewState extends State<ProductView> {
     if (widget.product.candles == null) return;
     DataUtil.calculate(widget.product.candles);
     streamController.sink.add(widget.product.candles);
+    if (!init) {
+      double number = widget.product.candles.last.close;
+
+      txt.text = number.toStringAsFixed(2);
+      init = true;
+    }
   }
 
   setGranularity() {
@@ -167,7 +179,7 @@ class _ProductViewState extends State<ProductView> {
         lastTrades.addFirst(Order(widget.product.id, lastValue,
             widget.product.candles.last.vol, DateTime.now(), gains));
 
-        if (lastTrades.length > 30) lastTrades.removeLast();
+        if (lastTrades.length > 15) lastTrades.removeLast();
       } else if (msg['changes'] != null) {
         if (!mounted) return;
         setState(() {
@@ -197,10 +209,10 @@ class _ProductViewState extends State<ProductView> {
           asksEntries = asks.entries.toList();
           bidsEntries.sort((a, b) => -a.key.compareTo(b.key));
           asksEntries.sort((a, b) => a.key.compareTo(b.key));
-          if (bidsEntries.length > 50)
-            bidsEntries = bidsEntries.getRange(0, 50).toList();
-          if (asksEntries.length > 50)
-            asksEntries = asksEntries.getRange(0, 50).toList();
+          if (bidsEntries.length > 15)
+            bidsEntries = bidsEntries.getRange(0, 15).toList();
+          if (asksEntries.length > 15)
+            asksEntries = asksEntries.getRange(0, 15).toList();
 
           double total = 0;
           double bidSum = 0;
@@ -240,12 +252,19 @@ class _ProductViewState extends State<ProductView> {
 
   String _chosenValue = "1m";
 
+  int counter = 0;
+
+  // List<bool> _selections = List.generate(2, (index) => false);
+  List<bool> _selections = [true, false];
+
+  TextEditingController txt = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final controller = PageController();
 
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0,
         leading: IconButton(
@@ -307,42 +326,44 @@ class _ProductViewState extends State<ProductView> {
               })
         ],
       ),
-      body: Column(
-        children: [
-          Container(
-            height: 350,
-            color: Colors.white,
-            width: MediaQuery.of(context).size.width,
-            child: StreamBuilder(
-              stream: streamController.stream,
-              builder: (context, AsyncSnapshot<List<KLineEntity>> snapshot) {
-                if (snapshot.hasData) {
-                  return KChartWidget(
-                    snapshot.data,
-                    onLoadMore: (bool a) {},
-                    fixedLength: 2,
-                    maDayList: [5, 10, 20],
-                    // isLine: true,
-                    mainState: MainState.MA,
-                    secondaryState: SecondaryState.NONE,
-                    isOnDrag: (isDrag) {},
-                    timeFormat: TimeFormat.YEAR_MONTH_DAY_WITH_HOUR,
-                    volHidden: true,
-                    isChinese: false,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              height: 350,
+              color: Colors.white,
+              width: MediaQuery.of(context).size.width,
+              child: StreamBuilder(
+                stream: streamController.stream,
+                builder: (context, AsyncSnapshot<List<KLineEntity>> snapshot) {
+                  if (snapshot.hasData) {
+                    return KChartWidget(
+                      snapshot.data,
+                      onLoadMore: (bool a) {},
+                      fixedLength: 2,
+                      maDayList: [5, 10, 20],
+                      // isLine: true,
+                      mainState: MainState.MA,
+                      secondaryState: SecondaryState.NONE,
+                      isOnDrag: (isDrag) {},
+                      timeFormat: TimeFormat.YEAR_MONTH_DAY_WITH_HOUR,
+                      volHidden: true,
+                      isChinese: false,
 
-                    bgColor: [
-                      Color.fromRGBO(255, 255, 255, 1),
-                      Color.fromRGBO(255, 255, 255, 1),
-                      Color.fromRGBO(255, 255, 255, 1),
-                    ],
-                  );
-                }
-                return Center(child: CircularProgressIndicator());
-              },
+                      bgColor: [
+                        Color.fromRGBO(255, 255, 255, 1),
+                        Color.fromRGBO(255, 255, 255, 1),
+                        Color.fromRGBO(255, 255, 255, 1),
+                      ],
+                    );
+                  }
+                  return Center(child: CircularProgressIndicator());
+                },
+              ),
             ),
-          ),
-          Expanded(
-            child: Container(
+            Container(
+              height: MediaQuery.of(context).size.height / 2 -
+                  MediaQuery.of(context).size.height * 0.13,
               color: Colors.white,
               child: Stack(
                 children: [
@@ -394,11 +415,13 @@ class _ProductViewState extends State<ProductView> {
                                   ],
                                 ),
                                 Container(
-                                  height:
-                                      MediaQuery.of(context).size.height / 2 -
-                                          100,
+                                  // height: MediaQuery.of(context).size.height /
+                                  //         2 -
+                                  //     MediaQuery.of(context).size.height * 0.2,
                                   child: ListView.builder(
                                       itemCount: listLength,
+                                      shrinkWrap: true,
+                                      physics: NeverScrollableScrollPhysics(),
                                       itemBuilder: (context, index) {
                                         double containerW =
                                             MediaQuery.of(context).size.width /
@@ -563,11 +586,12 @@ class _ProductViewState extends State<ProductView> {
                                         child: Center(child: Text("Time"))),
                                   ]),
                               Container(
-                                height: MediaQuery.of(context).size.height / 2 -
-                                    100,
+                                // height: MediaQuery.of(context).size.height / 2 -
+                                //     MediaQuery.of(context).size.height * 0.2,
                                 child: ListView.builder(
                                     itemCount: lastTrades.length,
                                     shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
                                     itemBuilder: (context, index) {
                                       var element = lastTrades.elementAt(index);
 
@@ -678,8 +702,212 @@ class _ProductViewState extends State<ProductView> {
                 ],
               ),
             ),
-          )
-        ],
+            Container(
+              height: MediaQuery.of(context).size.height / 2,
+              child: Column(
+                children: [
+                  Expanded(
+                      child: Column(
+                    children: [
+                      StreamBuilder<Balance>(
+                          stream: balanceStream.stream,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              List splittedData = widget.product.id.split("-");
+                              Wallet base = snapshot.data.wallets.firstWhere(
+                                  (element) =>
+                                      element.currency == splittedData[0]);
+                              Wallet quote = snapshot.data.wallets.firstWhere(
+                                  (element) =>
+                                      element.currency == splittedData[1]);
+                              Widget result;
+
+                              if (_selections[0]) {
+                                result = Container(
+                                  width: 150,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("${base.currency}"),
+                                      Text("${base.amount.toStringAsFixed(4)}"),
+                                    ],
+                                  ),
+                                );
+                              } else {
+                                if (!init) {
+                                  txt.text = quote.amount.toStringAsFixed(4);
+                                  init = true;
+                                }
+                                result = Container(
+                                  width: 150,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("${quote.currency}"),
+                                      Text(
+                                          "${quote.amount.toStringAsFixed(4)}"),
+                                    ],
+                                  ),
+                                );
+                              }
+
+                              return Column(
+                                children: [
+                                  Container(
+                                      height: 30,
+                                      color: Colors.white,
+                                      child: ToggleButtons(
+                                        // fillColor: Colors.transparent,
+
+                                        children: [
+                                          Container(
+                                              height: 30,
+                                              width: 100,
+                                              color: _selections[0]
+                                                  ? Colors.green
+                                                  : Colors.white,
+                                              child: Center(
+                                                child: Text(
+                                                  "BUY",
+                                                  style: TextStyle(
+                                                      color: _selections[0]
+                                                          ? Colors.white
+                                                          : Theme.of(context)
+                                                              .primaryColor),
+                                                ),
+                                              )),
+                                          Container(
+                                              height: 30,
+                                              width: 100,
+                                              color: _selections[1]
+                                                  ? Colors.red
+                                                  : Colors.white,
+                                              child: Center(
+                                                child: Text(
+                                                  "SELL",
+                                                  style: TextStyle(
+                                                      color: _selections[1]
+                                                          ? Colors.white
+                                                          : Theme.of(context)
+                                                              .primaryColor),
+                                                ),
+                                              )),
+                                        ],
+                                        renderBorder: true,
+                                        isSelected: _selections,
+                                        onPressed: (int index) {
+                                          setState(() {
+                                            _selections[index] = true;
+                                            for (var i = 0;
+                                                i < _selections.length;
+                                                i++) {
+                                              if (i == index) continue;
+                                              _selections[i] =
+                                                  !_selections[index];
+                                            }
+                                          });
+                                        },
+                                      )),
+                                  result,
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      IconButton(
+                                        icon: Icon(
+                                          Icons.remove,
+                                          color: Theme.of(context).accentColor,
+                                        ),
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 4.0, horizontal: 18.0),
+                                        iconSize: 32.0,
+                                        color: Theme.of(context).primaryColor,
+                                        onPressed: () {
+                                          setState(() {
+                                            double value =
+                                                double.tryParse(txt.text);
+                                            if (value > 0) {
+                                              txt.text = (value - 1).toString();
+                                            }
+                                          });
+                                        },
+                                      ),
+                                      Container(
+                                        height: 20,
+                                        width: 200,
+                                        child: TextFormField(
+                                          keyboardType:
+                                              TextInputType.numberWithOptions(
+                                                  decimal: true),
+                                          // inputFormatters: <TextInputFormatter>[
+                                          //   FilteringTextInputFormatter
+                                          //       .digitsOnly
+                                          // ],
+                                          controller: txt,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(
+                                          Icons.add,
+                                          color: Theme.of(context).accentColor,
+                                        ),
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 4.0, horizontal: 18.0),
+                                        iconSize: 32.0,
+                                        color: Theme.of(context).primaryColor,
+                                        onPressed: () {
+                                          txt.text =
+                                              (double.tryParse(txt.text) + 1)
+                                                  .toString();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  MaterialButton(
+                                      child: Text("Place order"),
+                                      onPressed: () {
+                                        String side = "sell";
+                                        if (_selections[0]) side = "buy";
+                                        CoinbaseController.placeOrder(
+                                            0.01,
+                                            double.tryParse(
+                                                double.tryParse(txt.text)
+                                                    .toStringAsFixed(2)),
+                                            side,
+                                            widget.product.id);
+                                      }),
+                                  Container(
+                                    height: 200,
+                                    color: Colors.green,
+                                    child: FutureBuilder<List<Order>>(
+                                        future: CoinbaseController
+                                            .getSpecificOrdersReq(
+                                                widget.product.id, "open"),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasData) {
+                                            return ListView.builder(
+                                                itemCount: snapshot.data.length,
+                                                itemBuilder: (context, index) {
+                                                  return Text(
+                                                      "${snapshot.data[index].currency1}");
+                                                });
+                                          }
+                                          return CircularProgressIndicator();
+                                        }),
+                                  )
+                                ],
+                              );
+                            }
+                            return LinearProgressIndicator();
+                          }),
+                    ],
+                  )),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
       // ]),
     );

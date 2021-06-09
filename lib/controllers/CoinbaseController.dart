@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 import 'package:k_chart/entity/k_line_entity.dart';
 import 'package:tradingbot/models/Pair.dart';
@@ -64,6 +65,21 @@ class CoinbaseController {
 
     for (var order in orders) {
       if (order['done_reason'] == "canceled") continue;
+
+      result.add(Order.fromJson(order));
+    }
+
+    return result;
+  }
+
+  static Future<List<Order>> getSpecificOrdersReq(
+      String productId, String status) async {
+    var orders = await _fetchOrders(productId, status);
+
+    List<Order> result = [];
+
+    for (var order in orders) {
+      // if (order['done_reason'] == "canceled") continue;
 
       result.add(Order.fromJson(order));
     }
@@ -221,7 +237,7 @@ class CoinbaseController {
     return await RequestController.sendRequestNoAuth(options);
   }
 
-  static Future _fetchOrders() async {
+  static Future _fetchOrders([String productId, String status]) async {
     var end = new DateTime.now().toIso8601String();
     var start =
         new DateTime.now().subtract(Duration(days: 90)).toIso8601String();
@@ -230,6 +246,14 @@ class CoinbaseController {
       'endPoint': '/orders?status=done&start_date=$start&after=$end',
       'body': ''
     };
+    if (productId != null || status != null) {
+      options = {
+        'method': 'GET',
+        'endPoint':
+            '/orders?status=status&start_date=$start&after=$end&product_id=$productId',
+        'body': ''
+      };
+    }
     return await RequestController.sendRequestWithAuth(options);
   }
 
@@ -267,5 +291,21 @@ class CoinbaseController {
           after[i].value.toStringAsFixed(2)) return false;
     }
     return true;
+  }
+
+  static placeOrder(
+      double size, double price, String side, String productId) async {
+    var options = {
+      'method': 'POST',
+      'endPoint': '/orders',
+      'body': '${jsonEncode({
+        "size": "$size",
+        "price": "$price",
+        "side": "$side",
+        "product_id": "$productId"
+      })}'
+    };
+    var result = await RequestController.sendRequestWithAuth(options, true);
+    print(result);
   }
 }
