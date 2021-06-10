@@ -64,7 +64,8 @@ class CoinbaseController {
     List<Order> result = [];
 
     for (var order in orders) {
-      if (order['done_reason'] == "canceled") continue;
+      // if (order['done_reason'] == "canceled") continue;
+      // if (order['type'] == "market") continue;
 
       result.add(Order.fromJson(order));
     }
@@ -237,22 +238,46 @@ class CoinbaseController {
     return await RequestController.sendRequestNoAuth(options);
   }
 
+  static Future cancelOrder(String productId, String orderId) async {
+    var options = {
+      'method': 'DELETE',
+      'endPoint': '/orders/$orderId?product_id$productId',
+      'body': ''
+    };
+    return await RequestController.sendRequestWithAuth(options, null, true);
+  }
+
   static Future _fetchOrders([String productId, String status]) async {
     var end = new DateTime.now().toIso8601String();
     var start =
         new DateTime.now().subtract(Duration(days: 90)).toIso8601String();
     var options = {
       'method': 'GET',
-      'endPoint': '/orders?status=done&start_date=$start&after=$end',
+      'endPoint': '/orders?status=all&start_date=$start&after=$end',
       'body': ''
     };
     if (productId != null || status != null) {
-      options = {
-        'method': 'GET',
-        'endPoint':
-            '/orders?status=status&start_date=$start&after=$end&product_id=$productId',
-        'body': ''
-      };
+      if (productId == null) {
+        options = {
+          'method': 'GET',
+          'endPoint': '/orders?status=$status&start_date=$start&after=$end',
+          'body': ''
+        };
+      } else if (status == null) {
+        options = {
+          'method': 'GET',
+          'endPoint':
+              '/orders?start_date=$start&after=$end&product_id=$productId',
+          'body': ''
+        };
+      } else {
+        options = {
+          'method': 'GET',
+          'endPoint':
+              '/orders?start_date=$start&after=$end&product_id=$productId&status=$status',
+          'body': ''
+        };
+      }
     }
     return await RequestController.sendRequestWithAuth(options);
   }

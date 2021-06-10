@@ -14,7 +14,7 @@ class RequestController {
     return base64.encode(signature.bytes);
   }
 
-  static sendRequestWithAuth(options, [bool postT]) async {
+  static sendRequestWithAuth(options, [bool postT, bool deleteReq]) async {
     var timestamp = await get('https://api.coinbase.com/v2/time')
         .then((res) => json.decode(res.body))
         .then((res) => res['data']['epoch']);
@@ -26,14 +26,15 @@ class RequestController {
     var url = Config.API_URL_SANDBOX + options['endPoint'];
     Response response;
     print(postT);
-    if (postT == null) {
+    print(deleteReq);
+    if (postT == null && deleteReq == null) {
       response = await get(url, headers: {
         'CB-ACCESS-KEY': Config.API_KEY,
         'CB-ACCESS-SIGN': signature,
         'CB-ACCESS-TIMESTAMP': timestamp.toString(),
         'CB-ACCESS-PASSPHRASE': Config.API_PASSPHRASE,
       });
-    } else {
+    } else if (postT != null) {
       response = await post(url,
           headers: {
             'CB-ACCESS-KEY': Config.API_KEY,
@@ -43,6 +44,16 @@ class RequestController {
             'Content-Type': 'application/json; charset=UTF-8'
           },
           body: options['body']);
+    } else if (deleteReq != null) {
+      response = await delete(
+        url,
+        headers: {
+          'CB-ACCESS-KEY': Config.API_KEY,
+          'CB-ACCESS-SIGN': signature,
+          'CB-ACCESS-TIMESTAMP': timestamp.toString(),
+          'CB-ACCESS-PASSPHRASE': Config.API_PASSPHRASE,
+        },
+      );
     }
 
     if (response != null && response.statusCode == 200) {

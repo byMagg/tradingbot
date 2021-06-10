@@ -1,25 +1,36 @@
 class Order extends Comparable {
   String productId;
-  double currency1;
-  double currency2;
+  String id;
+  double price;
+  double size;
   DateTime date;
-  bool buy; //TRUE = BUY
+  String side;
+  String type;
+  String status;
 
   Order(String productId, double currency1, double currency2, DateTime date,
-      bool buy) {
+      String side, String type, String status) {
     this.productId = productId;
-    this.currency1 = currency1;
-    this.currency2 = currency2;
+    this.price = price;
+    this.size = size;
     this.date = date;
-    this.buy = buy;
+    this.side = side;
+    this.type = type;
+    this.status = status;
   }
 
   Order.fromJson(Map<String, dynamic> json)
-      : productId = json['product_id'],
-        currency1 = double.parse(json['filled_size']),
-        currency2 = double.parse(json['executed_value']),
+      : id = json['id'],
+        productId = json['product_id'],
+        type = json['type'],
+        status = json['status'],
+        price = (json['status'] == "open")
+            ? double.parse(json['price'])
+            : (double.parse(json['executed_value']) /
+                double.parse(json['filled_size'])),
+        size = double.parse(json['filled_size']),
         date = DateTime.parse(json['created_at']),
-        buy = json['side'] == "buy" ? true : false;
+        side = json['side'];
 
   @override
   int compareTo(other) {

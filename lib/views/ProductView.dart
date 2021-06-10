@@ -17,6 +17,7 @@ import 'package:tradingbot/models/Product.dart';
 import 'package:tradingbot/models/Pair.dart';
 import 'package:tradingbot/models/Wallet.dart';
 import 'package:tradingbot/streams/BalanceStream.dart';
+import 'package:tradingbot/streams/OrdersStream.dart';
 
 import 'package:web_socket_channel/io.dart';
 
@@ -115,6 +116,8 @@ class _ProductViewState extends State<ProductView> {
   List totalBids = [];
   List totalAsks = [];
 
+  double amount = 0;
+
   @override
   void initState() {
     super.initState();
@@ -176,8 +179,14 @@ class _ProductViewState extends State<ProductView> {
           gains = false;
         }
         lastValue = widget.product.candles.last.close;
-        lastTrades.addFirst(Order(widget.product.id, lastValue,
-            widget.product.candles.last.vol, DateTime.now(), gains));
+        lastTrades.addFirst(Order(
+            widget.product.id,
+            lastValue,
+            widget.product.candles.last.vol,
+            DateTime.now(),
+            gains ? "buy" : "sell",
+            "market",
+            "closed"));
 
         if (lastTrades.length > 15) lastTrades.removeLast();
       } else if (msg['changes'] != null) {
@@ -603,7 +612,7 @@ class _ProductViewState extends State<ProductView> {
                                             width: 100,
                                             child: Center(
                                               child: Text(
-                                                "${element.currency2.toStringAsFixed(7)}",
+                                                "${element.size.toStringAsFixed(7)}",
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                 ),
@@ -614,10 +623,10 @@ class _ProductViewState extends State<ProductView> {
                                             width: 100,
                                             child: Center(
                                               child: Text(
-                                                "${element.currency1.toStringAsFixed(4)}",
+                                                "${element.price.toStringAsFixed(4)}",
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.bold,
-                                                    color: element.buy
+                                                    color: element.side == "BUY"
                                                         ? Colors.green
                                                         : Colors.red),
                                               ),
@@ -864,37 +873,158 @@ class _ProductViewState extends State<ProductView> {
                                       ),
                                     ],
                                   ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0),
+                                        child:
+                                            Text("${(amount * 100).toInt()} %"),
+                                      ),
+                                      _selections[1] == true
+                                          ? Text(
+                                              "${(amount * base.amount).toStringAsFixed(4)} ${widget.product.id.split('-')[0]}")
+                                          : Text(
+                                              "${((amount * quote.amount) / double.parse(txt.text)).toStringAsFixed(4)} ${widget.product.id.split('-')[0]}"),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 20),
+                                        child: Text(
+                                            "${((amount * base.amount * double.parse(txt.text))).toStringAsFixed(4)} ${widget.product.id.split('-')[1]}"),
+                                      ),
+                                    ],
+                                  ),
+                                  Slider(
+                                    value: amount,
+                                    onChanged: (newAmount) {
+                                      setState(() {
+                                        amount = newAmount;
+                                      });
+                                    },
+                                    divisions: 4,
+                                  ),
                                   MaterialButton(
                                       child: Text("Place order"),
                                       onPressed: () {
                                         String side = "sell";
                                         if (_selections[0]) side = "buy";
                                         CoinbaseController.placeOrder(
-                                            0.01,
+                                            amount,
                                             double.tryParse(
                                                 double.tryParse(txt.text)
                                                     .toStringAsFixed(2)),
                                             side,
                                             widget.product.id);
                                       }),
-                                  Container(
-                                    height: 200,
-                                    color: Colors.green,
-                                    child: FutureBuilder<List<Order>>(
-                                        future: CoinbaseController
-                                            .getSpecificOrdersReq(
-                                                widget.product.id, "open"),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.hasData) {
-                                            return ListView.builder(
-                                                itemCount: snapshot.data.length,
-                                                itemBuilder: (context, index) {
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20),
+                                    child: Divider(
+                                      color: Theme.of(context).primaryColor,
+                                      thickness: 1,
+                                    ),
+                                  ),
+                                  Column(
+                                    children: [
+                                      Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8.0),
+                                            child: Text("Open Orders"),
+                                          )),
+                                      Container(
+                                        height: 160,
+                                        child: StreamBuilder<List<Order>>(
+                                            stream: ordersStream.stream,
+                                            // CoinbaseController
+                                            //     .getSpecificOrdersReq(
+                                            //         widget.product.id, "open"),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.hasData) {
+                                                List<Order> finalData =
+                                                    List.from(snapshot.data
+                                                        .where((element) =>
+                                                            element.productId ==
+                                                                widget.product
+                                                                    .id &&
+                                                            element.status ==
+                                                                "open")
+                                                        .toList());
+                                                if (finalData.length == 0)
                                                   return Text(
-                                                      "${snapshot.data[index].currency1}");
-                                                });
-                                          }
-                                          return CircularProgressIndicator();
-                                        }),
+                                                      "No open orders available");
+                                                return ListView.builder(
+                                                    itemCount: finalData.length,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      return ListTile(
+                                                        title: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Text(
+                                                                "${finalData[index].side.toUpperCase()}",
+                                                                style: TextStyle(
+                                                                    color: snapshot.data[index].side ==
+                                                                            "buy"
+                                                                        ? Colors
+                                                                            .green
+                                                                        : Colors
+                                                                            .red)),
+                                                            Row(
+                                                              children: [
+                                                                Padding(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      right:
+                                                                          8.0),
+                                                                  child: Text(
+                                                                      "Price"),
+                                                                ),
+                                                                Text(
+                                                                    "${finalData[index].price}"),
+                                                              ],
+                                                            ),
+                                                            Row(
+                                                              children: [
+                                                                Padding(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      right:
+                                                                          8.0),
+                                                                  child: Text(
+                                                                      "Size"),
+                                                                ),
+                                                                Text(
+                                                                    "${finalData[index].size}"),
+                                                              ],
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        trailing:
+                                                            MaterialButton(
+                                                                child: Text(
+                                                                    "Cancel"),
+                                                                onPressed: () {
+                                                                  CoinbaseController.cancelOrder(
+                                                                      finalData[
+                                                                              index]
+                                                                          .productId,
+                                                                      finalData[
+                                                                              index]
+                                                                          .id);
+                                                                }),
+                                                      );
+                                                    });
+                                              }
+                                              return Text(
+                                                  "No open orders available");
+                                            }),
+                                      ),
+                                    ],
                                   )
                                 ],
                               );

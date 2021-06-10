@@ -19,9 +19,8 @@ class OperationsWidget extends StatefulWidget {
   _OperationsWidgetState createState() => _OperationsWidgetState();
 
   getItemListTile(context, index, Order order) {
-    var currency1Number = NumberFormat.decimalPattern("eu")
-        .format(order.currency2 / order.currency1)
-        .toString();
+    var currency1Number =
+        NumberFormat.decimalPattern("eu").format(order.price).toString();
 
     var widget = Row(
       children: <Widget>[
@@ -31,7 +30,7 @@ class OperationsWidget extends StatefulWidget {
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: order.buy
+          child: order.side == "buy"
               ? Text(
                   "BUY",
                   style: TextStyle(
