@@ -8,8 +8,8 @@ class Order extends Comparable {
   String type;
   String status;
 
-  Order(String productId, double currency1, double currency2, DateTime date,
-      String side, String type, String status) {
+  Order(String productId, double price, double size, DateTime date, String side,
+      String type, String status) {
     this.productId = productId;
     this.price = price;
     this.size = size;

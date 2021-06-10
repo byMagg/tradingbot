@@ -77,7 +77,7 @@ class _HomeViewState extends State<HomeView> {
   void initState() {
     super.initState();
 
-    Timer.periodic(Duration(seconds: 30), (Timer t) async {
+    Timer.periodic(Duration(seconds: 10), (Timer t) async {
       ordersStream.fetchData();
     });
 

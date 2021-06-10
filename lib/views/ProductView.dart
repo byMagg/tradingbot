@@ -187,7 +187,6 @@ class _ProductViewState extends State<ProductView> {
             gains ? "buy" : "sell",
             "market",
             "closed"));
-
         if (lastTrades.length > 15) lastTrades.removeLast();
       } else if (msg['changes'] != null) {
         if (!mounted) return;
@@ -374,342 +373,357 @@ class _ProductViewState extends State<ProductView> {
               height: MediaQuery.of(context).size.height / 2 -
                   MediaQuery.of(context).size.height * 0.13,
               color: Colors.white,
-              child: Stack(
-                children: [
-                  PageView(
-                    controller: controller,
-                    children: <Widget>[
-                      Column(
-                        children: [
-                          Text(
-                            "Order Book",
-                            style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          Container(
-                            // height: 100,
-                            child: Column(
+              child: (!init)
+                  ? Center(child: CircularProgressIndicator())
+                  : Stack(
+                      children: [
+                        PageView(
+                          controller: controller,
+                          children: <Widget>[
+                            Column(
                               children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      width: MediaQuery.of(context).size.width /
-                                              2 -
-                                          10,
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text("Market Size"),
-                                          Text("Price"),
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      width: MediaQuery.of(context).size.width /
-                                              2 -
-                                          10,
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text("Price"),
-                                          Text("Market Size"),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
+                                Text(
+                                  "Order Book",
+                                  style: TextStyle(
+                                      color: Theme.of(context).primaryColor,
+                                      fontWeight: FontWeight.bold),
                                 ),
                                 Container(
-                                  // height: MediaQuery.of(context).size.height /
-                                  //         2 -
-                                  //     MediaQuery.of(context).size.height * 0.2,
-                                  child: ListView.builder(
-                                      itemCount: listLength,
-                                      shrinkWrap: true,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      itemBuilder: (context, index) {
-                                        double containerW =
-                                            MediaQuery.of(context).size.width /
-                                                2;
+                                  // height: 100,
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                            width: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    2 -
+                                                10,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text("Market Size"),
+                                                Text("Price"),
+                                              ],
+                                            ),
+                                          ),
+                                          Container(
+                                            width: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    2 -
+                                                10,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text("Price"),
+                                                Text("Market Size"),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Container(
+                                        // height: MediaQuery.of(context).size.height /
+                                        //         2 -
+                                        //     MediaQuery.of(context).size.height * 0.2,
+                                        child: ListView.builder(
+                                            itemCount: listLength,
+                                            shrinkWrap: true,
+                                            physics:
+                                                NeverScrollableScrollPhysics(),
+                                            itemBuilder: (context, index) {
+                                              double containerW =
+                                                  MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      2;
 
-                                        return Column(
-                                          children: [
-                                            Row(
+                                              return Column(
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Container(
+                                                        width: containerW,
+                                                        child: index >
+                                                                bids.length - 1
+                                                            ? Container()
+                                                            : Stack(
+                                                                children: [
+                                                                  Align(
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .centerRight,
+                                                                    child:
+                                                                        Container(
+                                                                      height:
+                                                                          15,
+                                                                      color: Colors
+                                                                          .green
+                                                                          .shade300,
+                                                                      child:
+                                                                          FractionallySizedBox(
+                                                                        widthFactor:
+                                                                            totalBids[index],
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .spaceBetween,
+                                                                    children: [
+                                                                      Text(
+                                                                        "${bidsEntries[index].value.toStringAsFixed(4)}",
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                        ),
+                                                                      ),
+                                                                      Padding(
+                                                                        padding:
+                                                                            const EdgeInsets.symmetric(horizontal: 5),
+                                                                        child:
+                                                                            Text(
+                                                                          "${bidsEntries[index].key.toStringAsFixed(5)}",
+                                                                          style: TextStyle(
+                                                                              fontWeight: FontWeight.bold,
+                                                                              color: Colors.green.shade900),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                      ),
+                                                      Container(
+                                                        width: containerW,
+                                                        child: index >
+                                                                asks.length - 1
+                                                            ? Container()
+                                                            : Stack(
+                                                                children: [
+                                                                  Align(
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .centerLeft,
+                                                                    child:
+                                                                        Container(
+                                                                      height:
+                                                                          15,
+                                                                      color: Colors
+                                                                          .red
+                                                                          .shade300,
+                                                                      child:
+                                                                          FractionallySizedBox(
+                                                                        widthFactor:
+                                                                            totalAsks[index],
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .spaceBetween,
+                                                                    children: [
+                                                                      Padding(
+                                                                        padding:
+                                                                            const EdgeInsets.symmetric(horizontal: 5),
+                                                                        child:
+                                                                            Text(
+                                                                          "${asksEntries[index].key.toStringAsFixed(5)}",
+                                                                          style: TextStyle(
+                                                                              fontWeight: FontWeight.bold,
+                                                                              color: Colors.red.shade900),
+                                                                        ),
+                                                                      ),
+                                                                      Text(
+                                                                        "${asksEntries[index].value.toStringAsFixed(4)}",
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              );
+                                            }),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Trade History",
+                                  style: TextStyle(
+                                      color: Theme.of(context).primaryColor,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Column(
+                                  children: [
+                                    Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                              width: 100,
+                                              child: Center(
+                                                  child: Text("Trade Size"))),
+                                          Container(
+                                              width: 100,
+                                              child:
+                                                  Center(child: Text("Price"))),
+                                          Container(
+                                              width: 100,
+                                              child:
+                                                  Center(child: Text("Time"))),
+                                        ]),
+                                    Container(
+                                      // height: MediaQuery.of(context).size.height / 2 -
+                                      //     MediaQuery.of(context).size.height * 0.2,
+                                      child: ListView.builder(
+                                          itemCount: lastTrades.length,
+                                          shrinkWrap: true,
+                                          physics:
+                                              NeverScrollableScrollPhysics(),
+                                          itemBuilder: (context, index) {
+                                            var element =
+                                                lastTrades.elementAt(index);
+
+                                            return Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment
                                                       .spaceBetween,
                                               children: [
                                                 Container(
-                                                  width: containerW,
-                                                  child: index > bids.length - 1
-                                                      ? Container()
-                                                      : Stack(
-                                                          children: [
-                                                            Align(
-                                                              alignment: Alignment
-                                                                  .centerRight,
-                                                              child: Container(
-                                                                height: 15,
-                                                                color: Colors
-                                                                    .green
-                                                                    .shade300,
-                                                                child:
-                                                                    FractionallySizedBox(
-                                                                  widthFactor:
-                                                                      totalBids[
-                                                                          index],
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .spaceBetween,
-                                                              children: [
-                                                                Text(
-                                                                  "${bidsEntries[index].value.toStringAsFixed(4)}",
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                  ),
-                                                                ),
-                                                                Padding(
-                                                                  padding: const EdgeInsets
-                                                                          .symmetric(
-                                                                      horizontal:
-                                                                          5),
-                                                                  child: Text(
-                                                                    "${bidsEntries[index].key.toStringAsFixed(5)}",
-                                                                    style: TextStyle(
-                                                                        fontWeight:
-                                                                            FontWeight
-                                                                                .bold,
-                                                                        color: Colors
-                                                                            .green
-                                                                            .shade900),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ],
-                                                        ),
+                                                  width: 100,
+                                                  child: Center(
+                                                    child: Text(
+                                                      "${element.size.toStringAsFixed(7)}",
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ),
                                                 ),
                                                 Container(
-                                                  width: containerW,
-                                                  child: index > asks.length - 1
-                                                      ? Container()
-                                                      : Stack(
-                                                          children: [
-                                                            Align(
-                                                              alignment: Alignment
-                                                                  .centerLeft,
-                                                              child: Container(
-                                                                height: 15,
-                                                                color: Colors
-                                                                    .red
-                                                                    .shade300,
-                                                                child:
-                                                                    FractionallySizedBox(
-                                                                  widthFactor:
-                                                                      totalAsks[
-                                                                          index],
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .spaceBetween,
-                                                              children: [
-                                                                Padding(
-                                                                  padding: const EdgeInsets
-                                                                          .symmetric(
-                                                                      horizontal:
-                                                                          5),
-                                                                  child: Text(
-                                                                    "${asksEntries[index].key.toStringAsFixed(5)}",
-                                                                    style: TextStyle(
-                                                                        fontWeight:
-                                                                            FontWeight
-                                                                                .bold,
-                                                                        color: Colors
-                                                                            .red
-                                                                            .shade900),
-                                                                  ),
-                                                                ),
-                                                                Text(
-                                                                  "${asksEntries[index].value.toStringAsFixed(4)}",
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ],
-                                                        ),
+                                                  width: 100,
+                                                  child: Center(
+                                                    child: Text(
+                                                      "${element.price.toStringAsFixed(4)}",
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: element.side ==
+                                                                  "BUY"
+                                                              ? Colors.green
+                                                              : Colors.red),
+                                                    ),
+                                                  ),
+                                                ),
+                                                Container(
+                                                  width: 100,
+                                                  child: Center(
+                                                    child: Text(
+                                                      "${DateFormat.Hms().format(element.date)}",
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ),
                                                 ),
                                               ],
-                                            ),
-                                          ],
-                                        );
-                                      }),
+                                            );
+                                          }),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                          )
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Trade History",
-                            style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          Column(
-                            children: [
-                              Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                        width: 100,
-                                        child:
-                                            Center(child: Text("Trade Size"))),
-                                    Container(
-                                        width: 100,
-                                        child: Center(child: Text("Price"))),
-                                    Container(
-                                        width: 100,
-                                        child: Center(child: Text("Time"))),
-                                  ]),
-                              Container(
-                                // height: MediaQuery.of(context).size.height / 2 -
-                                //     MediaQuery.of(context).size.height * 0.2,
-                                child: ListView.builder(
-                                    itemCount: lastTrades.length,
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    itemBuilder: (context, index) {
-                                      var element = lastTrades.elementAt(index);
-
-                                      return Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Container(
-                                            width: 100,
-                                            child: Center(
-                                              child: Text(
-                                                "${element.size.toStringAsFixed(7)}",
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                            width: 100,
-                                            child: Center(
-                                              child: Text(
-                                                "${element.price.toStringAsFixed(4)}",
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: element.side == "BUY"
-                                                        ? Colors.green
-                                                        : Colors.red),
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                            width: 100,
-                                            child: Center(
-                                              child: Text(
-                                                "${DateFormat.Hms().format(element.date)}",
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    }),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 5),
-                      child: SmoothPageIndicator(
-                        controller: controller,
-                        count: 2,
-                        effect: ExpandingDotsEffect(
-                            dotHeight: 5,
-                            dotWidth: 15,
-                            expansionFactor: 3,
-                            activeDotColor: Theme.of(context).primaryColor),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    height: 15,
-                    alignment: Alignment.centerLeft,
-                    width: 80,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: DropdownButton<String>(
-                        value: _chosenValue,
-                        //elevation: 5,
-                        style: TextStyle(color: Colors.black),
-
-                        items: <String>[
-                          '1m',
-                          '5m',
-                          '15m',
-                          '1H',
-                          '6H',
-                          '1D',
-                        ].map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        hint: Text(
-                          "1m",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600),
+                          ],
                         ),
-                        onChanged: (String value) {
-                          initCandles(this.period, value);
-                          setState(() {
-                            _chosenValue = value;
-                          });
-                        },
-                      ),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 5),
+                            child: SmoothPageIndicator(
+                              controller: controller,
+                              count: 2,
+                              effect: ExpandingDotsEffect(
+                                  dotHeight: 5,
+                                  dotWidth: 15,
+                                  expansionFactor: 3,
+                                  activeDotColor:
+                                      Theme.of(context).primaryColor),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          height: 15,
+                          alignment: Alignment.centerLeft,
+                          width: 80,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: DropdownButton<String>(
+                              value: _chosenValue,
+                              //elevation: 5,
+                              style: TextStyle(color: Colors.black),
+
+                              items: <String>[
+                                '1m',
+                                '5m',
+                                '15m',
+                                '1H',
+                                '6H',
+                                '1D',
+                              ].map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                              hint: Text(
+                                "1m",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                              onChanged: (String value) {
+                                initCandles(this.period, value);
+                                setState(() {
+                                  _chosenValue = value;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
             ),
             Container(
               height: MediaQuery.of(context).size.height / 2,
@@ -721,6 +735,7 @@ class _ProductViewState extends State<ProductView> {
                       StreamBuilder<Balance>(
                           stream: balanceStream.stream,
                           builder: (context, snapshot) {
+                            if (!init) return LinearProgressIndicator();
                             if (snapshot.hasData) {
                               List splittedData = widget.product.id.split("-");
                               Wallet base = snapshot.data.wallets.firstWhere(
@@ -886,12 +901,12 @@ class _ProductViewState extends State<ProductView> {
                                           ? Text(
                                               "${(amount * base.amount).toStringAsFixed(4)} ${widget.product.id.split('-')[0]}")
                                           : Text(
-                                              "${((amount * quote.amount) / double.parse(txt.text)).toStringAsFixed(4)} ${widget.product.id.split('-')[0]}"),
+                                              "${((amount * quote.amount) / double.tryParse(txt.text)).toStringAsFixed(4)} ${widget.product.id.split('-')[0]}"),
                                       Padding(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 20),
                                         child: Text(
-                                            "${((amount * base.amount * double.parse(txt.text))).toStringAsFixed(4)} ${widget.product.id.split('-')[1]}"),
+                                            "${((amount * base.amount * double.tryParse(txt.text))).toStringAsFixed(4)} ${widget.product.id.split('-')[1]}"),
                                       ),
                                     ],
                                   ),
