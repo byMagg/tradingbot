@@ -1,5 +1,5 @@
 App móvil basada en Flutter haciendo uso de API Coinbase, estos datos en formato JSON se procesan y se
-adaptan a los distintos objetos en la aplicación según se van necesitando, para la actualizacion de
+adaptan a los distintos objetos en la aplicación según se van necesitando, para la actualización de
 la información se usan los llamados Streams, los cuales son unos "canales" por los que se transmiten
 los datos y estos se actualizaran repetidamente con un tiempo previamente establecido.
 En el caso de necesitar una actualización en tiempo real se hace uso de WebSockets permitiendo
